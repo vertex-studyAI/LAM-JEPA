@@ -1,0 +1,16 @@
+student_trace:
+  student_id: string
+  timestamp: datetime
+  concept_ids: [string]
+  correctness: bool
+  response_time_sec: float
+  hint_count: int
+  intervention_type: string
+  misconception_id: string
+  confidence: float
+  latent_state:
+    mastery: float
+    uncertainty: float
+    frustration: float
+    fatigue: float
+    retention_probability: float

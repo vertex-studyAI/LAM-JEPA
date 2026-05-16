@@ -1,0 +1,5 @@
+include: default.yaml
+ablation:
+  variants: [full, no_memory, no_planner, no_quant]
+  seeds: [3, 7, 11]
+  steps: 120

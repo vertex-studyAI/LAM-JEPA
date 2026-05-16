@@ -1,0 +1,152 @@
+#!pip install -q torch torchvision torchaudio
+#!pip install -q transformers datasets sentencepiece
+#!pip install -q scikit-learn pandas matplotlib umap-learn
+#!pip install -q pyyaml networkx tqdm
+
+REPO_URL = "add the url to whomever wants to run"
+
+#!git clone $REPO_URL
+#%cd YOUR_REPO
+
+import torch
+import json
+from pathlib import Path
+
+if torch.cuda.is_available():
+    device = torch.device("cuda")
+elif torch.backends.mps.is_available():
+    device = torch.device("mps")
+else:
+    device = torch.device("cpu")
+
+print(device)
+
+#!bash scripts/data/full_build_pipeline.sh
+
+gsm_path = Path("datasets/external/math/gsm8k/train.jsonl")
+
+print(gsm_path.exists())
+
+with open(gsm_path) as f:
+    first = json.loads(next(f))
+
+print(first.keys())
+print(first["question"][:200])
+
+from src.lam_jepa.models.lam_jepa import (
+    LAMJEPA,
+    LAMJEPAConfig,
+)
+
+cfg = LAMJEPAConfig(
+    vocab_size=512,
+    embed_dim=64,
+    hidden_dim=128,
+    proj_dim=64,
+    max_steps=4,
+    memory_size=128,
+)
+
+model = LAMJEPA(cfg).to(device)
+
+print(model.__class__.__name__)
+
+B = 4
+T = 32
+
+tokens = torch.randint(
+    0,
+    cfg.vocab_size,
+    (B, T),
+    device=device,
+)
+
+numeric_x = torch.randn(
+    B,
+    cfg.input_dim,
+    device=device,
+)
+
+out = model(
+    tokens,
+    numeric_x=numeric_x,
+    steps=3,
+)
+
+print(out.keys())
+print(out["z"].shape)
+print(len(out["traj"]))
+print(out["confidence"][:2])
+print(out["uncertainty"][:2])
+
+cf = model.imagine_counterfactuals(
+    tokens,
+    numeric_x=numeric_x,
+    steps=3,
+)
+
+print(cf["counterfactual_futures"].keys())
+
+optimizer = torch.optim.AdamW(
+    model.parameters(),
+    lr=1e-4,
+)
+
+target = torch.randint(
+    0,
+    cfg.vocab_size,
+    (B,),
+    device=device,
+)
+
+loss = torch.nn.functional.cross_entropy(
+    out["logits"],
+    target,
+)
+
+loss = loss + out["quant_loss"]
+
+optimizer.zero_grad()
+loss.backward()
+
+torch.nn.utils.clip_grad_norm_(
+    model.parameters(),
+    1.0,
+)
+
+optimizer.step()
+
+print(float(loss))
+
+import umap
+import matplotlib.pyplot as plt
+
+z = out["z"].detach().cpu().numpy()
+
+reducer = umap.UMAP(
+    n_components=2,
+    random_state=42,
+)
+
+z2 = reducer.fit_transform(z)
+
+plt.figure(figsize=(6, 6))
+plt.scatter(z2[:, 0], z2[:, 1])
+plt.title("LAM-JEPA Latent Space")
+plt.show()
+
+ckpt = {
+    "model": model.state_dict(),
+    "cfg": cfg,
+}
+
+torch.save(
+    ckpt,
+    "mini_lam_jepa_ckpt.pt",
+)
+
+print("saved")
+
+# !python scripts/train/train_single.py
+# !python scripts/eval/eval_all.py
+# !python scripts/bench/run_benchmarks.py

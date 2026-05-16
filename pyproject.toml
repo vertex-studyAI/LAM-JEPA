@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lam-jepa"
+version = "0.1.0"
+description = "Latent-Action JEPA for educational reasoning"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "torch>=2.2",
+  "numpy>=1.26",
+  "tqdm>=4.66",
+  "sympy>=1.12",
+  "scikit-learn>=1.4",
+  "matplotlib>=3.8",
+  "pandas>=2.2",
+]
+
+[project.scripts]
+lam-jepa = "lam_jepa.__main__:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

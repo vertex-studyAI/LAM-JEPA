@@ -1,0 +1,115 @@
+{
+  "seed": 3,
+  "smoke_run": true,
+  "checkpoint": "/mnt/data/LAM-JEPA_work/LAM-JEPA/experiments/seed_3/final.pt",
+  "history_tail": [
+    {
+      "step": 0,
+      "task": "parity",
+      "acc": 0.0,
+      "ce": 5.737098217010498,
+      "align": 1.7463696002960205,
+      "var": 0.26257362961769104,
+      "cov": 5.396424770355225,
+      "uni": -3.8938233852386475,
+      "geo": 5.208924770355225,
+      "conf": 0.32412922382354736,
+      "ver": 0.5204558372497559,
+      "traj": 0.0,
+      "rub": 12.858531951904297,
+      "quant": 1.532936930656433,
+      "total": 10.992276191711426
+    },
+    {
+      "step": 1,
+      "task": "parity",
+      "acc": 0.0,
+      "ce": 5.683788776397705,
+      "align": 1.850992202758789,
+      "var": 0.9899998903274536,
+      "cov": 0.0,
+      "uni": 0.0,
+      "geo": 4.470348358154297e-08,
+      "conf": 0.1253909170627594,
+      "ver": 0.488040030002594,
+      "traj": 0.0,
+      "rub": 14.274712562561035,
+      "quant": 13858.3662109375,
+      "total": 3475.17529296875
+    }
+  ],
+  "scores": {
+    "parity": {
+      "accuracy": 0.0,
+      "confidence": 0.2892252206802368,
+      "n": 4
+    },
+    "modadd": {
+      "accuracy": 0.0,
+      "confidence": 0.2892252206802368,
+      "n": 4
+    },
+    "algebra": {
+      "accuracy": 0.0,
+      "confidence": 0.2892252504825592,
+      "n": 4
+    },
+    "chain": {
+      "accuracy": 0.0,
+      "confidence": 0.2892252504825592,
+      "n": 4
+    },
+    "gsm8k": {
+      "accuracy": 0.0,
+      "confidence": 0.2892252206802368,
+      "n": 4
+    },
+    "equation": {
+      "accuracy": 0.0,
+      "confidence": 0.28922519087791443,
+      "n": 4
+    },
+    "science": {
+      "accuracy": 0.0,
+      "confidence": 0.2892252504825592,
+      "n": 4
+    },
+    "reading": {
+      "accuracy": 0.0,
+      "confidence": 0.2892252504825592,
+      "n": 4
+    },
+    "tutoring": {
+      "accuracy": 0.0,
+      "confidence": 0.2892252504825592,
+      "n": 4
+    },
+    "reasoning": {
+      "accuracy": 0.0,
+      "confidence": 0.28922519087791443,
+      "n": 4
+    }
+  },
+  "config": {
+    "input_dim": 32,
+    "vocab_size": 256,
+    "embed_dim": 32,
+    "hidden_dim": 64,
+    "proj_dim": 32,
+    "pred_dim": 16,
+    "num_codes": 32,
+    "num_actions": 8,
+    "num_rubric": 4,
+    "num_layers": 1,
+    "num_heads": 4,
+    "dropout": 0.1,
+    "momentum": 0.996,
+    "temperature": 0.07,
+    "max_steps": 3,
+    "memory_size": 64,
+    "use_quantizer": true,
+    "use_memory": true,
+    "use_planner": true,
+    "use_target": true
+  }
+}

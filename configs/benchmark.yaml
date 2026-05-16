@@ -1,0 +1,5 @@
+include: default.yaml
+benchmark:
+  tasks: [parity, modadd, algebra, chain]
+  seeds: [0, 1, 2]
+  batches: 8

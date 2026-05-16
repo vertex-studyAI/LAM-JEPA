@@ -1,0 +1,21 @@
+ood_benchmarks:
+  reasoning_depth_shift:
+    train:
+      max_depth: 2
+    test:
+      min_depth: 6
+  symbolic_operator_shift:
+    train:
+      operators: [+,-,'*']
+    test:
+      operators: [sqrt, integral, sigma]
+  curriculum_shift:
+    train:
+      concepts: [arithmetic, fractions]
+    test:
+      concepts: [symbolic_proofs]
+  syntax_corruption:
+    train:
+      corruption_probability: 0.0
+    test:
+      corruption_probability: 0.25

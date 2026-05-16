@@ -1,0 +1,30 @@
+misconceptions:
+  algebra:
+    - id: inverse_operation_confusion
+      severity: medium
+      persistence: medium
+      correction_difficulty: medium
+    - id: sign_error
+      severity: medium
+      persistence: high
+      correction_difficulty: medium
+    - id: variable_isolation_failure
+      severity: high
+      persistence: high
+      correction_difficulty: high
+  fractions:
+    - id: denominator_confusion
+      severity: high
+      persistence: high
+      correction_difficulty: high
+    - id: invalid_cancellation
+      severity: medium
+      persistence: medium
+      correction_difficulty: medium
+  physics:
+    - id: formula_confusion
+      severity: high
+      persistence: medium
+    - id: unit_mismatch
+      severity: medium
+      persistence: low

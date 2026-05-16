@@ -1,0 +1,9 @@
+# Minimal dependencies for dataset acquisition/build
+pyyaml
+pandas
+numpy
+tqdm
+datasets
+huggingface_hub
+scikit-learn
+networkx

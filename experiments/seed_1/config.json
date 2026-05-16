@@ -1,0 +1,22 @@
+{
+  "input_dim": 32,
+  "vocab_size": 256,
+  "embed_dim": 32,
+  "hidden_dim": 64,
+  "proj_dim": 32,
+  "pred_dim": 16,
+  "num_codes": 32,
+  "num_actions": 8,
+  "num_rubric": 4,
+  "num_layers": 1,
+  "num_heads": 4,
+  "dropout": 0.1,
+  "momentum": 0.996,
+  "temperature": 0.07,
+  "max_steps": 3,
+  "memory_size": 64,
+  "use_quantizer": true,
+  "use_memory": true,
+  "use_planner": true,
+  "use_target": true
+}

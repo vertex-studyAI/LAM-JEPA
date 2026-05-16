@@ -1,0 +1,64 @@
+math:
+  gsm8k:
+    source: https://github.com/openai/grade-school-math
+    storage: datasets/external/math/gsm8k
+    access: public
+    type: reasoning
+
+  MATH:
+    source: https://github.com/hendrycks/math
+    storage: datasets/external/math/MATH
+    access: public
+    type: reasoning
+
+science:
+  sciq:
+    source: https://github.com/allenai/sciq
+    storage: datasets/external/science/sciq
+    access: public
+    type: science_reasoning
+
+  openbookqa:
+    source: https://github.com/allenai/OpenBookQA
+    storage: datasets/external/science/openbookqa
+    access: public
+    type: science_reasoning
+
+reading:
+  race:
+    source: https://www.cs.cmu.edu/~glai1/data/race/
+    storage: datasets/external/reading/race
+    access: public
+    type: reading_comprehension
+
+  drop:
+    source: https://github.com/allenai/droP
+    storage: datasets/external/reading/drop
+    access: public
+    type: discrete_reasoning
+
+tutoring:
+  assistments:
+    source: https://sites.google.com/site/assistmentsdata/
+    storage: datasets/external/tutoring/assistments
+    access: public_but_may_require_terms
+    type: student_interaction_traces
+
+  ednet:
+    source: https://github.com/riiid/ednet
+    storage: datasets/external/tutoring/ednet
+    access: public_but_may_require_terms
+    type: student_interaction_traces
+
+reasoning:
+  proofwriter:
+    source: https://github.com/allenai/proofwriter
+    storage: datasets/external/reasoning/proofwriter
+    access: public
+    type: logical_reasoning
+
+  strategyqa:
+    source: https://github.com/eladsegal/strategyqa
+    storage: datasets/external/reasoning/strategyqa
+    access: public
+    type: decompositional_reasoning

@@ -1,0 +1,16 @@
+concept_graph:
+  arithmetic:
+    prerequisites: []
+    difficulty: 0.1
+  fractions:
+    prerequisites: [arithmetic]
+    difficulty: 0.3
+  algebra:
+    prerequisites: [arithmetic, fractions]
+    difficulty: 0.5
+  symbolic_manipulation:
+    prerequisites: [algebra]
+    difficulty: 0.7
+  proof_reasoning:
+    prerequisites: [symbolic_manipulation]
+    difficulty: 0.9
