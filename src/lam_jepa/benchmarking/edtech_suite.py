@@ -4,6 +4,7 @@ from dataclasses import replace
 from pathlib import Path
 from typing import Dict, Sequence
 import json
+import random
 
 import numpy as np
 import torch
@@ -13,7 +14,7 @@ from ..data import SUPPORTED_TASKS
 from ..model import LAMJEPA, LAMJEPAConfig
 from ..trainers.trainer import Trainer, TrainerConfig
 from ..utils import set_seed
-from .evaluation_sampling import TARGET_SEMANTICS, sample_evaluation_batch
+from .evaluation_sampling import TARGET_SEMANTICS, evaluation_sample_digest, sample_evaluation_batch
 
 
 EDTECH_TASKS = SUPPORTED_TASKS
@@ -72,6 +73,27 @@ def train_model(
     return model, cfg, trainer
 
 
+def _forward_without_advancing_sampler_rng(
+    model: LAMJEPA,
+    tokens: torch.Tensor,
+    numeric_x: torch.Tensor | None,
+) -> dict:
+    """Run inference while preserving RNG streams used by benchmark sampling."""
+
+    python_state = random.getstate()
+    numpy_state = np.random.get_state()
+    cpu_state = torch.random.get_rng_state()
+    cuda_states = torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None
+    try:
+        return model(tokens, numeric_x=numeric_x, steps=0)
+    finally:
+        random.setstate(python_state)
+        np.random.set_state(numpy_state)
+        torch.random.set_rng_state(cpu_state)
+        if cuda_states is not None:
+            torch.cuda.set_rng_state_all(cuda_states)
+
+
 @torch.no_grad()
 def evaluate_model(
     model: LAMJEPA,
@@ -95,6 +117,8 @@ def evaluate_model(
     for task in tasks:
         accs, confs = [], []
         labels_all = []
+        ordered_fingerprints: list[str] = []
+        ordered_labels: list[int] = []
         input_fingerprints: set[str] = set()
         prompts: set[str] = set()
 
@@ -104,16 +128,20 @@ def evaluate_model(
             numeric_x = batch.numeric_x.to(device) if batch.numeric_x is not None else None
             labels = batch.labels.to(device)
 
-            res = model(tokens, numeric_x=numeric_x, steps=0)
+            res = _forward_without_advancing_sampler_rng(model, tokens, numeric_x)
             pred = res["logits"].argmax(dim=-1)
             correct = (pred == labels).float()
             accs.append(float(correct.mean().item()))
             confs.append(float(res["confidence"].mean().item()))
-            labels_all.append(labels.detach().cpu())
+            labels_cpu = labels.detach().cpu().reshape(-1)
+            labels_all.append(labels_cpu)
+            ordered_labels.extend(int(value) for value in labels_cpu.tolist())
 
             fingerprints = batch.metadata.get("input_fingerprints", [])
             if isinstance(fingerprints, list):
-                input_fingerprints.update(str(value) for value in fingerprints)
+                normalized = [str(value) for value in fingerprints]
+                ordered_fingerprints.extend(normalized)
+                input_fingerprints.update(normalized)
             batch_prompts = batch.metadata.get("prompts", [])
             if isinstance(batch_prompts, list):
                 prompts.update(str(value) for value in batch_prompts if value)
@@ -126,6 +154,7 @@ def evaluate_model(
             "unique_inputs": len(input_fingerprints),
             "unique_labels": int(torch.unique(labels).numel()),
             "unique_prompts": len(prompts),
+            "sample_digest": evaluation_sample_digest(ordered_fingerprints, ordered_labels),
             "target_semantics": TARGET_SEMANTICS[task],
         }
     return out

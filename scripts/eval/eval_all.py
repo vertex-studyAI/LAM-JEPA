@@ -50,6 +50,11 @@ def main() -> None:
     cfg = LAMJEPAConfig(**cfg_payload)
     model = LAMJEPA(cfg).to(args.device)
     loaded = load_checkpoint(args.checkpoint, model, map_location=args.device)
+
+    # Model construction and checkpoint loading may consume RNG state. Reset the
+    # benchmark sampler immediately before evaluation so a separately executed
+    # baseline command with the same protocol can reproduce the exact rows.
+    set_seed(args.seed)
     scores = evaluate_model(
         model,
         cfg,

@@ -6,7 +6,7 @@ from typing import Dict, Sequence
 import torch
 
 from ..edtech_suite import EDTECH_TASKS
-from ..evaluation_sampling import TARGET_SEMANTICS, sample_evaluation_batch
+from ..evaluation_sampling import TARGET_SEMANTICS, evaluation_sample_digest, sample_evaluation_batch
 
 
 @torch.no_grad()
@@ -35,16 +35,20 @@ def evaluate_label_baselines(
     out: Dict[str, Dict[str, float | int | str]] = {}
     for task in tasks:
         labels: list[int] = []
+        ordered_fingerprints: list[str] = []
         input_fingerprints: set[str] = set()
         prompts: set[str] = set()
 
         for _ in range(batches):
             batch = sample_evaluation_batch(task, batch_size=batch_size, vocab_size=vocab_size)
-            labels.extend(int(value) for value in batch.labels.detach().cpu().reshape(-1).tolist())
+            batch_labels = [int(value) for value in batch.labels.detach().cpu().reshape(-1).tolist()]
+            labels.extend(batch_labels)
 
             fingerprints = batch.metadata.get("input_fingerprints", [])
             if isinstance(fingerprints, list):
-                input_fingerprints.update(str(value) for value in fingerprints)
+                normalized = [str(value) for value in fingerprints]
+                ordered_fingerprints.extend(normalized)
+                input_fingerprints.update(normalized)
             batch_prompts = batch.metadata.get("prompts", [])
             if isinstance(batch_prompts, list):
                 prompts.update(str(value) for value in batch_prompts if value)
@@ -74,6 +78,7 @@ def evaluate_label_baselines(
             "uniform_observed_label_accuracy": 1.0 / unique_labels,
             "uniform_full_vocab_accuracy": 1.0 / vocab_size,
             "vocab_size": vocab_size,
+            "sample_digest": evaluation_sample_digest(ordered_fingerprints, labels),
             "target_semantics": TARGET_SEMANTICS[task],
             "baseline_semantics": "sampled-label-distribution reference; no model executed",
         }

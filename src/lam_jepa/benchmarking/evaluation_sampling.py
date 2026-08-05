@@ -43,6 +43,29 @@ def _row_fingerprint(tokens: torch.Tensor, numeric_x: torch.Tensor | None) -> st
     return digest.hexdigest()
 
 
+def evaluation_sample_digest(input_fingerprints: Sequence[str], labels: Sequence[int]) -> str:
+    """Digest an ordered evaluation sample without retaining raw inputs.
+
+    The digest binds each row fingerprint to its corresponding target label. It
+    lets independently executed model and baseline evaluators prove that they
+    consumed the same ordered rows without treating the digest as evidence of
+    dataset quality, benchmark validity, or privacy protection.
+    """
+
+    if len(input_fingerprints) != len(labels):
+        raise ValueError("input fingerprints and labels must have equal length")
+    if not input_fingerprints:
+        raise ValueError("at least one evaluation row is required")
+
+    digest = blake2b(digest_size=32)
+    for fingerprint, label in zip(input_fingerprints, labels, strict=True):
+        encoded = str(fingerprint).encode("utf-8")
+        digest.update(len(encoded).to_bytes(4, "big"))
+        digest.update(encoded)
+        digest.update(int(label).to_bytes(8, "big", signed=True))
+    return digest.hexdigest()
+
+
 def _annotate_batch(batch: Batch, sampling_unit: str) -> Batch:
     fingerprints = [
         _row_fingerprint(
