@@ -15,8 +15,10 @@ This repo now includes:
 
 ## Install
 
+LAM-JEPA requires Python 3.10 or newer.
+
 ```bash
-pip install -e .
+python -m pip install -e .
 ```
 
 ## Core commands
@@ -27,9 +29,11 @@ Train one reproducible run:
 python scripts/train/train_single.py \
   --seed 1 \
   --steps 200 \
-  --checkpoint-dir experiments/seed_1/checkpoints \
+  --out-dir experiments/seed_1/checkpoints \
   --out experiments/seed_1/final.pt
 ```
+
+The trainer writes its canonical resumable checkpoint to `experiments/seed_1/checkpoints/final.pt`. It contains the model, optimizer, scheduler, training step, metrics, RNG state, model configuration, and training configuration. `--checkpoint-dir` is an equivalent legacy name for `--out-dir`. When `--out` is supplied, the CLI creates a byte-for-byte copy of that same canonical checkpoint rather than a second incompatible format.
 
 Evaluate a checkpoint across all benchmark tasks:
 
@@ -59,13 +63,14 @@ python scripts/paper/generate_results.py --out-dir papers
 
 Every pull request and push to `main` runs a CPU-only smoke experiment that:
 
-1. installs the package from `pyproject.toml`;
-2. compiles the source and scripts;
+1. installs the package from `pyproject.toml` using PyTorch's CPU wheel channel;
+2. confirms the environment is CPU-only and compiles the source and scripts;
 3. trains the actual LAM-JEPA model for one deterministic parity step;
-4. verifies that the emitted checkpoint contains a finite model state, configuration, and training history; and
-5. uploads the checkpoint, structured training output, and verification report as short-lived workflow evidence.
+4. verifies finite model tensors plus optimizer, scheduler, RNG, model-configuration, and training-configuration state;
+5. reloads the artifact through LAM-JEPA's own checkpoint API; and
+6. uploads the canonical checkpoint, structured training output, and verification report as short-lived workflow evidence.
 
-This gate proves that the documented installation and primary training path execute end to end. It does **not** establish benchmark quality or scientific performance.
+This gate proves that the documented installation, primary training path, and checkpoint reload execute end to end. It does **not** establish benchmark quality or scientific performance.
 
 ## Benchmark tasks
 
