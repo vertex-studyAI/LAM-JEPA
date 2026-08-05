@@ -9,8 +9,8 @@ import math
 import os
 
 import torch
-from torch.cuda.amp import GradScaler, autocast
 
+from ..amp import autocast_context, make_grad_scaler
 from ..callbacks.checkpointing.load import load_checkpoint
 from ..callbacks.checkpointing.save import save_checkpoint
 from ..data import Curriculum, sample_batch
@@ -52,7 +52,7 @@ class Trainer:
         self.model.to(self.device)
         self.opt = torch.optim.AdamW(self.model.parameters(), lr=train_cfg.lr, weight_decay=train_cfg.weight_decay)
         self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.opt, T_max=max(train_cfg.steps, 1)) if train_cfg.use_scheduler else None
-        self.scaler = GradScaler(enabled=train_cfg.amp and self.device.type == "cuda")
+        self.scaler = make_grad_scaler(enabled=train_cfg.amp and self.device.type == "cuda")
         self.curriculum = Curriculum()
         self.history: list[dict] = []
         self.step = 0
@@ -83,7 +83,7 @@ class Trainer:
     def train_step(self) -> Dict[str, float]:
         self.model.train()
         task, batch = self.batch()
-        with autocast(enabled=self.scaler.is_enabled()):
+        with autocast_context(device=self.device, enabled=self.scaler.is_enabled()):
             loss, outputs, stats, labels = self._forward(batch)
             loss = loss / max(self.train_cfg.accumulation_steps, 1)
 
