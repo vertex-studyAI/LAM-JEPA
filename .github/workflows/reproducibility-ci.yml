@@ -66,6 +66,7 @@ jobs:
 
       - name: Evaluate every declared task
         run: |
+          set -euo pipefail
           python scripts/eval/eval_all.py \
             --checkpoint ci-evidence/final.pt \
             --device cpu \
