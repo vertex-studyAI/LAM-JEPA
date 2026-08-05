@@ -9,10 +9,11 @@ import numpy as np
 import torch
 
 from ..analysis.statistics import summarize_seed_runs
-from ..data import SUPPORTED_TASKS, sample_batch
+from ..data import SUPPORTED_TASKS
 from ..model import LAMJEPA, LAMJEPAConfig
 from ..trainers.trainer import Trainer, TrainerConfig
 from ..utils import set_seed
+from .evaluation_sampling import TARGET_SEMANTICS, sample_evaluation_batch
 
 
 EDTECH_TASKS = SUPPORTED_TASKS
@@ -78,7 +79,7 @@ def evaluate_model(
     tasks: Sequence[str] = EDTECH_TASKS,
     batch_size: int = 64,
     batches: int = 8,
-) -> Dict[str, Dict[str, float]]:
+) -> Dict[str, Dict[str, float | int | str]]:
     if batch_size < 1:
         raise ValueError("batch_size must be at least 1")
     if batches < 1:
@@ -90,12 +91,15 @@ def evaluate_model(
     except StopIteration as exc:
         raise ValueError("model must contain at least one parameter") from exc
 
-    out: Dict[str, Dict[str, float]] = {}
+    out: Dict[str, Dict[str, float | int | str]] = {}
     for task in tasks:
         accs, confs = [], []
-        preds_all, labels_all = [], []
+        labels_all = []
+        input_fingerprints: set[str] = set()
+        prompts: set[str] = set()
+
         for _ in range(batches):
-            batch = sample_batch(task, batch=batch_size, vocab_size=cfg.vocab_size)
+            batch = sample_evaluation_batch(task, batch_size=batch_size, vocab_size=cfg.vocab_size)
             tokens = batch.tokens.to(device)
             numeric_x = batch.numeric_x.to(device) if batch.numeric_x is not None else None
             labels = batch.labels.to(device)
@@ -105,14 +109,24 @@ def evaluate_model(
             correct = (pred == labels).float()
             accs.append(float(correct.mean().item()))
             confs.append(float(res["confidence"].mean().item()))
-            preds_all.append(pred.detach().cpu())
             labels_all.append(labels.detach().cpu())
-        preds = torch.cat(preds_all)
+
+            fingerprints = batch.metadata.get("input_fingerprints", [])
+            if isinstance(fingerprints, list):
+                input_fingerprints.update(str(value) for value in fingerprints)
+            batch_prompts = batch.metadata.get("prompts", [])
+            if isinstance(batch_prompts, list):
+                prompts.update(str(value) for value in batch_prompts if value)
+
         labels = torch.cat(labels_all)
         out[task] = {
             "accuracy": float(np.mean(accs)),
             "confidence": float(np.mean(confs)),
             "n": int(labels.numel()),
+            "unique_inputs": len(input_fingerprints),
+            "unique_labels": int(torch.unique(labels).numel()),
+            "unique_prompts": len(prompts),
+            "target_semantics": TARGET_SEMANTICS[task],
         }
     return out
 
@@ -135,7 +149,7 @@ def seed_sweep(
             "scores": scores,
         })
         for t, vals in scores.items():
-            per_task[t].append(vals["accuracy"])
+            per_task[t].append(float(vals["accuracy"]))
     aggregate = summarize_seed_runs(per_task)
     return {"records": records, "aggregate": aggregate}
 
