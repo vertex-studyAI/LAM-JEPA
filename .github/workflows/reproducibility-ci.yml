@@ -17,7 +17,7 @@ concurrency:
 jobs:
   deterministic-training-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -114,6 +114,26 @@ jobs:
             --baselines ci-evidence/eval-baselines.json \
             --comparison ci-evidence/model-baseline-comparison.json \
             --report ci-evidence/model-baseline-comparison-verification.json
+
+      - name: Generate multi-seed paper-results package
+        run: |
+          set -euo pipefail
+          python scripts/paper/generate_results.py \
+            --out-dir ci-evidence/paper-results \
+            --seeds 1 2 \
+            --steps 1 \
+            --batch-size 2 \
+            --eval-batches 1 \
+            --evaluation-seed 17 \
+            --device cpu \
+            --training-task parity \
+            | tee ci-evidence/paper-results-output.txt
+
+      - name: Verify paper-results package
+        run: |
+          python scripts/ci/verify_paper_results.py \
+            --out-dir ci-evidence/paper-results \
+            --report ci-evidence/paper-results-verification.json
 
       - name: Upload reproducibility evidence
         if: always()

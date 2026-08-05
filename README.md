@@ -47,7 +47,7 @@ python scripts/eval/eval_all.py \
   --out outputs/eval_all.json
 ```
 
-The evaluator loads the canonical checkpoint through the repository checkpoint API, places sampled inputs on the model's device, evaluates every task in `EDTECH_TASKS`, and records the checkpoint step, device, seed, batch settings, task list, sample counts, accuracy, confidence, distinct input count, distinct prompt count, distinct label count, and target semantics. Generated text-style evaluation rows are sampled one example at a time instead of repeating one example across an entire batch. A fixed seed makes repeated smoke runs comparable, but it does not replace multi-seed statistical evaluation.
+The evaluator loads the canonical checkpoint through the repository checkpoint API, places sampled inputs on the model's device, evaluates every task in `EDTECH_TASKS`, and records the checkpoint step, device, seed, batch settings, task list, sample counts, accuracy, confidence, distinct input count, distinct prompt count, distinct label count, an ordered input-and-label sample digest, and target semantics. Generated text-style evaluation rows are sampled one example at a time instead of repeating one example across an entire batch. A fixed seed makes repeated smoke runs comparable, but it does not replace multi-seed statistical evaluation.
 
 Run the full benchmark suite:
 
@@ -61,11 +61,21 @@ Aggregate seed runs:
 python scripts/analysis/aggregate_seeds.py --runs-dir experiments --out experiments/aggregate/summary.json
 ```
 
-Generate paper-ready summaries:
+Generate a reproducible multi-seed paper-results package:
 
 ```bash
-python scripts/paper/generate_results.py --out-dir papers
+python scripts/paper/generate_results.py \
+  --out-dir papers \
+  --seeds 1 2 3 4 5 \
+  --steps 80 \
+  --batch-size 32 \
+  --eval-batches 6 \
+  --evaluation-seed 1007 \
+  --device cpu \
+  --training-task mixed
 ```
+
+The generator requires at least two unique training seeds. Each trained model is evaluated on the same digest-certified rows, so evaluation-sample variance is not silently mixed with training-seed variance. The package contains a protocol and claim-boundary manifest, JSON/CSV/Markdown summary tables, raw seed records, and per-task sample digests. The confidence intervals are descriptive for the declared synthetic protocol; they do not establish benchmark validity, answer correctness for concept-proxy tasks, educational effectiveness, novelty, or model superiority.
 
 ## Reproducibility gate
 
@@ -77,10 +87,12 @@ Every pull request and push to `main` runs a CPU-only smoke experiment that:
 4. verifies finite model tensors plus optimizer, scheduler, RNG, model-configuration, and training-configuration state;
 5. reloads the artifact through LAM-JEPA's own checkpoint API;
 6. evaluates one seeded batch for every declared benchmark task;
-7. independently verifies complete task coverage, finite metrics, confidence and accuracy bounds, exact sample counts, input diversity, generated-prompt diversity, and declared target semantics; and
-8. uploads the canonical checkpoint, training output, evaluation output, and structured verification reports as short-lived workflow evidence.
+7. independently verifies complete task coverage, finite metrics, confidence and accuracy bounds, exact sample counts, input diversity, generated-prompt diversity, and declared target semantics;
+8. generates matched label-distribution references and proves exact ordered-row pairing before reporting descriptive model/reference deltas;
+9. generates and independently verifies a two-seed paper-results package with identical evaluation rows across training seeds; and
+10. uploads checkpoints, raw outputs, tables, manifests, and structured verification reports as short-lived workflow evidence.
 
-This gate proves that the documented installation, primary training path, checkpoint reload, and all-task evaluation path execute end to end. It does **not** establish benchmark quality or scientific performance.
+This gate proves that the documented installation, primary training path, checkpoint reload, all-task evaluation path, paired reference comparison, and paper artifact generation execute end to end. It does **not** establish benchmark quality or scientific performance.
 
 ## Benchmark tasks and metric semantics
 

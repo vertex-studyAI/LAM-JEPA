@@ -166,21 +166,71 @@ def seed_sweep(
     batch_size: int = 64,
     device: str = "cpu",
     task: str = "mixed",
+    eval_batches: int = 6,
+    evaluation_seed: int = 1007,
 ) -> dict:
+    normalized_seeds = [int(seed) for seed in seeds]
+    if not normalized_seeds:
+        raise ValueError("at least one training seed is required")
+    if len(set(normalized_seeds)) != len(normalized_seeds):
+        raise ValueError("training seeds must be unique")
+    if steps < 1:
+        raise ValueError("steps must be at least 1")
+    if batch_size < 1:
+        raise ValueError("batch_size must be at least 1")
+    if eval_batches < 1:
+        raise ValueError("eval_batches must be at least 1")
+
     records = []
     per_task: dict[str, list[float]] = {t: [] for t in EDTECH_TASKS}
-    for seed in seeds:
-        model, cfg, trainer = train_model(seed=seed, steps=steps, batch_size=batch_size, device=device, task=task)
-        scores = evaluate_model(model, cfg, batch_size=batch_size, batches=6)
+    expected_digests: dict[str, str] | None = None
+
+    for seed in normalized_seeds:
+        model, cfg, trainer = train_model(
+            seed=seed,
+            steps=steps,
+            batch_size=batch_size,
+            device=device,
+            task=task,
+        )
+        # Every trained model is evaluated on the same deterministic rows. This
+        # prevents evaluation-sample variance from being silently conflated with
+        # training-seed variance in paper tables.
+        set_seed(evaluation_seed)
+        scores = evaluate_model(model, cfg, batch_size=batch_size, batches=eval_batches)
+        digests = {name: str(metrics["sample_digest"]) for name, metrics in scores.items()}
+        if expected_digests is None:
+            expected_digests = digests
+        elif digests != expected_digests:
+            raise RuntimeError("evaluation sample digests changed across training seeds")
+
         records.append({
-            "seed": seed,
+            "training_seed": seed,
+            "evaluation_seed": evaluation_seed,
             "history_tail": trainer.history[-5:],
             "scores": scores,
         })
-        for t, vals in scores.items():
-            per_task[t].append(float(vals["accuracy"]))
+        for name, values in scores.items():
+            per_task[name].append(float(values["accuracy"]))
+
     aggregate = summarize_seed_runs(per_task)
-    return {"records": records, "aggregate": aggregate}
+    return {
+        "protocol": {
+            "training_seeds": normalized_seeds,
+            "evaluation_seed": evaluation_seed,
+            "steps": steps,
+            "batch_size": batch_size,
+            "eval_batches": eval_batches,
+            "device": device,
+            "training_task": task,
+            "tasks": list(EDTECH_TASKS),
+            "evaluation_pairing": "identical ordered evaluation rows across training seeds",
+        },
+        "target_semantics": dict(TARGET_SEMANTICS),
+        "sample_digests": expected_digests or {},
+        "records": records,
+        "aggregate": aggregate,
+    }
 
 
 def ablation_suite(steps: int = 120, batch_size: int = 64, device: str = "cpu") -> dict:
