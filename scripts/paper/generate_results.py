@@ -31,8 +31,8 @@ CLAIM_BOUNDARY = (
 
 def validate_args(args: argparse.Namespace, parser: argparse.ArgumentParser) -> list[int]:
     seeds = [int(seed) for seed in args.seeds]
-    if not seeds:
-        parser.error("--seeds requires at least one value")
+    if len(seeds) < 2:
+        parser.error("--seeds requires at least two values for a multi-seed paper package")
     if len(set(seeds)) != len(seeds):
         parser.error("--seeds values must be unique")
     if args.steps < 1:
