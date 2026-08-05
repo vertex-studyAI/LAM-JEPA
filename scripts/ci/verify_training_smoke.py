@@ -3,9 +3,18 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import sys
 from pathlib import Path
 
 import torch
+
+ROOT = Path(__file__).resolve().parents[2]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from lam_jepa.callbacks.checkpointing.load import load_checkpoint
+from lam_jepa.model import LAMJEPA, LAMJEPAConfig
 
 
 def require(condition: bool, message: str) -> None:
@@ -15,7 +24,7 @@ def require(condition: bool, message: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Verify the checkpoint emitted by the deterministic CI smoke run."
+        description="Verify the canonical checkpoint emitted by the deterministic CI smoke run."
     )
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
@@ -28,11 +37,25 @@ def main() -> None:
     require(isinstance(payload, dict), "checkpoint payload must be a dictionary")
 
     state = payload.get("model")
-    config = payload.get("config")
-    history = payload.get("history")
+    optimizer = payload.get("optimizer")
+    scheduler = payload.get("scheduler")
+    rng = payload.get("rng")
+    metrics = payload.get("metrics")
+    extra = payload.get("extra")
+    step = payload.get("step")
+
     require(isinstance(state, dict) and state, "checkpoint model state is missing or empty")
-    require(isinstance(config, dict) and config, "checkpoint config is missing or empty")
-    require(isinstance(history, list) and history, "checkpoint training history is missing or empty")
+    require(isinstance(optimizer, dict) and optimizer, "checkpoint optimizer state is missing or empty")
+    require(isinstance(scheduler, dict), "checkpoint scheduler state is missing")
+    require(isinstance(rng, dict) and rng, "checkpoint RNG state is missing or empty")
+    require(isinstance(metrics, dict) and metrics, "checkpoint metrics are missing or empty")
+    require(isinstance(extra, dict), "checkpoint extra metadata is missing")
+    require(isinstance(step, int) and step >= 1, "checkpoint step must be a positive integer")
+
+    config = extra.get("config")
+    train_config = extra.get("train_config")
+    require(isinstance(config, dict) and config, "model configuration is missing or empty")
+    require(isinstance(train_config, dict) and train_config, "training configuration is missing or empty")
 
     tensors = [value for value in state.values() if torch.is_tensor(value)]
     require(tensors, "checkpoint contains no model tensors")
@@ -41,26 +64,36 @@ def main() -> None:
         "checkpoint contains non-finite model values",
     )
 
-    last = history[-1]
-    require(isinstance(last, dict), "final history entry must be a dictionary")
     for metric in ("loss", "acc"):
-        value = last.get(metric)
+        value = metrics.get(metric)
         require(
             isinstance(value, (int, float)) and math.isfinite(float(value)),
-            f"final history metric {metric!r} is missing or non-finite",
+            f"final metric {metric!r} is missing or non-finite",
         )
+
+    cfg = LAMJEPAConfig(**config)
+    reloaded_model = LAMJEPA(cfg)
+    loaded = load_checkpoint(args.checkpoint, reloaded_model, map_location="cpu")
+    require(loaded.get("step") == step, "checkpoint API returned an inconsistent step")
 
     report = {
         "checkpoint": str(args.checkpoint),
         "torch_version": torch.__version__,
-        "history_entries": len(history),
+        "checkpoint_step": step,
         "state_tensors": len(tensors),
         "parameters": sum(tensor.numel() for tensor in tensors),
+        "resumable_state": {
+            "optimizer": True,
+            "scheduler": True,
+            "rng": True,
+            "model_config": True,
+            "training_config": True,
+            "repository_loader": True,
+        },
         "final": {
-            "step": last.get("step"),
-            "task": last.get("task"),
-            "loss": float(last["loss"]),
-            "accuracy": float(last["acc"]),
+            "task": metrics.get("task"),
+            "loss": float(metrics["loss"]),
+            "accuracy": float(metrics["acc"]),
         },
     }
 
