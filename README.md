@@ -28,6 +28,8 @@ python -m compileall -q src scripts tests
 python -m unittest discover -s tests -v
 ```
 
+GitHub Actions installs PyTorch from the official CPU wheel channel because the reproducibility gate intentionally exercises the CPU path and does not require CUDA dependencies.
+
 ## Core commands
 
 Train one reproducible run:
