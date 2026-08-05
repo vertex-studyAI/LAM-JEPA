@@ -9,13 +9,13 @@ import numpy as np
 import torch
 
 from ..analysis.statistics import summarize_seed_runs
-from ..data import sample_batch
+from ..data import SUPPORTED_TASKS, sample_batch
 from ..model import LAMJEPA, LAMJEPAConfig
 from ..trainers.trainer import Trainer, TrainerConfig
 from ..utils import set_seed
 
 
-EDTECH_TASKS = ("parity", "modadd", "algebra", "chain", "gsm8k", "equation", "science", "reading", "tutoring", "reasoning")
+EDTECH_TASKS = SUPPORTED_TASKS
 
 
 def build_variant_config(base: LAMJEPAConfig, variant: str) -> LAMJEPAConfig:
@@ -72,21 +72,41 @@ def train_model(
 
 
 @torch.no_grad()
-def evaluate_model(model: LAMJEPA, cfg: LAMJEPAConfig, tasks: Sequence[str] = EDTECH_TASKS, batch_size: int = 64, batches: int = 8) -> Dict[str, Dict[str, float]]:
+def evaluate_model(
+    model: LAMJEPA,
+    cfg: LAMJEPAConfig,
+    tasks: Sequence[str] = EDTECH_TASKS,
+    batch_size: int = 64,
+    batches: int = 8,
+) -> Dict[str, Dict[str, float]]:
+    if batch_size < 1:
+        raise ValueError("batch_size must be at least 1")
+    if batches < 1:
+        raise ValueError("batches must be at least 1")
+
     model.eval()
+    try:
+        device = next(model.parameters()).device
+    except StopIteration as exc:
+        raise ValueError("model must contain at least one parameter") from exc
+
     out: Dict[str, Dict[str, float]] = {}
     for task in tasks:
         accs, confs = [], []
         preds_all, labels_all = [], []
         for _ in range(batches):
             batch = sample_batch(task, batch=batch_size, vocab_size=cfg.vocab_size)
-            res = model(batch.tokens, numeric_x=batch.numeric_x, steps=0)
+            tokens = batch.tokens.to(device)
+            numeric_x = batch.numeric_x.to(device) if batch.numeric_x is not None else None
+            labels = batch.labels.to(device)
+
+            res = model(tokens, numeric_x=numeric_x, steps=0)
             pred = res["logits"].argmax(dim=-1)
-            correct = (pred == batch.labels.to(pred.device)).float()
+            correct = (pred == labels).float()
             accs.append(float(correct.mean().item()))
             confs.append(float(res["confidence"].mean().item()))
             preds_all.append(pred.detach().cpu())
-            labels_all.append(batch.labels.detach().cpu())
+            labels_all.append(labels.detach().cpu())
         preds = torch.cat(preds_all)
         labels = torch.cat(labels_all)
         out[task] = {

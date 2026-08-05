@@ -62,13 +62,31 @@ jobs:
         run: |
           python scripts/ci/verify_training_smoke.py \
             --checkpoint ci-evidence/final.pt \
-            --report ci-evidence/verification.json
+            --report ci-evidence/training-verification.json
+
+      - name: Evaluate every declared task
+        run: |
+          set -euo pipefail
+          python scripts/eval/eval_all.py \
+            --checkpoint ci-evidence/final.pt \
+            --device cpu \
+            --batch-size 2 \
+            --batches 1 \
+            --seed 1 \
+            --out ci-evidence/eval-all.json \
+            | tee ci-evidence/eval-output.txt
+
+      - name: Verify all-task evaluation evidence
+        run: |
+          python scripts/ci/verify_evaluation_smoke.py \
+            --evaluation ci-evidence/eval-all.json \
+            --report ci-evidence/evaluation-verification.json
 
       - name: Upload reproducibility evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: lam-jepa-training-smoke
+          name: lam-jepa-training-evaluation-smoke
           path: ci-evidence
           if-no-files-found: warn
           retention-days: 7
