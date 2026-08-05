@@ -6,6 +6,10 @@ import math
 from pathlib import Path
 
 from lam_jepa.benchmarking.edtech_suite import EDTECH_TASKS
+from lam_jepa.benchmarking.evaluation_sampling import TARGET_SEMANTICS
+
+
+GENERATED_PROXY_TASKS = {"gsm8k", "reading", "tutoring", "reasoning"}
 
 
 def require(condition: bool, message: str) -> None:
@@ -45,6 +49,11 @@ def main() -> None:
         accuracy = metrics.get("accuracy")
         confidence = metrics.get("confidence")
         count = metrics.get("n")
+        unique_inputs = metrics.get("unique_inputs")
+        unique_labels = metrics.get("unique_labels")
+        unique_prompts = metrics.get("unique_prompts")
+        target_semantics = metrics.get("target_semantics")
+
         require(
             isinstance(accuracy, (int, float)) and math.isfinite(float(accuracy)),
             f"{task}: accuracy is missing or non-finite",
@@ -56,11 +65,35 @@ def main() -> None:
         )
         require(0.0 <= float(confidence) <= 1.0, f"{task}: confidence is outside [0, 1]")
         require(count == expected_examples, f"{task}: expected n={expected_examples}, received {count!r}")
+        require(
+            isinstance(unique_inputs, int) and 1 <= unique_inputs <= count,
+            f"{task}: unique_inputs must be within [1, n]",
+        )
+        if expected_examples > 1:
+            require(unique_inputs > 1, f"{task}: evaluation rows collapsed to one repeated input")
+        require(
+            isinstance(unique_labels, int) and 1 <= unique_labels <= count,
+            f"{task}: unique_labels must be within [1, n]",
+        )
+        require(
+            isinstance(unique_prompts, int) and 0 <= unique_prompts <= count,
+            f"{task}: unique_prompts must be within [0, n]",
+        )
+        if task in GENERATED_PROXY_TASKS and expected_examples > 1:
+            require(unique_prompts > 1, f"{task}: generated evaluation rows reused one prompt")
+        require(
+            target_semantics == TARGET_SEMANTICS[task],
+            f"{task}: target semantics are missing or incorrect",
+        )
 
         verified[task] = {
             "accuracy": float(accuracy),
             "confidence": float(confidence),
             "n": count,
+            "unique_inputs": unique_inputs,
+            "unique_labels": unique_labels,
+            "unique_prompts": unique_prompts,
+            "target_semantics": target_semantics,
         }
 
     report = {
