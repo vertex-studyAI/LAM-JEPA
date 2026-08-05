@@ -82,6 +82,22 @@ jobs:
             --evaluation ci-evidence/eval-all.json \
             --report ci-evidence/evaluation-verification.json
 
+      - name: Measure label-distribution reference baselines
+        run: |
+          set -euo pipefail
+          python scripts/eval/eval_baselines.py \
+            --batch-size 8 \
+            --batches 2 \
+            --seed 1 \
+            --out ci-evidence/eval-baselines.json \
+            | tee ci-evidence/baseline-output.txt
+
+      - name: Verify baseline metric identities and task coverage
+        run: |
+          python scripts/ci/verify_baseline_smoke.py \
+            --evaluation ci-evidence/eval-baselines.json \
+            --report ci-evidence/baseline-verification.json
+
       - name: Upload reproducibility evidence
         if: always()
         uses: actions/upload-artifact@v7
