@@ -82,12 +82,12 @@ jobs:
             --evaluation ci-evidence/eval-all.json \
             --report ci-evidence/evaluation-verification.json
 
-      - name: Measure label-distribution reference baselines
+      - name: Measure matched label-distribution references
         run: |
           set -euo pipefail
           python scripts/eval/eval_baselines.py \
-            --batch-size 8 \
-            --batches 2 \
+            --batch-size 2 \
+            --batches 1 \
             --seed 1 \
             --out ci-evidence/eval-baselines.json \
             | tee ci-evidence/baseline-output.txt
@@ -97,6 +97,23 @@ jobs:
           python scripts/ci/verify_baseline_smoke.py \
             --evaluation ci-evidence/eval-baselines.json \
             --report ci-evidence/baseline-verification.json
+
+      - name: Compare model accuracy with exact-row references
+        run: |
+          set -euo pipefail
+          python scripts/analysis/compare_model_to_baselines.py \
+            --model ci-evidence/eval-all.json \
+            --baselines ci-evidence/eval-baselines.json \
+            --out ci-evidence/model-baseline-comparison.json \
+            | tee ci-evidence/model-baseline-comparison-output.txt
+
+      - name: Verify exact pairing, deltas, and claim boundaries
+        run: |
+          python scripts/ci/verify_model_baseline_comparison.py \
+            --model ci-evidence/eval-all.json \
+            --baselines ci-evidence/eval-baselines.json \
+            --comparison ci-evidence/model-baseline-comparison.json \
+            --report ci-evidence/model-baseline-comparison-verification.json
 
       - name: Upload reproducibility evidence
         if: always()
