@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Dict, Optional
 
 import torch
-from torch.cuda.amp import autocast, GradScaler
 
+from ..amp import autocast_context, make_grad_scaler
 from ..data import Curriculum, sample_batch
 from ..losses import total_loss
 from ..model import LAMJEPA, LAMJEPAConfig
@@ -43,7 +43,7 @@ class Trainer:
         self.model.to(self.device)
         self.opt = torch.optim.AdamW(self.model.parameters(), lr=train_cfg.lr, weight_decay=train_cfg.weight_decay)
         self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.opt, T_max=max(train_cfg.steps, 1))
-        self.scaler = GradScaler(enabled=train_cfg.amp and self.device.type == "cuda")
+        self.scaler = make_grad_scaler(enabled=train_cfg.amp and self.device.type == "cuda")
         self.curriculum = Curriculum()
         self.history = []
         self.step = 0
@@ -65,7 +65,7 @@ class Trainer:
         rubric = batch.rubric.to(self.device)
 
         self.opt.zero_grad(set_to_none=True)
-        with autocast(enabled=self.scaler.is_enabled()):
+        with autocast_context(device=self.device, enabled=self.scaler.is_enabled()):
             outputs = self.model(tokens, numeric_x=numeric_x, steps=0)
             loss, stats = total_loss(outputs, labels, rubric)
 

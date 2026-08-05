@@ -1,0 +1,70 @@
+name: Reproducibility CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lam-jepa-repro-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-training-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install CPU research environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e .
+
+      - name: Compile source and scripts
+        run: python -m compileall -q src scripts
+
+      - name: Run deterministic model training smoke
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/train/train_single.py \
+            --seed 1 \
+            --steps 1 \
+            --batch-size 2 \
+            --task parity \
+            --device cpu \
+            --checkpoint-dir ci-evidence/checkpoints \
+            --out ci-evidence/final.pt \
+            | tee ci-evidence/train-output.txt
+
+      - name: Verify checkpoint evidence
+        run: |
+          python scripts/ci/verify_training_smoke.py \
+            --checkpoint ci-evidence/final.pt \
+            --report ci-evidence/verification.json
+
+      - name: Upload reproducibility evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lam-jepa-training-smoke
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 7
