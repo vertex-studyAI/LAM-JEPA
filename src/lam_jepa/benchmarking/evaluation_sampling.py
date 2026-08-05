@@ -96,12 +96,22 @@ def _stack_examples(examples: Sequence[Batch], task: str) -> Batch:
 def _sample_generated_batch(task: str, batch_size: int, vocab_size: int) -> Batch:
     generator, kinds = _GENERATED_TASKS[task]
     offset = int(torch.randint(0, len(kinds), (1,)).item()) if len(kinds) > 1 else 0
-    examples = []
+    examples: list[Batch] = []
+    seen_prompts: set[str] = set()
 
     for index in range(batch_size):
         kind = kinds[(offset + index) % len(kinds)]
-        difficulty = 0.2 + 0.6 * float(torch.rand(1).item())
-        examples.append(generator(kind, difficulty=difficulty, vocab_size=vocab_size))
+        candidate = None
+        for _ in range(32):
+            difficulty = 0.2 + 0.6 * float(torch.rand(1).item())
+            candidate = generator(kind, difficulty=difficulty, vocab_size=vocab_size)
+            if task != "gsm8k" or candidate.prompt not in seen_prompts:
+                break
+        if candidate is None:
+            raise RuntimeError(f"failed to generate evaluation example for {task}")
+        examples.append(candidate)
+        if candidate.prompt:
+            seen_prompts.add(candidate.prompt)
 
     return _stack_examples(examples, task)
 
