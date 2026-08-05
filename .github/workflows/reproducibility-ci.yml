@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -37,6 +37,10 @@ jobs:
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -e .
 
+      - name: Confirm CPU-only execution
+        run: |
+          python -c 'import torch; assert not torch.cuda.is_available(), "reproducibility gate must remain CPU-only"; print({"torch": torch.__version__, "cuda_available": torch.cuda.is_available()})'
+
       - name: Compile source and scripts
         run: python -m compileall -q src scripts
 
@@ -50,11 +54,11 @@ jobs:
             --batch-size 2 \
             --task parity \
             --device cpu \
-            --checkpoint-dir ci-evidence/checkpoints \
+            --out-dir ci-evidence/checkpoints \
             --out ci-evidence/final.pt \
             | tee ci-evidence/train-output.txt
 
-      - name: Verify checkpoint evidence
+      - name: Verify canonical checkpoint evidence
         run: |
           python scripts/ci/verify_training_smoke.py \
             --checkpoint ci-evidence/final.pt \
