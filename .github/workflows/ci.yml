@@ -36,13 +36,7 @@ jobs:
           python -m pip install -e .
 
       - name: Confirm CPU-only execution
-        run: |
-          python - <<'PY'
-          import torch
-
-          assert not torch.cuda.is_available(), "reproducibility gate must remain CPU-only"
-          print({"torch": torch.__version__, "cuda_available": torch.cuda.is_available()})
-          PY
+        run: python -c 'import torch; assert not torch.cuda.is_available(), "reproducibility gate must remain CPU-only"; print({"torch": torch.__version__, "cuda_available": torch.cuda.is_available()})'
 
       - name: Compile Python sources
         run: python -m compileall -q src scripts tests
