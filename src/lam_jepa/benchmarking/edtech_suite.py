@@ -9,13 +9,13 @@ import numpy as np
 import torch
 
 from ..analysis.statistics import summarize_seed_runs
-from ..data import sample_batch
+from ..data import SUPPORTED_TASKS, sample_batch
 from ..model import LAMJEPA, LAMJEPAConfig
 from ..trainers.trainer import Trainer, TrainerConfig
 from ..utils import set_seed
 
 
-EDTECH_TASKS = ("parity", "modadd", "algebra", "chain", "gsm8k", "equation", "science", "reading", "tutoring", "reasoning")
+EDTECH_TASKS = SUPPORTED_TASKS
 
 
 def build_variant_config(base: LAMJEPAConfig, variant: str) -> LAMJEPAConfig:
