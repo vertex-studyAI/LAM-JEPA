@@ -10,6 +10,20 @@ import random
 import torch
 
 
+SUPPORTED_TASKS = (
+    "parity",
+    "modadd",
+    "algebra",
+    "chain",
+    "gsm8k",
+    "equation",
+    "science",
+    "reading",
+    "tutoring",
+    "reasoning",
+)
+
+
 @dataclass
 class Batch:
     tokens: torch.Tensor
@@ -26,7 +40,7 @@ class Batch:
 @dataclass
 class Curriculum:
     level: int = 0
-    tasks: list[str] = field(default_factory=lambda: ["parity", "modadd", "algebra", "chain", "gsm8k", "science", "reading", "tutoring", "reasoning"])
+    tasks: list[str] = field(default_factory=lambda: list(SUPPORTED_TASKS))
 
     def update(self, accuracy: float) -> None:
         if accuracy > 0.85 and self.level < len(self.tasks) - 1:
@@ -125,6 +139,29 @@ def algebra_batch(batch: int = 64, mod: int = 16, seq_len: int = 14, vocab_size:
     return Batch(tokens=tokens, numeric_x=numeric_x, labels=y.long(), rubric=rubric, concept="algebra", difficulty=0.45)
 
 
+def equation_batch(batch: int = 64, mod: int = 16, seq_len: int = 18, vocab_size: int = 256) -> Batch:
+    """Generate one-step distributive equations of the form a(x + b) = c."""
+    x = torch.randint(0, mod, (batch,))
+    a = torch.randint(1, 8, (batch,))
+    b = torch.randint(0, 8, (batch,))
+    c = a * (x + b)
+    y = x % mod
+    tokens = _make_tokens(batch, seq_len, vocab_size)
+    numeric_x = torch.stack([a.float(), b.float(), c.float()], dim=-1)
+    rubric = torch.stack([
+        (y % 8).float(),
+        torch.ones_like(y).float() * 8.0,
+        torch.clamp((a + b).float(), 0, 8),
+        torch.ones_like(y).float() * 7.0,
+    ], dim=-1)
+    return Batch(
+        tokens=tokens,
+        numeric_x=numeric_x,
+        labels=y.long(),
+        rubric=rubric,
+        concept="distributive_equation",
+        difficulty=0.58,
+    )
 
 
 def _repeat_example(example: Batch, batch: int) -> Batch:
@@ -135,6 +172,7 @@ def _repeat_example(example: Batch, batch: int) -> Batch:
     labels = example.labels.repeat(batch)
     rubric = example.rubric.repeat(batch, 1)
     return Batch(tokens=tokens, numeric_x=numeric_x, labels=labels, rubric=rubric, prompt=example.prompt, solution=example.solution, concept=example.concept, difficulty=example.difficulty, metadata=dict(example.metadata))
+
 
 def _science_batch(kind: str, batch: int, vocab_size: int) -> Batch:
     if kind == "force":
@@ -220,6 +258,8 @@ def sample_batch(task: str, batch: int = 64, vocab_size: int = 256) -> Batch:
         return parity_batch(batch=batch, vocab_size=vocab_size)
     if task == "algebra":
         return algebra_batch(batch=batch, vocab_size=vocab_size)
+    if task == "equation":
+        return equation_batch(batch=batch, vocab_size=vocab_size)
     if task == "gsm8k":
         return _repeat_example(_pack("A student buys 4 packs with 3 pencils each and gives away 2 pencils. How many pencils remain?", "10. Multiply packs by pencils and subtract the pencils given away.", 0, 0.65, [2.0, 8.0, 7.0, 6.0], vocab_size), batch)
     if task == "science":
@@ -247,8 +287,10 @@ __all__ = [
     "Batch",
     "Curriculum",
     "ReasoningExample",
+    "SUPPORTED_TASKS",
     "StudentSimulator",
     "StudentTrace",
+    "equation_batch",
     "sample_batch",
     "text_to_tokens",
     "generate_algebra_problem",
