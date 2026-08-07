@@ -155,7 +155,10 @@ def calibration_metrics(probabilities: torch.Tensor, labels: torch.Tensor, bins:
     for index in range(bins):
         lower = boundaries[index]
         upper = boundaries[index + 1]
-        mask = (confidence > lower) & (confidence <= upper if index else confidence >= lower)
+        if index == 0:
+            mask = (confidence >= lower) & (confidence <= upper)
+        else:
+            mask = (confidence > lower) & (confidence <= upper)
         if mask.any():
             ece += float(mask.float().mean().item()) * abs(
                 float(correct[mask].mean().item()) - float(confidence[mask].mean().item())
