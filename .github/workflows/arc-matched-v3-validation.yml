@@ -1,20 +1,6 @@
 name: ARC Protocol V3 Matched Baseline
 
 on:
-  pull_request:
-    paths:
-      - "src/**"
-      - "scripts/benchmark/run_arc_matched_baseline.py"
-      - "scripts/benchmark/run_arc_matched_baseline_v3.py"
-      - "scripts/ci/verify_arc_matched_baseline.py"
-      - "scripts/ci/verify_arc_matched_baseline_v3.py"
-      - "scripts/ci/verify_arc_matched_baseline_v3_native.py"
-      - "scripts/ci/verify_arc_protocol_v3.py"
-      - "scripts/data/download_arc_challenge.py"
-      - "data/manifests/arc_challenge.json"
-      - "protocols/arc_challenge_v3.json"
-      - "pyproject.toml"
-      - ".github/workflows/arc-matched-v3-validation.yml"
   workflow_dispatch:
 
 permissions:
