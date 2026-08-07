@@ -1,0 +1,82 @@
+name: ARC Quantizer Causal Ablation
+
+on:
+  pull_request:
+    paths:
+      - "src/lam_jepa/model.py"
+      - "src/lam_jepa/benchmarking/arc_challenge.py"
+      - "scripts/diagnostics/arc_quantizer_causal_ablation.py"
+      - "scripts/ci/verify_arc_quantizer_causal_ablation.py"
+      - ".github/workflows/arc-quantizer-causal-ablation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quantizer-causal-ablation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+
+      - name: Compile diagnostic and verifier
+        run: |
+          python -m py_compile \
+            scripts/diagnostics/arc_quantizer_causal_ablation.py \
+            scripts/ci/verify_arc_quantizer_causal_ablation.py
+
+      - name: Download checksum-addressed ARC train only
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/data/download_arc_challenge.py \
+            --splits train \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/download-train-only.json
+          test -e ci-evidence/arc-data/arc-challenge-train.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run train-only quantizer causal ablation
+        run: |
+          set -euo pipefail
+          python scripts/diagnostics/arc_quantizer_causal_ablation.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --out ci-evidence/arc-quantizer-causal-ablation.json \
+            --seeds 1 2 \
+            --per-class 8 \
+            --learning-rate 0.0003 \
+            --model-steps 1 \
+            | tee ci-evidence/arc-quantizer-causal-ablation-output.txt
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Verify diagnostic structure and decision rule
+        run: |
+          set -euo pipefail
+          python scripts/ci/verify_arc_quantizer_causal_ablation.py \
+            --results ci-evidence/arc-quantizer-causal-ablation.json \
+            --report ci-evidence/arc-quantizer-causal-ablation-verification.json \
+            | tee ci-evidence/arc-quantizer-causal-ablation-verifier-output.txt
+
+      - name: Upload causal-ablation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-quantizer-causal-ablation
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 30
