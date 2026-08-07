@@ -1,0 +1,133 @@
+{
+  "schema_version": 2,
+  "protocol_id": "lam-jepa-arc-challenge-v2",
+  "supersedes": "lam-jepa-arc-challenge-v1",
+  "status": "FROZEN_BEFORE_CONFIRMATORY_TEST",
+  "change_reason": "Independent QA found that excluding only the EMA target branch still over-counts LAM-JEPA capacity for ARC because several auxiliary heads are computed by the backbone but are not connected to the ARC training loss. V2 replaces static name-based accounting with empirical gradient-active accounting under the exact ARC objective before any confirmatory test access.",
+  "scientific_question": "Does LAM-JEPA improve held-out grade-school science multiple-choice accuracy over fair non-JEPA baselines on AI2 ARC-Challenge under a predeclared evaluation protocol?",
+  "claim_scope": {
+    "in_scope": [
+      "grade-school science multiple-choice reasoning on AI2 ARC-Challenge",
+      "calibration on the same multiple-choice task",
+      "answer-choice-order robustness",
+      "contribution of the latent-action planner and EMA target mechanism to this ARC result"
+    ],
+    "out_of_scope": [
+      "student diagnosis",
+      "adaptive tutoring effectiveness",
+      "student-state modeling",
+      "learning gains",
+      "general educational effectiveness",
+      "natural-language tutoring quality"
+    ]
+  },
+  "dataset": {
+    "name": "AI2 ARC-Challenge",
+    "manifest": "data/manifests/arc_challenge.json",
+    "license": "CC-BY-SA-4.0",
+    "train_sha256": "e488c1587ffdcfc8443f916c53488a95cd471c5790e0746c6bfe4cecf20962cb",
+    "validation_sha256": "395a5c88d1580d69855fbaee9450270578df1ad5af6259771cd0a42c20e99f05",
+    "test_sha256": "62f03257e737aed263f55c6abf87c7bb0028a44a6bdd2a26eb1279eb42c1d1e9",
+    "split_policy": {
+      "train": "training only",
+      "validation": "development, debugging, and model selection only",
+      "test": "single confirmatory evaluation stage after protocol, implementation, and validation-stage choices are frozen"
+    },
+    "leakage_rule": "Any overlapping item ID across train, validation, or test invalidates the run. Test labels or test-derived metrics must not influence model or hyperparameter selection."
+  },
+  "training_budget": {
+    "training_seeds": [1, 2, 3, 4, 5],
+    "epochs": 20,
+    "batch_size": 32,
+    "optimizer": "AdamW",
+    "lam_jepa_learning_rate": 0.0003,
+    "matched_baseline_learning_rate": 0.0003,
+    "pretrained_baseline_learning_rate": 0.00002,
+    "model_steps": 1,
+    "train_examples": "all manifest-declared train rows",
+    "validation_examples": "all manifest-declared validation rows",
+    "test_examples": "all manifest-declared test rows",
+    "budget_rule": "LAM-JEPA and the matched-capacity supervised baseline use identical rows, epochs, batch size, seeds, optimizer family, and evaluation passes. The pretrained baseline uses the same rows, epochs, batch size, seeds, and evaluation passes; model-specific learning rate is predeclared and compute plus parameter counts must be reported rather than described as parameter matched."
+  },
+  "models": {
+    "lam_jepa": {
+      "variant": "full",
+      "answer_head": "four-choice ARC classifier",
+      "planner_steps": 1
+    },
+    "majority_reference": {
+      "type": "train-label majority reference"
+    },
+    "matched_capacity_supervised_baseline": {
+      "type": "non-JEPA supervised encoder/classifier",
+      "forbidden_components": [
+        "EMA target encoder",
+        "JEPA alignment loss",
+        "latent-action planner",
+        "sparse memory",
+        "vector quantizer"
+      ],
+      "parameter_accounting": "Match the exact number of LAM-JEPA parameters that are gradient-active under the ARC training objective. Measure capacity by running the exact _lam_arc_loss backward pass on LAMARCClassifier and summing parameters for which grad is not None. Do not count EMA-only target parameters, auxiliary heads disconnected from the ARC loss, or buffers. Record active and inactive parameter names and counts as evidence.",
+      "allowed_parameter_ratio_min": 0.99,
+      "allowed_parameter_ratio_max": 1.01,
+      "forward_path_requirement": "All counted matched-baseline parameters must be gradient-active under its supervised ARC loss on the same accounting check."
+    },
+    "strong_pretrained_baseline": {
+      "model": "microsoft/deberta-v3-xsmall",
+      "revision": "14809e4f1fe1895fcba8b258271a940c6ca45ec4",
+      "license": "MIT",
+      "role": "strong pretrained multiple-choice comparison",
+      "parameter_matching": "not parameter matched; report exact trainable and total parameters plus training wall time or equivalent compute evidence"
+    }
+  },
+  "metrics": {
+    "primary": "multiple-choice accuracy",
+    "practical_effect_threshold_absolute": 0.02,
+    "uncertainty": "paired seed-level 95% bootstrap confidence interval for LAM-JEPA minus each trained baseline",
+    "calibration_primary": "Brier score",
+    "calibration_descriptive": ["ECE", "mean true-class probability"]
+  },
+  "robustness": {
+    "choice_order": "deterministically reverse answer choices with exact label remapping and retain per-example paired predictions",
+    "maximum_allowed_lam_accuracy_drop": 0.05,
+    "failure_rule": "A superiority claim is invalid if LAM-JEPA loses more than 0.05 absolute accuracy under the choice-order transform or is more than 0.02 worse than the strongest trained baseline on the same robustness delta."
+  },
+  "negative_control": {
+    "type": "deterministic training-label permutation",
+    "permutation_seed": 20260807,
+    "split": "validation only; never use confirmatory test labels for the negative control",
+    "failure_rule": "If the shuffled-label LAM-JEPA exceeds 0.35 validation accuracy, stop and investigate leakage or shortcut behavior before any test evaluation."
+  },
+  "ablations": {
+    "required": ["no_planner", "no_target"],
+    "supporting": ["no_quant", "no_memory"],
+    "mechanism_claim_rule": "Do not attribute the ARC result to a component unless the paired full-minus-ablation mean accuracy is at least 0.01 and its paired 95% bootstrap confidence interval excludes zero.",
+    "student_state": "No student-state contribution claim is made from ARC-Challenge, so this protocol does not use ARC to validate student-state modeling."
+  },
+  "claim_gate": {
+    "superiority": "LAM-JEPA may be described as outperforming a baseline only if the mean absolute accuracy gain is at least 0.02 and the paired 95% bootstrap confidence interval for the seed-level accuracy delta excludes zero.",
+    "strongest_baseline_rule": "Any headline superiority claim must hold against the strongest trained non-JEPA baseline, not only the majority reference or matched scratch baseline.",
+    "negative_results": "If the gate fails, retain all raw outputs and report the negative or inconclusive result without changing the protocol after seeing test outcomes."
+  },
+  "artifact_contract": {
+    "required": [
+      "exact repository commit SHA",
+      "exact dataset hashes",
+      "exact model revisions",
+      "all configs",
+      "all five seed records",
+      "raw per-example probabilities and predictions",
+      "LAM-JEPA ARC gradient-active parameter report",
+      "matched-baseline gradient-active parameter report",
+      "parameter-count ratio evidence",
+      "training duration or equivalent compute evidence",
+      "aggregate statistics derived from raw seed records",
+      "ablation outputs",
+      "robustness outputs",
+      "negative-control output",
+      "clean-checkout reproduction command"
+    ],
+    "independent_qa": "Lane 08 must reproduce the immutable result commit before any RESEARCH_COMPLETE classification."
+  },
+  "protocol_change_rule": "V1 remains immutable as an audit trail. V2 supersedes V1 before confirmatory test access. Any material change after V2 is merged requires a new protocol version before confirmatory test access. Never silently edit V1 or V2 in response to observed test results."
+}

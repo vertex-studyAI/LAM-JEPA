@@ -1,0 +1,79 @@
+name: ARC Protocol V2 QA
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lam-jepa-arc-protocol-v2-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  protocol-v2-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+
+      - name: Confirm CPU-only execution
+        run: |
+          python -c 'import torch; assert not torch.cuda.is_available(); print({"torch": torch.__version__, "cuda_available": torch.cuda.is_available()})'
+
+      - name: Compile scientific gate code
+        run: python -m compileall -q src scripts
+
+      - name: Verify immutable v1 audit trail
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol.py \
+            --protocol protocols/arc_challenge_v1.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-v1-verification.json
+
+      - name: Verify corrected frozen v2 protocol
+        run: |
+          python scripts/ci/verify_arc_protocol_v2.py \
+            --protocol protocols/arc_challenge_v2.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-v2-verification.json
+
+      - name: Measure exact ARC gradient-active LAM-JEPA capacity
+        run: |
+          python scripts/ci/measure_arc_gradient_capacity.py \
+            --seed 20260807 \
+            --batch-size 4 \
+            --seq-len 32 \
+            --model-steps 1 \
+            --report ci-evidence/arc-gradient-capacity.json
+
+      - name: Upload protocol QA evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-protocol-v2-qa
+          path: ci-evidence
+          if-no-files-found: error
+          retention-days: 14
