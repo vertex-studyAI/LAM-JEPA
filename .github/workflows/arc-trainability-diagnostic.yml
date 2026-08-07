@@ -1,0 +1,68 @@
+name: ARC Trainability Diagnostic
+
+on:
+  pull_request:
+    paths:
+      - "src/lam_jepa/model.py"
+      - "src/lam_jepa/benchmarking/arc_challenge.py"
+      - "src/lam_jepa/benchmarking/arc_protocol.py"
+      - "scripts/benchmark/run_arc_matched_baseline.py"
+      - "scripts/diagnostics/arc_trainability_overfit.py"
+      - "scripts/ci/verify_arc_trainability_overfit.py"
+      - ".github/workflows/arc-trainability-diagnostic.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trainability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+      - name: Compile diagnostic
+        run: |
+          python -m py_compile scripts/diagnostics/arc_trainability_overfit.py scripts/ci/verify_arc_trainability_overfit.py
+      - name: Download checksum-addressed ARC train only
+        run: |
+          mkdir -p ci-evidence
+          python scripts/data/download_arc_challenge.py --splits train --out-dir ci-evidence/arc-data | tee ci-evidence/download-train-only.json
+          test -e ci-evidence/arc-data/arc-challenge-train.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+      - name: Run balanced train-only overfit falsifier
+        run: |
+          python scripts/diagnostics/arc_trainability_overfit.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --out ci-evidence/arc-trainability-overfit.json \
+            --seeds 1 2 \
+            --per-class 8 \
+            --learning-rate 0.0003 \
+            --model-steps 1 \
+            | tee ci-evidence/arc-trainability-overfit-output.txt
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+      - name: Independently verify diagnostic
+        run: |
+          python scripts/ci/verify_arc_trainability_overfit.py \
+            --results ci-evidence/arc-trainability-overfit.json \
+            --report ci-evidence/arc-trainability-overfit-verification.json \
+            | tee ci-evidence/arc-trainability-overfit-verifier-output.txt
+      - name: Upload diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-trainability-diagnostic
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 30
