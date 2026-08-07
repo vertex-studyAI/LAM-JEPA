@@ -1,0 +1,111 @@
+name: ARC Near-Continuous Hard-VQ Falsifier
+
+on:
+  pull_request:
+    paths:
+      - "scripts/diagnostics/arc_near_continuous_vq_falsifier.py"
+      - ".github/workflows/arc-near-continuous-vq-falsifier.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  near-continuous-vq-falsifier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+          python -m py_compile scripts/diagnostics/arc_near_continuous_vq_falsifier.py
+
+      - name: Download ARC train only
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/data/download_arc_challenge.py \
+            --splits train \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/download-train-only.json
+          test -e ci-evidence/arc-data/arc-challenge-train.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run final hard-VQ residual falsifier
+        run: |
+          set -euo pipefail
+          python scripts/diagnostics/arc_near_continuous_vq_falsifier.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --out ci-evidence/arc-near-continuous-vq-falsifier.json \
+            | tee ci-evidence/arc-near-continuous-vq-falsifier-output.txt
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Assert frozen ladder and decision rule
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p=json.loads(Path('ci-evidence/arc-near-continuous-vq-falsifier.json').read_text())
+          assert p['artifact_type'] == 'LAM-JEPA ARC near-continuous hard-VQ falsifier'
+          assert p['scope'] == 'training-only diagnostic; no validation or test access'
+          assert p['subset']['rows'] == 32 and p['subset']['per_class'] == 8
+          assert p['training']['seeds'] == [1,2] and p['training']['steps'] == 300
+          assert p['training']['overfit_threshold'] == 0.95
+          expected = {
+              'stable_mix_0_25': 0.25,
+              'stable_mix_0_125': 0.125,
+              'stable_mix_0_0625': 0.0625,
+              'stable_mix_0_03125': 0.03125,
+          }
+          assert p['hard_fractions'] == expected
+          assert set(p['records']) == set(expected) | {'no_quantizer'}
+          assert p['claim_boundary'] == {
+              'validation_accessed': False,
+              'test_accessed': False,
+              'performance_claim_authorized': False,
+              'research_complete': False,
+          }
+          passing=[]
+          for condition, fraction in expected.items():
+              records=p['records'][condition]
+              assert [r['seed'] for r in records] == [1,2]
+              assert all(r['hard_fraction'] == fraction for r in records)
+              assert all(abs(r['continuous_residual_fraction']-(1.0-fraction)) < 1e-12 for r in records)
+              for record in records:
+                  assert len(record['history']) == 9
+                  assert all(point['quantizer_state']['finite'] is True for point in record['history'])
+              if p['summaries'][condition]['all_seeds_reach_overfit_threshold']:
+                  passing.append((fraction, condition))
+          nq=p['records']['no_quantizer']
+          assert [r['seed'] for r in nq] == [1,2]
+          assert all(len(r['history']) == 9 for r in nq)
+          selected=max(passing)[1] if passing else None
+          assert p['largest_passing_hard_fraction_condition'] == selected
+          if selected:
+              assert p['diagnosis'] == 'NEAR_CONTINUOUS_HARD_VQ_CONTRIBUTION_CAN_COEXIST_WITH_TRAINABILITY'
+          elif p['summaries']['no_quantizer']['all_seeds_reach_overfit_threshold']:
+              assert p['diagnosis'] == 'HARD_VQ_INCOMPATIBLE_WITH_FROZEN_TRAINABILITY_GATE'
+          else:
+              assert p['diagnosis'] == 'POSITIVE_REFERENCE_DRIFT_OR_MIXED_FAILURE'
+          PY
+
+      - name: Upload final hard-VQ evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-near-continuous-vq-falsifier
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 30
