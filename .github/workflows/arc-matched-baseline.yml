@@ -1,0 +1,88 @@
+name: ARC matched supervised baseline
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "scripts/benchmark/run_arc_matched_baseline.py"
+      - "scripts/ci/verify_arc_matched_baseline.py"
+      - "scripts/data/download_arc_challenge.py"
+      - "data/manifests/arc_challenge.json"
+      - "pyproject.toml"
+      - ".github/workflows/arc-matched-baseline.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  arc-matched-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+
+      - name: Compile matched-baseline code
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/benchmark/run_arc_matched_baseline.py \
+            scripts/ci/verify_arc_matched_baseline.py
+
+      - name: Download checksum-addressed ARC train and validation only
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/arc-download.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run bounded parameter-matched comparison
+        run: |
+          set -euo pipefail
+          python scripts/benchmark/run_arc_matched_baseline.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --seeds 1 2 \
+            --epochs 1 \
+            --batch-size 4 \
+            --model-steps 1 \
+            --train-limit 32 \
+            --validation-limit 32 \
+            --device cpu \
+            --match-tolerance 0.05 \
+            --out ci-evidence/arc-matched-baseline.json \
+            | tee ci-evidence/arc-matched-baseline-output.txt
+
+      - name: Independently verify matched-baseline evidence
+        run: |
+          set -euo pipefail
+          python scripts/ci/verify_arc_matched_baseline.py \
+            --results ci-evidence/arc-matched-baseline.json \
+            --report ci-evidence/arc-matched-baseline-verification.json \
+            | tee ci-evidence/arc-matched-baseline-verifier-output.txt
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-matched-baseline-smoke
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 14
