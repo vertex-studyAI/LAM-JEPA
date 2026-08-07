@@ -1,0 +1,94 @@
+name: ARC Matched Baseline QA
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lam-jepa-arc-matched-baseline-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  matched-baseline-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install CPU research environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+
+      - name: Confirm CPU-only execution
+        run: |
+          python -c 'import torch; assert not torch.cuda.is_available(); print({"torch": torch.__version__, "cuda_available": torch.cuda.is_available()})'
+
+      - name: Compile baseline and verifier
+        run: python -m compileall -q src scripts
+
+      - name: Verify frozen protocol v2
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol_v2.py \
+            --protocol protocols/arc_challenge_v2.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-v2-verification.json
+
+      - name: Download checksum-addressed ARC train and validation only
+        run: |
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/arc-download.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run paired matched-capacity ARC smoke
+        run: |
+          python scripts/benchmark/run_arc_matched_baseline_smoke.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --seeds 1 2 \
+            --epochs 1 \
+            --batch-size 4 \
+            --lr 0.0003 \
+            --model-steps 1 \
+            --train-limit 16 \
+            --validation-limit 16 \
+            --device cpu \
+            --out ci-evidence/arc-matched-baseline-smoke.json \
+            | tee ci-evidence/arc-matched-baseline-output.txt
+
+      - name: Verify matched-capacity evidence and test isolation
+        run: |
+          python scripts/ci/verify_arc_matched_baseline_smoke.py \
+            --results ci-evidence/arc-matched-baseline-smoke.json \
+            --expected-seeds 1 2 \
+            --report ci-evidence/arc-matched-baseline-verification.json
+
+      - name: Upload matched-baseline evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-matched-baseline-qa
+          path: ci-evidence
+          if-no-files-found: error
+          retention-days: 14
