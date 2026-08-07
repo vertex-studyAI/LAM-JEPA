@@ -1,0 +1,149 @@
+name: ARC Protocol V3 Matched Baseline
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "scripts/benchmark/run_arc_matched_baseline.py"
+      - "scripts/benchmark/run_arc_matched_baseline_v3.py"
+      - "scripts/ci/verify_arc_matched_baseline.py"
+      - "scripts/ci/verify_arc_matched_baseline_v3.py"
+      - "scripts/ci/verify_arc_matched_baseline_v3_native.py"
+      - "scripts/ci/verify_arc_protocol_v3.py"
+      - "scripts/data/download_arc_challenge.py"
+      - "data/manifests/arc_challenge.json"
+      - "protocols/arc_challenge_v3.json"
+      - "pyproject.toml"
+      - ".github/workflows/arc-matched-v3-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  matched-v3-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+      - name: Compile v3 matched code
+        run: |
+          python -m py_compile \
+            scripts/benchmark/run_arc_matched_baseline.py \
+            scripts/benchmark/run_arc_matched_baseline_v3.py \
+            scripts/ci/verify_arc_matched_baseline.py \
+            scripts/ci/verify_arc_matched_baseline_v3_native.py \
+            scripts/ci/verify_arc_protocol_v3.py
+      - name: Verify frozen v3 and acquire train/validation only
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol_v3.py --protocol protocols/arc_challenge_v3.json --dataset-manifest data/manifests/arc_challenge.json --report ci-evidence/protocol-v3.json
+          python scripts/data/download_arc_challenge.py --splits train validation --out-dir ci-evidence/arc-data | tee ci-evidence/download.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+      - name: Run eligible matched development smoke
+        run: |
+          python scripts/benchmark/run_arc_matched_baseline_v3.py \
+            --run-stage development_smoke \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --seeds 1 2 \
+            --epochs 1 \
+            --batch-size 4 \
+            --learning-rate 0.0003 \
+            --model-steps 1 \
+            --train-limit 32 \
+            --validation-limit 64 \
+            --device cpu \
+            --match-tolerance 0.01 \
+            --out ci-evidence/matched-v3-smoke.json | tee ci-evidence/matched-v3-smoke-output.txt
+      - name: Independently verify matched smoke
+        run: |
+          python scripts/ci/verify_arc_matched_baseline_v3_native.py \
+            --results ci-evidence/matched-v3-smoke.json \
+            --protocol protocols/arc_challenge_v3.json \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --expected-stage development_smoke \
+            --report ci-evidence/matched-v3-verification.json
+      - name: Upload smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-matched-v3-smoke
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 14
+
+  matched-v3-full-validation:
+    needs: matched-v3-smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+      - name: Compile v3 matched verification
+        run: |
+          python -m py_compile \
+            scripts/benchmark/run_arc_matched_baseline.py \
+            scripts/benchmark/run_arc_matched_baseline_v3.py \
+            scripts/ci/verify_arc_matched_baseline.py \
+            scripts/ci/verify_arc_matched_baseline_v3_native.py \
+            scripts/ci/verify_arc_protocol_v3.py
+      - name: Acquire checksum train/validation only
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol_v3.py --protocol protocols/arc_challenge_v3.json --dataset-manifest data/manifests/arc_challenge.json --report ci-evidence/protocol-v3.json
+          python scripts/data/download_arc_challenge.py --splits train validation --out-dir ci-evidence/arc-data | tee ci-evidence/download.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+      - name: Run frozen matched validation budget
+        run: |
+          python scripts/benchmark/run_arc_matched_baseline_v3.py \
+            --run-stage validation_stage \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --seeds 1 2 3 4 5 \
+            --epochs 20 \
+            --batch-size 32 \
+            --learning-rate 0.0003 \
+            --model-steps 1 \
+            --train-limit 0 \
+            --validation-limit 0 \
+            --device cpu \
+            --match-tolerance 0.01 \
+            --out ci-evidence/matched-v3-full-validation.json | tee ci-evidence/matched-v3-full-validation-output.txt
+      - name: Independently verify frozen matched validation
+        run: |
+          python scripts/ci/verify_arc_matched_baseline_v3_native.py \
+            --results ci-evidence/matched-v3-full-validation.json \
+            --protocol protocols/arc_challenge_v3.json \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --expected-stage validation_stage \
+            --report ci-evidence/matched-v3-full-validation-verification.json
+      - name: Upload full matched validation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-matched-v3-full-validation
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 30
