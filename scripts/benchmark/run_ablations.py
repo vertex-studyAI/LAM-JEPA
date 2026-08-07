@@ -17,7 +17,7 @@ for p in (ROOT, SRC):
 import argparse
 import json
 
-from lam_jepa.benchmarking.runner import ablation_suite, save_json
+from lam_jepa.benchmarking.edtech_suite import ablation_suite, save_json
 
 
 def main():
