@@ -1,0 +1,128 @@
+name: ARC Protocol V3 Full Controls Reverify
+
+on:
+  pull_request:
+    paths:
+      - "scripts/ci/verify_arc_protocol_v3_full_controls_artifact.py"
+      - ".github/workflows/arc-protocol-v3-full-controls-reverify.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  reverify-retained-artifact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout verifier head
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install verification environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+
+      - name: Compile verification code only
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/ci/verify_arc_protocol_v3_controls.py \
+            scripts/ci/verify_arc_protocol_v3_full_controls_artifact.py
+
+      - name: Fetch immutable source-artifact metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p retained-evidence verification-evidence
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            repos/${GITHUB_REPOSITORY}/actions/artifacts/9000793334 \
+            > verification-evidence/source-artifact-metadata.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          meta = json.loads(Path('verification-evidence/source-artifact-metadata.json').read_text())
+          assert meta['id'] == 9000793334
+          assert meta['name'] == 'arc-protocol-v3-full-controls-validation'
+          assert meta['digest'] == 'sha256:55fd44d8c6633e21b3f195cc8ba27656c0ddc8a2fe9e96ec8756a12c035bb295'
+          assert meta['workflow_run']['id'] == 31195682685
+          assert meta['workflow_run']['head_sha'] == 'a61f689ae1127140b960173c6f0f316862fb00f2'
+          assert meta['expired'] is False
+          print(json.dumps({
+              'artifact_id': meta['id'],
+              'digest': meta['digest'],
+              'workflow_run_id': meta['workflow_run']['id'],
+              'head_sha': meta['workflow_run']['head_sha'],
+              'expired': meta['expired'],
+          }, indent=2))
+          PY
+
+      - name: Download exact retained source artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run download 31195682685 \
+            -n arc-protocol-v3-full-controls-validation \
+            -D retained-evidence
+          test -f retained-evidence/arc-protocol-v3-full-controls-validation.json
+          test -f retained-evidence/arc-data/arc-challenge-train.parquet
+          test -f retained-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e retained-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Reverify raw retained evidence without retraining
+        run: |
+          set -euo pipefail
+          python scripts/ci/verify_arc_protocol_v3_full_controls_artifact.py \
+            --results retained-evidence/arc-protocol-v3-full-controls-validation.json \
+            --protocol protocols/arc_challenge_v3.json \
+            --train retained-evidence/arc-data/arc-challenge-train.parquet \
+            --validation retained-evidence/arc-data/arc-challenge-validation.parquet \
+            --artifact-metadata verification-evidence/source-artifact-metadata.json \
+            --report verification-evidence/full-controls-artifact-verification.json \
+            | tee verification-evidence/full-controls-artifact-verifier-output.txt
+
+      - name: Assert no retraining and claim boundaries
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('verification-evidence/full-controls-artifact-verification.json').read_text())
+          assert report['verdict'] == 'PROTOCOL_V3_FULL_CONTROLS_ARTIFACT_VERIFIED_ONLY'
+          assert report['source_evidence']['workflow_run_id'] == 31195682685
+          assert report['budget']['seeds'] == [1, 2, 3, 4, 5]
+          assert report['budget']['epochs'] == 20
+          assert report['budget']['batch_size'] == 32
+          assert report['budget']['train_eligible_rows'] == 1117
+          assert report['budget']['validation_eligible_rows'] == 295
+          assert report['negative_control_pass'] is True
+          assert report['locked_test_evaluated'] is False
+          assert report['mechanism_claim_authorized'] is False
+          assert report['research_complete'] is False
+          print(json.dumps({
+              'status': 'passed',
+              'source_run_reused_without_retraining': True,
+              'locked_test_evaluated': report['locked_test_evaluated'],
+              'research_complete': report['research_complete'],
+          }, indent=2))
+          PY
+
+      - name: Upload reverification evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-protocol-v3-full-controls-reverification
+          path: verification-evidence
+          if-no-files-found: error
+          retention-days: 30
