@@ -5,9 +5,13 @@ on:
     paths:
       - "src/**"
       - "scripts/benchmark/run_arc_pretrained_baseline.py"
+      - "scripts/benchmark/run_arc_pretrained_v2_deberta.py"
       - "scripts/ci/verify_arc_pretrained_baseline.py"
+      - "scripts/ci/verify_arc_pretrained_v2_deberta.py"
+      - "scripts/ci/verify_arc_protocol_v2.py"
       - "scripts/data/download_arc_challenge.py"
       - "data/manifests/arc_challenge.json"
+      - "protocols/arc_challenge_v2.json"
       - "pyproject.toml"
       - ".github/workflows/arc-pretrained-baseline.yml"
   workflow_dispatch:
@@ -95,5 +99,98 @@ jobs:
         with:
           name: arc-pretrained-baseline-smoke
           path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 14
+
+  arc-pretrained-v2-deberta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned hardened CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[pretrained-baselines]'
+          python - <<'PY'
+          from packaging.version import Version
+          import torch
+          import transformers
+          assert transformers.__version__ == "4.57.6", transformers.__version__
+          assert Version(torch.__version__.split("+", 1)[0]) >= Version("2.6.0"), torch.__version__
+          print({"torch": torch.__version__, "transformers": transformers.__version__})
+          PY
+
+      - name: Compile protocol-v2 pretrained code
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/benchmark/run_arc_pretrained_baseline.py \
+            scripts/benchmark/run_arc_pretrained_v2_deberta.py \
+            scripts/ci/verify_arc_pretrained_baseline.py \
+            scripts/ci/verify_arc_pretrained_v2_deberta.py \
+            scripts/ci/verify_arc_protocol_v2.py
+
+      - name: Verify frozen ARC protocol v2
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence-deberta
+          python scripts/ci/verify_arc_protocol_v2.py \
+            --protocol protocols/arc_challenge_v2.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence-deberta/arc-protocol-v2-verification.json
+
+      - name: Download checksum-addressed ARC train and validation only
+        run: |
+          set -euo pipefail
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence-deberta/arc-data \
+            | tee ci-evidence-deberta/arc-download-deberta.json
+          test ! -e ci-evidence-deberta/arc-data/arc-challenge-test.parquet
+
+      - name: Run frozen protocol-v2 DeBERTa development comparison
+        run: |
+          set -euo pipefail
+          python scripts/benchmark/run_arc_pretrained_v2_deberta.py \
+            --train ci-evidence-deberta/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence-deberta/arc-data/arc-challenge-validation.parquet \
+            --seeds 1 2 \
+            --epochs 1 \
+            --batch-size 2 \
+            --learning-rate 2e-5 \
+            --max-length 96 \
+            --max-train-steps 1 \
+            --model-steps 1 \
+            --train-limit 8 \
+            --validation-limit 16 \
+            --device cpu \
+            --out ci-evidence-deberta/arc-pretrained-v2-deberta.json \
+            | tee ci-evidence-deberta/arc-pretrained-v2-deberta-output.txt
+
+      - name: Independently verify frozen DeBERTa evidence
+        run: |
+          set -euo pipefail
+          python scripts/ci/verify_arc_pretrained_v2_deberta.py \
+            --results ci-evidence-deberta/arc-pretrained-v2-deberta.json \
+            --protocol protocols/arc_challenge_v2.json \
+            --report ci-evidence-deberta/arc-pretrained-v2-deberta-verification.json \
+            | tee ci-evidence-deberta/arc-pretrained-v2-deberta-verifier-output.txt
+
+      - name: Upload protocol-v2 DeBERTa evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-pretrained-v2-deberta-smoke
+          path: ci-evidence-deberta
           if-no-files-found: warn
           retention-days: 14
