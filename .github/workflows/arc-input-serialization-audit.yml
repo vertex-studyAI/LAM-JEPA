@@ -1,0 +1,61 @@
+name: ARC Canonical Input Visibility Audit
+
+on:
+  pull_request:
+    paths:
+      - "src/lam_jepa/benchmarking/arc_challenge.py"
+      - "src/lam_jepa/data.py"
+      - "src/lam_jepa/benchmarking/arc_protocol.py"
+      - "scripts/data/audit_arc_input_serialization.py"
+      - "scripts/ci/verify_arc_input_serialization_audit.py"
+      - ".github/workflows/arc-input-serialization-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+      - name: Compile audit
+        run: |
+          python -m py_compile scripts/data/audit_arc_input_serialization.py scripts/ci/verify_arc_input_serialization_audit.py
+      - name: Download checksum-addressed ARC train and validation only
+        run: |
+          mkdir -p ci-evidence
+          python scripts/data/download_arc_challenge.py --splits train validation --out-dir ci-evidence/arc-data | tee ci-evidence/download.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+      - name: Audit canonical prompt visibility
+        run: |
+          python scripts/data/audit_arc_input_serialization.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --out ci-evidence/input-visibility-audit.json \
+            | tee ci-evidence/input-visibility-output.txt
+      - name: Independently verify audit structure
+        run: |
+          python scripts/ci/verify_arc_input_serialization_audit.py \
+            --audit ci-evidence/input-visibility-audit.json \
+            --report ci-evidence/input-visibility-verification.json \
+            | tee ci-evidence/input-visibility-verifier-output.txt
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+      - name: Upload audit evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-canonical-input-visibility-audit
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 30
