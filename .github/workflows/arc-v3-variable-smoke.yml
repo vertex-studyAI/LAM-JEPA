@@ -1,0 +1,101 @@
+name: ARC V3 variable-choice smoke
+
+on:
+  pull_request:
+    paths:
+      - "protocols/arc_challenge_v2.json"
+      - "protocols/arc_challenge_v3.json"
+      - "data/manifests/arc_challenge.json"
+      - "src/lam_jepa/benchmarking/arc_variable_choice.py"
+      - "scripts/benchmark/run_arc_v3_variable_smoke.py"
+      - "scripts/ci/verify_arc_protocol_v3.py"
+      - "scripts/ci/verify_arc_v3_variable_smoke.py"
+      - ".github/workflows/arc-v3-variable-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-train-validation-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+
+      - name: Compile v3 implementation and verifiers
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            src/lam_jepa/benchmarking/arc_variable_choice.py \
+            scripts/benchmark/run_arc_v3_variable_smoke.py \
+            scripts/ci/verify_arc_protocol_v3.py \
+            scripts/ci/verify_arc_v3_variable_smoke.py
+
+      - name: Verify frozen protocol v3
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol_v3.py \
+            --protocol protocols/arc_challenge_v3.json \
+            --v2 protocols/arc_challenge_v2.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-v3-verification.json
+
+      - name: Download checksum-addressed ARC train and validation only
+        run: |
+          set -euo pipefail
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/arc-download-v3.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run two-seed full train and validation variable-choice smoke
+        run: |
+          set -euo pipefail
+          python scripts/benchmark/run_arc_v3_variable_smoke.py \
+            --protocol protocols/arc_challenge_v3.json \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --seeds 1 2 \
+            --epochs 1 \
+            --batch-size 32 \
+            --learning-rate 3e-4 \
+            --model-steps 1 \
+            --device cpu \
+            --require-non-four-validation \
+            --out ci-evidence/arc-v3-variable-smoke.json \
+            | tee ci-evidence/arc-v3-variable-smoke-output.txt
+
+      - name: Independently verify variable-choice evidence
+        run: |
+          set -euo pipefail
+          python scripts/ci/verify_arc_v3_variable_smoke.py \
+            --results ci-evidence/arc-v3-variable-smoke.json \
+            --protocol protocols/arc_challenge_v3.json \
+            --report ci-evidence/arc-v3-variable-smoke-verification.json \
+            | tee ci-evidence/arc-v3-variable-smoke-verifier-output.txt
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-v3-variable-choice-smoke
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 14
