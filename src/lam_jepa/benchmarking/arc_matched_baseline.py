@@ -64,7 +64,8 @@ def build_matched_capacity_arc_classifier(
     if not (0.0 < allowed_ratio_min <= 1.0 <= allowed_ratio_max):
         raise ValueError("allowed ratio interval must contain 1.0")
 
-    best: tuple[float, int, int] | None = None
+    best_allowed: tuple[float, int, int] | None = None
+    nearest: tuple[float, int, int] | None = None
     for hidden_width in range(1, max_hidden_width + 1):
         candidate = MatchedCapacityARCClassifier(
             cfg,
@@ -74,26 +75,38 @@ def build_matched_capacity_arc_classifier(
         count = trainable_parameter_count(candidate)
         ratio = count / target_parameters
         distance = abs(1.0 - ratio)
-        if best is None or distance < best[0]:
-            best = (distance, hidden_width, count)
+        if nearest is None or distance < nearest[0]:
+            nearest = (distance, hidden_width, count)
         if allowed_ratio_min <= ratio <= allowed_ratio_max:
-            spec = MatchedCapacitySpec(
-                target_parameters=target_parameters,
-                actual_parameters=count,
-                parameter_ratio=ratio,
-                hidden_width=hidden_width,
-                allowed_ratio_min=allowed_ratio_min,
-                allowed_ratio_max=allowed_ratio_max,
-            )
-            return candidate, spec
+            if best_allowed is None or distance < best_allowed[0]:
+                best_allowed = (distance, hidden_width, count)
+        elif ratio > allowed_ratio_max and best_allowed is not None:
+            break
 
-    assert best is not None
-    _, hidden_width, count = best
-    raise RuntimeError(
-        "could not construct a matched-capacity ARC baseline within the allowed ratio: "
-        f"target={target_parameters}, nearest={count}, width={hidden_width}, "
-        f"ratio={count / target_parameters:.6f}"
+    if best_allowed is None:
+        assert nearest is not None
+        _, hidden_width, count = nearest
+        raise RuntimeError(
+            "could not construct a matched-capacity ARC baseline within the allowed ratio: "
+            f"target={target_parameters}, nearest={count}, width={hidden_width}, "
+            f"ratio={count / target_parameters:.6f}"
+        )
+
+    _, hidden_width, count = best_allowed
+    model = MatchedCapacityARCClassifier(
+        cfg,
+        hidden_width=hidden_width,
+        num_choices=num_choices,
     )
+    spec = MatchedCapacitySpec(
+        target_parameters=target_parameters,
+        actual_parameters=count,
+        parameter_ratio=count / target_parameters,
+        hidden_width=hidden_width,
+        allowed_ratio_min=allowed_ratio_min,
+        allowed_ratio_max=allowed_ratio_max,
+    )
+    return model, spec
 
 
 def gradient_active_parameter_count(model: nn.Module) -> tuple[int, list[str], list[str]]:
