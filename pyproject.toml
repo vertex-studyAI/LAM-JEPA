@@ -18,6 +18,11 @@ dependencies = [
   "pandas>=2.2",
 ]
 
+[project.optional-dependencies]
+external-benchmarks = [
+  "pyarrow>=17",
+]
+
 [project.scripts]
 lam-jepa = "lam_jepa.__main__:main"
 
