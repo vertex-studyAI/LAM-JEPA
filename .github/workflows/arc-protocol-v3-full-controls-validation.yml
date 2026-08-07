@@ -6,6 +6,7 @@ on:
       - "src/**"
       - "scripts/benchmark/run_arc_protocol_v3_controls.py"
       - "scripts/ci/verify_arc_protocol_v3_controls.py"
+      - "scripts/ci/verify_arc_protocol_v3_full_controls.py"
       - "scripts/ci/verify_arc_protocol_v3.py"
       - "scripts/data/download_arc_challenge.py"
       - "data/manifests/arc_challenge.json"
@@ -44,6 +45,7 @@ jobs:
           python -m py_compile \
             scripts/benchmark/run_arc_protocol_v3_controls.py \
             scripts/ci/verify_arc_protocol_v3_controls.py \
+            scripts/ci/verify_arc_protocol_v3_full_controls.py \
             scripts/ci/verify_arc_protocol_v3.py
 
       - name: Verify frozen ARC protocol v3
@@ -81,10 +83,10 @@ jobs:
             --out ci-evidence/arc-protocol-v3-full-controls-validation.json \
             | tee ci-evidence/arc-protocol-v3-full-controls-validation-output.txt
 
-      - name: Independently verify frozen controls validation
+      - name: Independently verify frozen full controls validation
         run: |
           set -euo pipefail
-          python scripts/ci/verify_arc_protocol_v3_controls.py \
+          python scripts/ci/verify_arc_protocol_v3_full_controls.py \
             --results ci-evidence/arc-protocol-v3-full-controls-validation.json \
             --protocol protocols/arc_challenge_v3.json \
             --train ci-evidence/arc-data/arc-challenge-train.parquet \
@@ -109,10 +111,15 @@ jobs:
           assert p['train_eligibility']['used_rows'] == p['train_eligibility']['eligible_rows'] == 1117
           assert p['validation_eligibility']['used_rows'] == p['validation_eligibility']['eligible_rows'] == 295
           assert p['test_split_policy'] == 'not downloaded or evaluated by this development command'
+          assert verification['verdict'] == 'PROTOCOL_V3_FULL_CONTROLS_VALIDATION_VERIFIED'
           assert verification['seeds'] == [1, 2, 3, 4, 5]
+          assert verification['epochs'] == 20
           assert verification['train_used_rows'] == verification['train_eligible_rows'] == 1117
           assert verification['validation_used_rows'] == verification['validation_eligible_rows'] == 295
           assert verification['locked_test_evaluated'] is False
+          assert verification['final_five_seed_20_epoch_protocol_executed'] is True
+          assert verification['aggregate_normalization_only'] is True
+          assert verification['maximum_observed_aggregate_drift'] <= 1e-6
           assert verification['research_complete'] is False
           print(json.dumps({
               'status': 'passed',
@@ -123,6 +130,7 @@ jobs:
               'eligible_train_rows': p['train_eligibility']['eligible_rows'],
               'eligible_validation_rows': p['validation_eligibility']['eligible_rows'],
               'negative_control_pass': verification['negative_control_pass'],
+              'maximum_observed_aggregate_drift': verification['maximum_observed_aggregate_drift'],
               'locked_test_evaluated': verification['locked_test_evaluated'],
           }, indent=2))
           PY
