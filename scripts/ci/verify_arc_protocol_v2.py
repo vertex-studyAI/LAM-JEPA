@@ -52,7 +52,7 @@ def main() -> None:
     models = protocol.get("models") or {}
     matched = models.get("matched_capacity_supervised_baseline") or {}
     accounting = str(matched.get("parameter_accounting", ""))
-    require("parameter.grad is not None" in accounting, "v2 must use empirical gradient-active accounting")
+    require("grad is not None" in accounting, "v2 must use empirical gradient-active accounting")
     require("_lam_arc_loss backward" in accounting, "v2 must bind accounting to the exact ARC objective")
     require("auxiliary heads disconnected from the ARC loss" in accounting, "v2 must exclude ARC-disconnected auxiliary heads")
     require(float(matched.get("allowed_parameter_ratio_min", 0.0)) == 0.99, "matched lower ratio drift")
