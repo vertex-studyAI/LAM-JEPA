@@ -1,0 +1,38 @@
+name: ARC V5 Validation Protocol Freeze
+
+on:
+  pull_request:
+    paths:
+      - "protocols/arc_challenge_v5_repaired_validation.json"
+      - "scripts/ci/verify_arc_v5_validation_protocol.py"
+      - ".github/workflows/arc-v5-validation-protocol-freeze.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  freeze-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Verify frozen contract without acquiring ARC data
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_v5_validation_protocol.py \
+            --protocol protocols/arc_challenge_v5_repaired_validation.json \
+            --report ci-evidence/arc-v5-validation-protocol-freeze.json
+          test ! -e ci-evidence/arc-data
+      - name: Upload protocol freeze evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-v5-validation-protocol-freeze
+          path: ci-evidence/arc-v5-validation-protocol-freeze.json
+          if-no-files-found: warn
+          retention-days: 30
