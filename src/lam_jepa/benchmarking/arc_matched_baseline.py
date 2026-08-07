@@ -63,16 +63,38 @@ def build_matched_capacity_arc_classifier(
         raise ValueError("target_parameters must be positive")
     if not (0.0 < allowed_ratio_min <= 1.0 <= allowed_ratio_max):
         raise ValueError("allowed ratio interval must contain 1.0")
+    if max_hidden_width < 2:
+        raise ValueError("max_hidden_width must be >= 2")
+
+    # Only the two dense layers inside capacity_mlp depend on hidden_width, so the parameter
+    # count is affine in width. Two probe models recover that exact line and avoid constructing
+    # hundreds of full encoders merely to search for the nearest capacity.
+    probe_one = MatchedCapacityARCClassifier(cfg, hidden_width=1, num_choices=num_choices)
+    probe_two = MatchedCapacityARCClassifier(cfg, hidden_width=2, num_choices=num_choices)
+    count_one = trainable_parameter_count(probe_one)
+    count_two = trainable_parameter_count(probe_two)
+    slope = count_two - count_one
+    if slope <= 0:
+        raise RuntimeError(f"matched baseline parameter count is not increasing with width: slope={slope}")
+    intercept = count_one - slope
+
+    estimated_width = round((target_parameters - intercept) / slope)
+    candidate_widths = sorted(
+        {
+            width
+            for width in range(estimated_width - 3, estimated_width + 4)
+            if 1 <= width <= max_hidden_width
+        }
+    )
+    if not candidate_widths:
+        raise RuntimeError(
+            f"target {target_parameters} implies hidden width {estimated_width}, outside [1, {max_hidden_width}]"
+        )
 
     best_allowed: tuple[float, int, int] | None = None
     nearest: tuple[float, int, int] | None = None
-    for hidden_width in range(1, max_hidden_width + 1):
-        candidate = MatchedCapacityARCClassifier(
-            cfg,
-            hidden_width=hidden_width,
-            num_choices=num_choices,
-        )
-        count = trainable_parameter_count(candidate)
+    for hidden_width in candidate_widths:
+        count = intercept + slope * hidden_width
         ratio = count / target_parameters
         distance = abs(1.0 - ratio)
         if nearest is None or distance < nearest[0]:
@@ -80,8 +102,6 @@ def build_matched_capacity_arc_classifier(
         if allowed_ratio_min <= ratio <= allowed_ratio_max:
             if best_allowed is None or distance < best_allowed[0]:
                 best_allowed = (distance, hidden_width, count)
-        elif ratio > allowed_ratio_max and best_allowed is not None:
-            break
 
     if best_allowed is None:
         assert nearest is not None
@@ -92,16 +112,17 @@ def build_matched_capacity_arc_classifier(
             f"ratio={count / target_parameters:.6f}"
         )
 
-    _, hidden_width, count = best_allowed
-    model = MatchedCapacityARCClassifier(
-        cfg,
-        hidden_width=hidden_width,
-        num_choices=num_choices,
-    )
+    _, hidden_width, predicted_count = best_allowed
+    model = MatchedCapacityARCClassifier(cfg, hidden_width=hidden_width, num_choices=num_choices)
+    actual_count = trainable_parameter_count(model)
+    if actual_count != predicted_count:
+        raise RuntimeError(
+            f"baseline parameter-count formula drift: predicted={predicted_count}, actual={actual_count}"
+        )
     spec = MatchedCapacitySpec(
         target_parameters=target_parameters,
-        actual_parameters=count,
-        parameter_ratio=count / target_parameters,
+        actual_parameters=actual_count,
+        parameter_ratio=actual_count / target_parameters,
         hidden_width=hidden_width,
         allowed_ratio_min=allowed_ratio_min,
         allowed_ratio_max=allowed_ratio_max,
