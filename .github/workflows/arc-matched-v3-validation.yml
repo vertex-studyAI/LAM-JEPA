@@ -8,6 +8,7 @@ on:
       - "scripts/benchmark/run_arc_matched_baseline_v3.py"
       - "scripts/ci/verify_arc_matched_baseline.py"
       - "scripts/ci/verify_arc_matched_baseline_v3.py"
+      - "scripts/ci/verify_arc_matched_baseline_v3_native.py"
       - "scripts/ci/verify_arc_protocol_v3.py"
       - "scripts/data/download_arc_challenge.py"
       - "data/manifests/arc_challenge.json"
@@ -40,7 +41,7 @@ jobs:
             scripts/benchmark/run_arc_matched_baseline.py \
             scripts/benchmark/run_arc_matched_baseline_v3.py \
             scripts/ci/verify_arc_matched_baseline.py \
-            scripts/ci/verify_arc_matched_baseline_v3.py \
+            scripts/ci/verify_arc_matched_baseline_v3_native.py \
             scripts/ci/verify_arc_protocol_v3.py
       - name: Verify frozen v3 and acquire train/validation only
         run: |
@@ -67,10 +68,8 @@ jobs:
             --out ci-evidence/matched-v3-smoke.json | tee ci-evidence/matched-v3-smoke-output.txt
       - name: Independently verify matched smoke
         run: |
-          python scripts/ci/verify_arc_matched_baseline.py --results ci-evidence/matched-v3-smoke.json --report ci-evidence/matched-base-verification.json
-          python scripts/ci/verify_arc_matched_baseline_v3.py \
+          python scripts/ci/verify_arc_matched_baseline_v3_native.py \
             --results ci-evidence/matched-v3-smoke.json \
-            --base-verification ci-evidence/matched-base-verification.json \
             --protocol protocols/arc_challenge_v3.json \
             --train ci-evidence/arc-data/arc-challenge-train.parquet \
             --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
@@ -100,6 +99,14 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -e '.[external-benchmarks]'
+      - name: Compile v3 matched verification
+        run: |
+          python -m py_compile \
+            scripts/benchmark/run_arc_matched_baseline.py \
+            scripts/benchmark/run_arc_matched_baseline_v3.py \
+            scripts/ci/verify_arc_matched_baseline.py \
+            scripts/ci/verify_arc_matched_baseline_v3_native.py \
+            scripts/ci/verify_arc_protocol_v3.py
       - name: Acquire checksum train/validation only
         run: |
           set -euo pipefail
@@ -125,10 +132,8 @@ jobs:
             --out ci-evidence/matched-v3-full-validation.json | tee ci-evidence/matched-v3-full-validation-output.txt
       - name: Independently verify frozen matched validation
         run: |
-          python scripts/ci/verify_arc_matched_baseline.py --results ci-evidence/matched-v3-full-validation.json --report ci-evidence/matched-base-verification.json
-          python scripts/ci/verify_arc_matched_baseline_v3.py \
+          python scripts/ci/verify_arc_matched_baseline_v3_native.py \
             --results ci-evidence/matched-v3-full-validation.json \
-            --base-verification ci-evidence/matched-base-verification.json \
             --protocol protocols/arc_challenge_v3.json \
             --train ci-evidence/arc-data/arc-challenge-train.parquet \
             --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
