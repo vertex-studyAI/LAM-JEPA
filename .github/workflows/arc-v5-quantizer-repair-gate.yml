@@ -30,12 +30,16 @@ jobs:
       - name: Compile and unit-test explicit repair
         run: |
           set -euo pipefail
+          mkdir -p ci-evidence
           python -m py_compile src/lam_jepa/benchmarking/arc_v5_repair.py scripts/diagnostics/arc_v5_repair_overfit.py
-          pytest -q tests/unit/test_arc_v5_quantizer_repair.py
+          set +e
+          pytest -q tests/unit/test_arc_v5_quantizer_repair.py 2>&1 | tee ci-evidence/arc-v5-unit-test-output.txt
+          status=${PIPESTATUS[0]}
+          set -e
+          exit "$status"
       - name: Download checksum-addressed ARC train only
         run: |
           set -euo pipefail
-          mkdir -p ci-evidence
           python scripts/data/download_arc_challenge.py --splits train --out-dir ci-evidence/arc-data | tee ci-evidence/download-train-only.json
           test -e ci-evidence/arc-data/arc-challenge-train.parquet
           test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
