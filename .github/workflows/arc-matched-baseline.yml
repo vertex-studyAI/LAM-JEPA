@@ -1,18 +1,6 @@
 name: ARC matched supervised baseline
 
 on:
-  pull_request:
-    paths:
-      - "src/**"
-      - "scripts/benchmark/run_arc_matched_baseline.py"
-      - "scripts/ci/verify_arc_matched_baseline.py"
-      - "scripts/ci/verify_arc_matched_baseline_v2_contract.py"
-      - "scripts/ci/verify_arc_protocol_v2.py"
-      - "scripts/data/download_arc_challenge.py"
-      - "data/manifests/arc_challenge.json"
-      - "protocols/arc_challenge_v2.json"
-      - "pyproject.toml"
-      - ".github/workflows/arc-matched-baseline.yml"
   workflow_dispatch:
 
 permissions:
