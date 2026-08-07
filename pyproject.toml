@@ -25,6 +25,7 @@ external-benchmarks = [
 pretrained-baselines = [
   "pyarrow>=17",
   "transformers==4.57.6",
+  "sentencepiece==0.2.1",
 ]
 
 [project.scripts]
