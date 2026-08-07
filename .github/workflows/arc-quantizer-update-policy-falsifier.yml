@@ -1,0 +1,88 @@
+name: ARC Quantizer Update Policy Falsifier
+
+on:
+  pull_request:
+    paths:
+      - "scripts/diagnostics/arc_quantizer_update_policy_falsifier.py"
+      - ".github/workflows/arc-quantizer-update-policy-falsifier.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  update-policy-falsifier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+          python -m py_compile scripts/diagnostics/arc_quantizer_update_policy_falsifier.py
+
+      - name: Download ARC train only
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/data/download_arc_challenge.py \
+            --splits train \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/download-train-only.json
+          test -e ci-evidence/arc-data/arc-challenge-train.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run update-policy falsifier
+        run: |
+          set -euo pipefail
+          python scripts/diagnostics/arc_quantizer_update_policy_falsifier.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --out ci-evidence/arc-quantizer-update-policy-falsifier.json \
+            | tee ci-evidence/arc-quantizer-update-policy-falsifier-output.txt
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Assert frozen diagnostic boundaries
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('ci-evidence/arc-quantizer-update-policy-falsifier.json').read_text())
+          assert p['artifact_type'] == 'LAM-JEPA ARC quantizer update-policy falsifier'
+          assert p['scope'] == 'training-only diagnostic; no validation or test access'
+          assert p['subset']['rows'] == 32 and p['subset']['per_class'] == 8
+          assert p['training']['seeds'] == [1,2] and p['training']['steps'] == 300
+          assert p['training']['overfit_threshold'] == 0.95
+          assert set(p['records']) == {'canonical','stable_ema','frozen_codebook','delayed_100'}
+          assert p['claim_boundary'] == {
+              'validation_accessed': False,
+              'test_accessed': False,
+              'performance_claim_authorized': False,
+              'research_complete': False,
+          }
+          for records in p['records'].values():
+              assert [r['seed'] for r in records] == [1,2]
+              for record in records:
+                  assert len(record['history']) == 11
+                  for point in record['history']:
+                      assert point['quantizer_state']['finite'] is True
+          PY
+
+      - name: Upload update-policy evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-quantizer-update-policy-falsifier
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 30
