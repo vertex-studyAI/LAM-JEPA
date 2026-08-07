@@ -1,0 +1,50 @@
+name: ARC Protocol V3 QA
+
+on:
+  pull_request:
+    paths:
+      - "protocols/arc_challenge_v2.json"
+      - "protocols/arc_challenge_v3.json"
+      - "data/manifests/arc_challenge.json"
+      - "scripts/ci/verify_arc_protocol_v3.py"
+      - ".github/workflows/arc-protocol-v3-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-protocol-v3:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Compile verifier
+        run: python -m py_compile scripts/ci/verify_arc_protocol_v3.py
+
+      - name: Verify frozen protocol v3
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol_v3.py \
+            --protocol protocols/arc_challenge_v3.json \
+            --v2 protocols/arc_challenge_v2.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-v3-verification.json
+
+      - name: Upload protocol evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-protocol-v3-qa
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 14
