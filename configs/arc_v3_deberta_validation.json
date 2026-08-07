@@ -1,0 +1,40 @@
+{
+  "config_id": "arc-v3-deberta-validation-20260807",
+  "protocol_id": "lam-jepa-arc-challenge-v3",
+  "status": "FROZEN_BEFORE_VALIDATION_EXECUTION",
+  "dataset": "AI2 ARC-Challenge",
+  "eligibility_rule": "retain a row if and only if len(choices) == 4",
+  "test_split_policy": "not downloaded or evaluated during validation-stage execution",
+  "seeds": [1, 2, 3, 4, 5],
+  "epochs": 20,
+  "batch_size": 32,
+  "lam_jepa_learning_rate": 0.0003,
+  "pretrained_learning_rate": 0.00002,
+  "optimizer": "AdamW",
+  "model_steps": 1,
+  "max_length": 96,
+  "max_train_steps": null,
+  "gradient_clip_norm": 1.0,
+  "pretrained_model": {
+    "model_id": "microsoft/deberta-v3-xsmall",
+    "revision": "14809e4f1fe1895fcba8b258271a940c6ca45ec4",
+    "license": "MIT",
+    "transformers_version": "4.57.6",
+    "sentencepiece_version": "0.2.1",
+    "minimum_torch_version": "2.6.0",
+    "trust_remote_code": false,
+    "weights_only": true,
+    "use_safetensors": false
+  },
+  "row_budget": {
+    "train": "all protocol-v3 eligible train rows",
+    "validation": "all protocol-v3 eligible validation rows"
+  },
+  "evaluation": {
+    "primary_metric": "multiple-choice accuracy",
+    "calibration_metrics": ["brier", "ece", "mean_true_class_probability"],
+    "robustness": "deterministic reversal of answer-choice order with exact label remapping",
+    "retain_raw_predictions": true
+  },
+  "change_rule": "Do not edit this config after validation-stage execution starts. Any material change requires a new config_id before rerunning validation."
+}
