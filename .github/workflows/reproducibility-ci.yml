@@ -35,7 +35,7 @@ jobs:
           set -euo pipefail
           python -m pip install --upgrade pip
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
-          python -m pip install -e .
+          python -m pip install -e '.[external-benchmarks]'
 
       - name: Confirm CPU-only execution
         run: |
@@ -43,6 +43,38 @@ jobs:
 
       - name: Compile source and scripts
         run: python -m compileall -q src scripts
+
+      - name: Download checksum-addressed ARC-Challenge train and validation only
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/arc-download.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run externally grounded ARC-Challenge smoke
+        run: |
+          set -euo pipefail
+          python scripts/benchmark/run_arc_challenge.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --seeds 1 2 \
+            --epochs 1 \
+            --batch-size 4 \
+            --model-steps 1 \
+            --train-limit 16 \
+            --validation-limit 16 \
+            --device cpu \
+            --out ci-evidence/arc-challenge-smoke.json \
+            | tee ci-evidence/arc-challenge-output.txt
+
+      - name: Verify ARC split, raw predictions, calibration, and claim boundaries
+        run: |
+          python scripts/ci/verify_arc_challenge_smoke.py \
+            --results ci-evidence/arc-challenge-smoke.json \
+            --report ci-evidence/arc-challenge-verification.json
 
       - name: Exercise documented multi-seed benchmark interface
         run: |
