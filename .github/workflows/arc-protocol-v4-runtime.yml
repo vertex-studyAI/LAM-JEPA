@@ -1,0 +1,127 @@
+name: ARC Protocol V4 Runtime
+
+on:
+  pull_request:
+    paths:
+      - "protocols/arc_challenge_v4.json"
+      - "scripts/data/materialize_arc_protocol_v3_eligible.py"
+      - "scripts/benchmark/run_arc_pretrained_v4_deberta.py"
+      - "scripts/ci/verify_arc_protocol_v4.py"
+      - "scripts/ci/verify_arc_pretrained_v4_deberta.py"
+      - ".github/workflows/arc-protocol-v4-runtime.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  HF_HUB_DISABLE_TELEMETRY: "1"
+  TOKENIZERS_PARALLELISM: "false"
+
+jobs:
+  arc-protocol-v4-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install verified hardened environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[pretrained-baselines]'
+          python - <<'PY'
+          from packaging.version import Version
+          import sentencepiece, torch, transformers
+          assert transformers.__version__ == '4.57.6', transformers.__version__
+          assert sentencepiece.__version__ == '0.2.1', sentencepiece.__version__
+          assert Version(torch.__version__.split('+', 1)[0]) >= Version('2.6.0'), torch.__version__
+          print({'torch': torch.__version__, 'transformers': transformers.__version__, 'sentencepiece': sentencepiece.__version__})
+          PY
+
+      - name: Compile v4 code
+        run: |
+          python -m py_compile \
+            scripts/data/materialize_arc_protocol_v3_eligible.py \
+            scripts/benchmark/run_arc_pretrained_v2_deberta.py \
+            scripts/benchmark/run_arc_pretrained_v4_deberta.py \
+            scripts/ci/verify_arc_protocol_v4.py \
+            scripts/ci/verify_arc_pretrained_v2_deberta.py \
+            scripts/ci/verify_arc_pretrained_v4_deberta.py
+
+      - name: Verify immutable v3 and runtime-only v4
+        run: |
+          mkdir -p ci-evidence-v4
+          python scripts/ci/verify_arc_protocol_v4.py \
+            --protocol protocols/arc_challenge_v4.json \
+            --report ci-evidence-v4/protocol-v4.json
+
+      - name: Download checksum-locked development splits only
+        run: |
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence-v4/arc-data \
+            | tee ci-evidence-v4/download.json
+          test ! -e ci-evidence-v4/arc-data/arc-challenge-test.parquet
+
+      - name: Materialize canonical v3 eligible rows
+        run: |
+          mkdir -p ci-evidence-v4/eligible
+          python scripts/data/materialize_arc_protocol_v3_eligible.py \
+            --input ci-evidence-v4/arc-data/arc-challenge-train.parquet \
+            --output ci-evidence-v4/eligible/train.parquet \
+            --split train \
+            --report ci-evidence-v4/train-eligibility.json
+          python scripts/data/materialize_arc_protocol_v3_eligible.py \
+            --input ci-evidence-v4/arc-data/arc-challenge-validation.parquet \
+            --output ci-evidence-v4/eligible/validation.parquet \
+            --split validation \
+            --report ci-evidence-v4/validation-eligibility.json
+          python - <<'PY'
+          import json
+          train = json.load(open('ci-evidence-v4/train-eligibility.json'))
+          val = json.load(open('ci-evidence-v4/validation-eligibility.json'))
+          assert (train['source_rows'], train['eligible_rows'], train['excluded_rows']) == (1119, 1117, 2), train
+          assert (val['source_rows'], val['eligible_rows'], val['excluded_rows']) == (299, 295, 4), val
+          assert train['test_split_accessed'] is False and val['test_split_accessed'] is False
+          PY
+          test ! -e ci-evidence-v4/arc-data/arc-challenge-test.parquet
+
+      - name: Run bounded v4 DeBERTa development smoke
+        run: |
+          python scripts/benchmark/run_arc_pretrained_v4_deberta.py \
+            --train ci-evidence-v4/eligible/train.parquet \
+            --validation ci-evidence-v4/eligible/validation.parquet \
+            --seeds 1 2 \
+            --epochs 1 \
+            --batch-size 2 \
+            --learning-rate 2e-5 \
+            --max-length 96 \
+            --max-train-steps 1 \
+            --model-steps 1 \
+            --train-limit 8 \
+            --validation-limit 16 \
+            --device cpu \
+            --out ci-evidence-v4/deberta-v4-smoke.json \
+            | tee ci-evidence-v4/deberta-v4-smoke-output.txt
+
+      - name: Independently verify v4 binding
+        run: |
+          python scripts/ci/verify_arc_pretrained_v4_deberta.py \
+            --results ci-evidence-v4/deberta-v4-smoke.json \
+            --protocol protocols/arc_challenge_v4.json \
+            --report ci-evidence-v4/deberta-v4-verification.json
+          test ! -e ci-evidence-v4/arc-data/arc-challenge-test.parquet
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-protocol-v4-runtime
+          path: ci-evidence-v4
+          if-no-files-found: warn
+          retention-days: 30
