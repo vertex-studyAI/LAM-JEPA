@@ -1,0 +1,110 @@
+name: ARC V3 Matched Full Validation
+
+on:
+  pull_request:
+    paths:
+      - "protocols/arc_challenge_v3.json"
+      - "data/manifests/arc_challenge.json"
+      - "src/lam_jepa/benchmarking/arc_protocol.py"
+      - "scripts/benchmark/run_arc_matched_baseline.py"
+      - "scripts/benchmark/run_arc_protocol_v3_matched_validation.py"
+      - "scripts/ci/verify_arc_protocol_v3.py"
+      - "scripts/ci/verify_arc_protocol_v3_matched_validation.py"
+      - ".github/workflows/arc-v3-matched-full-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  matched-full-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU research environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+
+      - name: Compile matched validation code
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/benchmark/run_arc_matched_baseline.py \
+            scripts/benchmark/run_arc_protocol_v3_matched_validation.py \
+            scripts/ci/verify_arc_protocol_v3_matched_validation.py
+
+      - name: Verify frozen ARC protocol v3
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol_v3.py \
+            --protocol protocols/arc_challenge_v3.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-v3-verification.json
+
+      - name: Download checksum-addressed ARC train and validation only
+        run: |
+          set -euo pipefail
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/arc-download-v3-matched.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run frozen five-seed twenty-epoch matched validation package
+        run: |
+          set -euo pipefail
+          python scripts/benchmark/run_arc_protocol_v3_matched_validation.py \
+            --protocol protocols/arc_challenge_v3.json \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --device cpu \
+            --out ci-evidence/arc-v3-matched-full-validation.json \
+            | tee ci-evidence/arc-v3-matched-full-validation-output.txt
+
+      - name: Independently verify matched full validation evidence
+        run: |
+          set -euo pipefail
+          python scripts/ci/verify_arc_protocol_v3_matched_validation.py \
+            --results ci-evidence/arc-v3-matched-full-validation.json \
+            --protocol protocols/arc_challenge_v3.json \
+            --report ci-evidence/arc-v3-matched-full-validation-verification.json \
+            | tee ci-evidence/arc-v3-matched-full-validation-verifier-output.txt
+
+      - name: Assert frozen budget and no test access
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result=json.loads(Path('ci-evidence/arc-v3-matched-full-validation.json').read_text())
+          p=result['protocol']
+          assert p['training_seeds']==[1,2,3,4,5]
+          assert p['epochs']==20
+          assert p['batch_size']==32
+          assert p['train_examples_used']==1117
+          assert p['validation_examples_used']==295
+          assert p['confirmatory_test_accessed'] is False
+          assert 0.99 <= p['parameter_ratio_matched_to_lam_active'] <= 1.01
+          PY
+
+      - name: Upload matched validation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-v3-matched-full-validation
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 14
