@@ -44,6 +44,15 @@ jobs:
       - name: Compile source and scripts
         run: python -m compileall -q src scripts
 
+      - name: Verify frozen ARC-Challenge scientific protocol
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol.py \
+            --protocol protocols/arc_challenge_v1.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-verification.json
+
       - name: Download checksum-addressed ARC-Challenge train and validation only
         run: |
           set -euo pipefail
