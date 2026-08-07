@@ -1,0 +1,125 @@
+name: ARC Protocol V3 QA
+
+on:
+  pull_request:
+    paths:
+      - "src/lam_jepa/benchmarking/arc_protocol.py"
+      - "scripts/data/audit_arc_protocol_v3_eligibility.py"
+      - "scripts/ci/verify_arc_protocol_v3.py"
+      - "scripts/ci/verify_arc_protocol_v3_eligibility.py"
+      - "scripts/ci/verify_arc_protocol.py"
+      - "scripts/ci/verify_arc_protocol_v2.py"
+      - "scripts/data/download_arc_challenge.py"
+      - "data/manifests/arc_challenge.json"
+      - "protocols/arc_challenge_v1.json"
+      - "protocols/arc_challenge_v2.json"
+      - "protocols/arc_challenge_v3.json"
+      - "pyproject.toml"
+      - ".github/workflows/arc-protocol-v3-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/lam_jepa/benchmarking/arc_protocol.py"
+      - "scripts/data/audit_arc_protocol_v3_eligibility.py"
+      - "scripts/ci/verify_arc_protocol_v3.py"
+      - "scripts/ci/verify_arc_protocol_v3_eligibility.py"
+      - "data/manifests/arc_challenge.json"
+      - "protocols/arc_challenge_v1.json"
+      - "protocols/arc_challenge_v2.json"
+      - "protocols/arc_challenge_v3.json"
+      - ".github/workflows/arc-protocol-v3-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  protocol-v3-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU research environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+
+      - name: Compile protocol-v3 code
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            src/lam_jepa/benchmarking/arc_protocol.py \
+            scripts/data/audit_arc_protocol_v3_eligibility.py \
+            scripts/ci/verify_arc_protocol_v3.py \
+            scripts/ci/verify_arc_protocol_v3_eligibility.py \
+            scripts/ci/verify_arc_protocol.py \
+            scripts/ci/verify_arc_protocol_v2.py
+
+      - name: Verify immutable protocol v1
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol.py \
+            --protocol protocols/arc_challenge_v1.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-v1-verification.json
+
+      - name: Verify immutable protocol v2 audit trail
+        run: |
+          python scripts/ci/verify_arc_protocol_v2.py \
+            --protocol protocols/arc_challenge_v2.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-v2-verification.json
+
+      - name: Verify frozen protocol v3
+        run: |
+          python scripts/ci/verify_arc_protocol_v3.py \
+            --protocol protocols/arc_challenge_v3.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-v3-verification.json
+
+      - name: Download checksum-addressed train and validation only
+        run: |
+          set -euo pipefail
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/arc-download-v3.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Audit protocol-v3 eligibility on accessed splits
+        run: |
+          python scripts/data/audit_arc_protocol_v3_eligibility.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --out ci-evidence/arc-protocol-v3-eligibility.json \
+            | tee ci-evidence/arc-protocol-v3-eligibility-output.txt
+
+      - name: Independently verify eligibility evidence
+        run: |
+          python scripts/ci/verify_arc_protocol_v3_eligibility.py \
+            --audit ci-evidence/arc-protocol-v3-eligibility.json \
+            --protocol protocols/arc_challenge_v3.json \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --report ci-evidence/arc-protocol-v3-eligibility-verification.json \
+            | tee ci-evidence/arc-protocol-v3-eligibility-verifier-output.txt
+
+      - name: Upload protocol-v3 evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-protocol-v3-qa
+          path: ci-evidence
+          if-no-files-found: error
+          retention-days: 14
