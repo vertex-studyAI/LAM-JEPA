@@ -1,0 +1,156 @@
+{
+  "schema_version": 3,
+  "protocol_id": "lam-jepa-arc-challenge-v3",
+  "supersedes": "lam-jepa-arc-challenge-v2",
+  "status": "FROZEN_BEFORE_CONFIRMATORY_TEST",
+  "change_reason": "A checksum-addressed train/validation audit performed before any confirmatory test access showed that ARC-Challenge contains 3-, 4-, and 5-choice items, while protocol v2 hardcoded a four-class answer head and simultaneously required full splits. V3 repairs that internal incompatibility by freezing a variable-choice scoring interface that preserves all rows and normalizes scores only across the choices actually present for each item. No test data were downloaded or inspected to make this change.",
+  "scientific_question": "Does LAM-JEPA improve held-out grade-school science multiple-choice accuracy over fair non-JEPA baselines on AI2 ARC-Challenge under a predeclared evaluation protocol?",
+  "claim_scope": {
+    "in_scope": [
+      "grade-school science multiple-choice reasoning on AI2 ARC-Challenge",
+      "calibration on the same multiple-choice task",
+      "answer-choice-order robustness",
+      "contribution of the latent-action planner and EMA target mechanism to this ARC result"
+    ],
+    "out_of_scope": [
+      "student diagnosis",
+      "adaptive tutoring effectiveness",
+      "student-state modeling",
+      "learning gains",
+      "general educational effectiveness",
+      "natural-language tutoring quality"
+    ]
+  },
+  "dataset": {
+    "name": "AI2 ARC-Challenge",
+    "manifest": "data/manifests/arc_challenge.json",
+    "license": "CC-BY-SA-4.0",
+    "train_sha256": "e488c1587ffdcfc8443f916c53488a95cd471c5790e0746c6bfe4cecf20962cb",
+    "validation_sha256": "395a5c88d1580d69855fbaee9450270578df1ad5af6259771cd0a42c20e99f05",
+    "test_sha256": "62f03257e737aed263f55c6abf87c7bb0028a44a6bdd2a26eb1279eb42c1d1e9",
+    "split_policy": {
+      "train": "training only",
+      "validation": "development, debugging, and model selection only",
+      "test": "single confirmatory evaluation stage after protocol, implementation, and validation-stage choices are frozen"
+    },
+    "row_policy": "Use every manifest-declared row. Do not filter by answer-choice cardinality. The scorer must support the number of choices present in each item.",
+    "pre_test_cardinality_evidence": {
+      "test_split_accessed": false,
+      "train_rows": 1119,
+      "train_choice_count_distribution": {"3": 1, "4": 1117, "5": 1},
+      "validation_rows": 299,
+      "validation_choice_count_distribution": {"3": 3, "4": 295, "5": 1},
+      "audit_artifact_id": 9000175495,
+      "audit_artifact_sha256": "8c718f4d3b1dcd21fc4e9b88662cd89b1151fdb8986efadaca92833601243671"
+    },
+    "leakage_rule": "Any overlapping item ID across train, validation, or test invalidates the run. Test labels or test-derived metrics must not influence model or hyperparameter selection."
+  },
+  "training_budget": {
+    "training_seeds": [1, 2, 3, 4, 5],
+    "epochs": 20,
+    "batch_size": 32,
+    "optimizer": "AdamW",
+    "lam_jepa_learning_rate": 0.0003,
+    "matched_baseline_learning_rate": 0.0003,
+    "pretrained_baseline_learning_rate": 0.00002,
+    "model_steps": 1,
+    "train_examples": "all manifest-declared train rows",
+    "validation_examples": "all manifest-declared validation rows",
+    "test_examples": "all manifest-declared test rows",
+    "budget_rule": "LAM-JEPA and the matched-capacity supervised baseline use identical rows, epochs, question-level batch size, seeds, optimizer family, and evaluation passes. The pretrained baseline uses the same rows, epochs, question-level batch size, seeds, and evaluation passes; model-specific learning rate is predeclared and compute plus parameter counts must be reported rather than described as parameter matched."
+  },
+  "answer_interface": {
+    "type": "variable-choice shared candidate scorer",
+    "candidate_input": "For each question, form one model input per candidate using the same question text and exactly one candidate answer. Do not encode candidate position as a feature.",
+    "normalization": "Produce one scalar score per candidate and apply softmax only across the candidates present for that question.",
+    "batching": "A question is the unit of the declared batch size. Implementations may flatten candidate inputs internally but must reconstruct question boundaries exactly before the supervised loss or metrics.",
+    "loss": "Cross-entropy over each question's available candidate scores plus the predeclared LAM-JEPA auxiliary losses for the full model.",
+    "robustness_invariant": "Reversing choice order must only reorder candidate scores and remap the label; candidate text scoring itself must not use the original position index.",
+    "failure_rule": "Any row dropped because it has 3, 4, 5, or another valid positive number of choices invalidates the run. Any confirmatory item with fewer than 2 choices invalidates the dataset row and must be reported rather than silently removed."
+  },
+  "models": {
+    "lam_jepa": {
+      "variant": "full",
+      "answer_head": "shared scalar candidate scorer over the LAM-JEPA representation",
+      "planner_steps": 1
+    },
+    "majority_reference": {
+      "type": "train-label majority reference conditioned on choice cardinality",
+      "rule": "Estimate the most frequent zero-based answer index separately for each choice cardinality observed in training; if an unseen cardinality occurs outside training, use deterministic index 0 and record that fallback."
+    },
+    "matched_capacity_supervised_baseline": {
+      "type": "non-JEPA supervised shared candidate scorer",
+      "forbidden_components": [
+        "EMA target encoder",
+        "JEPA alignment loss",
+        "latent-action planner",
+        "sparse memory",
+        "vector quantizer"
+      ],
+      "parameter_accounting": "Match the exact number of LAM-JEPA parameters that are gradient-active under the protocol-v3 variable-choice ARC training objective. Measure capacity by running the exact full-model variable-choice loss backward pass and summing parameters for which grad is not None. Do not count EMA-only target parameters, auxiliary heads disconnected from the ARC loss, or buffers. Record active and inactive parameter names and counts as evidence.",
+      "allowed_parameter_ratio_min": 0.99,
+      "allowed_parameter_ratio_max": 1.01,
+      "forward_path_requirement": "All counted matched-baseline parameters must be gradient-active under its supervised variable-choice ARC loss on the same accounting check."
+    },
+    "strong_pretrained_baseline": {
+      "model": "microsoft/deberta-v3-xsmall",
+      "revision": "14809e4f1fe1895fcba8b258271a940c6ca45ec4",
+      "license": "MIT",
+      "role": "strong pretrained multiple-choice comparison",
+      "parameter_matching": "not parameter matched; report exact trainable and total parameters plus training wall time or equivalent compute evidence",
+      "variable_choice_rule": "Batch or group examples in a way that preserves every question and its actual candidate count; do not pad a candidate with semantic content or drop rows to force four choices."
+    }
+  },
+  "metrics": {
+    "primary": "multiple-choice accuracy",
+    "practical_effect_threshold_absolute": 0.02,
+    "uncertainty": "paired seed-level 95% bootstrap confidence interval for LAM-JEPA minus each trained baseline",
+    "calibration_primary": "multiclass Brier score computed over each item's actual candidate set",
+    "calibration_descriptive": ["ECE", "mean true-class probability"]
+  },
+  "robustness": {
+    "choice_order": "deterministically reverse answer choices with exact label remapping and retain per-example paired predictions; the shared candidate scorer must produce correspondingly reordered probabilities for unchanged candidate texts up to numerical tolerance",
+    "maximum_allowed_lam_accuracy_drop": 0.05,
+    "failure_rule": "A superiority claim is invalid if LAM-JEPA loses more than 0.05 absolute accuracy under the choice-order transform or is more than 0.02 worse than the strongest trained baseline on the same robustness delta."
+  },
+  "negative_control": {
+    "type": "deterministic training-label permutation within choice-cardinality strata",
+    "permutation_seed": 20260807,
+    "split": "validation only; never use confirmatory test labels for the negative control",
+    "permutation_rule": "Permute training labels deterministically only among questions with the same number of choices so every shuffled label remains a valid candidate index while preserving each cardinality-specific label multiset.",
+    "failure_rule": "If the shuffled-label LAM-JEPA exceeds 0.35 validation accuracy, stop and investigate leakage or shortcut behavior before any test evaluation."
+  },
+  "ablations": {
+    "required": ["no_planner", "no_target"],
+    "supporting": ["no_quant", "no_memory"],
+    "mechanism_claim_rule": "Do not attribute the ARC result to a component unless the paired full-minus-ablation mean accuracy is at least 0.01 and its paired 95% bootstrap confidence interval excludes zero.",
+    "student_state": "No student-state contribution claim is made from ARC-Challenge, so this protocol does not use ARC to validate student-state modeling."
+  },
+  "claim_gate": {
+    "superiority": "LAM-JEPA may be described as outperforming a baseline only if the mean absolute accuracy gain is at least 0.02 and the paired 95% bootstrap confidence interval for the seed-level accuracy delta excludes zero.",
+    "strongest_baseline_rule": "Any headline superiority claim must hold against the strongest trained non-JEPA baseline, not only the majority reference or matched scratch baseline.",
+    "negative_results": "If the gate fails, retain all raw outputs and report the negative or inconclusive result without changing the protocol after seeing test outcomes."
+  },
+  "artifact_contract": {
+    "required": [
+      "exact repository commit SHA",
+      "exact dataset hashes",
+      "exact model revisions",
+      "all configs",
+      "all five seed records",
+      "raw per-example candidate probabilities and predictions with actual choice counts",
+      "proof that every manifest-declared split row was evaluated",
+      "LAM-JEPA ARC gradient-active parameter report",
+      "matched-baseline gradient-active parameter report",
+      "parameter-count ratio evidence",
+      "training duration or equivalent compute evidence",
+      "aggregate statistics derived from raw seed records",
+      "ablation outputs",
+      "robustness outputs",
+      "negative-control output",
+      "clean-checkout reproduction command"
+    ],
+    "independent_qa": "Lane 08 must reproduce the immutable result commit before any RESEARCH_COMPLETE classification."
+  },
+  "protocol_change_rule": "V1 and V2 remain immutable audit history. V3 supersedes V2 before confirmatory test access after a train/validation-only cardinality audit exposed the fixed-four-choice/full-split incompatibility. Any material change after V3 is merged requires a new protocol version before confirmatory test access. Never silently edit V1, V2, or V3 in response to observed test results."
+}
