@@ -44,6 +44,29 @@ jobs:
       - name: Compile source and scripts
         run: python -m compileall -q src scripts
 
+      - name: Exercise documented multi-seed benchmark interface
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/bench/run_benchmarks.py \
+            --variant full \
+            --steps 1 \
+            --batch-size 2 \
+            --eval-batches 1 \
+            --evaluation-seed 17 \
+            --device cpu \
+            --seeds 1 2 \
+            --out ci-evidence/benchmark-multiseed.json \
+            | tee ci-evidence/benchmark-multiseed-output.txt
+
+      - name: Verify paired multi-seed benchmark evidence
+        run: |
+          python scripts/ci/verify_benchmark_interface.py \
+            --result ci-evidence/benchmark-multiseed.json \
+            --expected-seeds 1 2 \
+            --expected-evaluation-seed 17 \
+            --report ci-evidence/benchmark-multiseed-verification.json
+
       - name: Run deterministic model training smoke
         run: |
           set -euo pipefail
