@@ -14,7 +14,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from ..data import text_to_tokens
-from ..losses import total_loss
+from ..losses import cosine_alignment
 from ..model import LAMJEPA, LAMJEPAConfig, MultiViewEncoder
 from ..utils import set_seed
 
@@ -115,7 +115,9 @@ def batchify(
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     if not examples:
         raise ValueError("cannot batch an empty ARC example list")
-    tokens = torch.stack([text_to_tokens(format_prompt(ex), vocab_size=vocab_size, max_len=max_len) for ex in examples])
+    tokens = torch.stack(
+        [text_to_tokens(format_prompt(ex), vocab_size=vocab_size, max_len=max_len) for ex in examples]
+    )
     numeric_x = torch.zeros(len(examples), 1, dtype=torch.float32)
     labels = torch.tensor([ex.label for ex in examples], dtype=torch.long)
     device = torch.device(device)
@@ -150,11 +152,15 @@ def calibration_metrics(probabilities: torch.Tensor, labels: torch.Tensor, bins:
             ece += float(mask.float().mean().item()) * abs(
                 float(correct[mask].mean().item()) - float(confidence[mask].mean().item())
             )
-    return {"brier": brier, "ece": ece, "mean_true_class_probability": float(selected.mean().item())}
+    return {
+        "brier": brier,
+        "ece": ece,
+        "mean_true_class_probability": float(selected.mean().item()),
+    }
 
 
 class HashEncoderClassifier(nn.Module):
-    """Matched-input supervised baseline without JEPA/planner/memory/target machinery."""
+    """Shared-input supervised encoder baseline without JEPA/planner/memory/target machinery."""
 
     def __init__(self, cfg: LAMJEPAConfig, num_choices: int = 4):
         super().__init__()
@@ -164,6 +170,40 @@ class HashEncoderClassifier(nn.Module):
 
     def forward(self, tokens: torch.Tensor, numeric_x: torch.Tensor) -> torch.Tensor:
         return self.classifier(self.projector(self.encoder(tokens, numeric_x=numeric_x)))
+
+
+class LAMARCClassifier(nn.Module):
+    """LAM-JEPA backbone with a dedicated four-choice ARC answer head.
+
+    The tokenizer vocabulary remains independent of the answer vocabulary. This
+    avoids treating ARC labels as arbitrary entries in LAM-JEPA's token decoder.
+    """
+
+    def __init__(self, cfg: LAMJEPAConfig, num_choices: int = 4):
+        super().__init__()
+        self.backbone = LAMJEPA(cfg)
+        self.choice_head = nn.Linear(cfg.proj_dim, num_choices)
+
+    def forward(
+        self,
+        tokens: torch.Tensor,
+        numeric_x: torch.Tensor,
+        *,
+        model_steps: int,
+        deterministic: bool,
+    ) -> tuple[torch.Tensor, dict]:
+        outputs = self.backbone(
+            tokens,
+            numeric_x=numeric_x,
+            steps=model_steps,
+            sample_rollout=not deterministic,
+            noise_std=0.0 if deterministic else None,
+        )
+        return self.choice_head(outputs["latent_summary"]), outputs
+
+
+def parameter_count(model: nn.Module) -> int:
+    return sum(parameter.numel() for parameter in model.parameters() if parameter.requires_grad)
 
 
 def _train_supervised_baseline(
@@ -190,6 +230,18 @@ def _train_supervised_baseline(
     return model.eval()
 
 
+def _lam_arc_loss(choice_logits: torch.Tensor, outputs: dict, labels: torch.Tensor) -> torch.Tensor:
+    supervised = F.cross_entropy(choice_logits, labels)
+    align = cosine_alignment(outputs["z_q"], outputs["target_z"])
+    quant = outputs["quant_loss"]
+    trajectory = outputs["z"].new_tensor(0.0)
+    if len(outputs["traj"]) > 1:
+        trajectory = torch.stack(
+            [F.mse_loss(state, outputs["z_q"].detach()) for state in outputs["traj"][1:]]
+        ).mean()
+    return supervised + 0.5 * align + 0.25 * quant + 0.25 * trajectory
+
+
 def _train_lam_jepa(
     train: Sequence[ARCExample],
     *,
@@ -200,45 +252,65 @@ def _train_lam_jepa(
     lr: float,
     model_steps: int,
     device: str,
-) -> LAMJEPA:
+) -> LAMARCClassifier:
     if model_steps < 1:
         raise ValueError("ARC LAM-JEPA benchmark requires model_steps >= 1")
     set_seed(seed)
-    model = LAMJEPA(cfg).to(device)
+    model = LAMARCClassifier(cfg, num_choices=4).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
     model.train()
     for epoch in range(epochs):
         for batch in iter_minibatches(train, batch_size, seed + epoch):
             tokens, numeric_x, labels = batchify(batch, vocab_size=cfg.vocab_size, device=device)
             optimizer.zero_grad(set_to_none=True)
-            outputs = model(tokens, numeric_x=numeric_x, steps=model_steps)
-            loss, _ = total_loss(outputs, labels, rubric_target=None)
+            choice_logits, outputs = model(
+                tokens,
+                numeric_x,
+                model_steps=model_steps,
+                deterministic=False,
+            )
+            loss = _lam_arc_loss(choice_logits, outputs, labels)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
-            model.update_target()
+            model.backbone.update_target()
     return model.eval()
 
 
 @torch.no_grad()
 def _predict_lam(
-    model: LAMJEPA,
+    model: LAMARCClassifier,
     examples: Sequence[ARCExample],
     *,
     cfg: LAMJEPAConfig,
     batch_size: int,
     model_steps: int,
     device: str,
-) -> tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor, list[dict[str, object]]]:
     probs: list[torch.Tensor] = []
     labels: list[torch.Tensor] = []
+    rows: list[dict[str, object]] = []
     for start in range(0, len(examples), batch_size):
         batch = examples[start : start + batch_size]
         tokens, numeric_x, y = batchify(batch, vocab_size=cfg.vocab_size, device=device)
-        outputs = model(tokens, numeric_x=numeric_x, steps=model_steps, sample_rollout=False, noise_std=0.0)
-        probs.append(torch.softmax(outputs["logits"][:, :4], dim=-1).cpu())
+        logits, outputs = model(tokens, numeric_x, model_steps=model_steps, deterministic=True)
+        batch_probs = torch.softmax(logits, dim=-1).cpu()
+        probs.append(batch_probs)
         labels.append(y.cpu())
-    return torch.cat(probs), torch.cat(labels)
+        if len(outputs["actions"]) != model_steps:
+            raise RuntimeError(
+                f"LAM ARC evaluation expected {model_steps} planner steps, got {len(outputs['actions'])}"
+            )
+        for example, probability, label in zip(batch, batch_probs, y.cpu(), strict=True):
+            rows.append(
+                {
+                    "id": example.item_id,
+                    "label": int(label.item()),
+                    "prediction": int(probability.argmax().item()),
+                    "probabilities": [float(value) for value in probability.tolist()],
+                }
+            )
+    return torch.cat(probs), torch.cat(labels), rows
 
 
 @torch.no_grad()
@@ -249,15 +321,26 @@ def _predict_baseline(
     cfg: LAMJEPAConfig,
     batch_size: int,
     device: str,
-) -> tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor, list[dict[str, object]]]:
     probs: list[torch.Tensor] = []
     labels: list[torch.Tensor] = []
+    rows: list[dict[str, object]] = []
     for start in range(0, len(examples), batch_size):
         batch = examples[start : start + batch_size]
         tokens, numeric_x, y = batchify(batch, vocab_size=cfg.vocab_size, device=device)
-        probs.append(torch.softmax(model(tokens, numeric_x), dim=-1).cpu())
+        batch_probs = torch.softmax(model(tokens, numeric_x), dim=-1).cpu()
+        probs.append(batch_probs)
         labels.append(y.cpu())
-    return torch.cat(probs), torch.cat(labels)
+        for example, probability, label in zip(batch, batch_probs, y.cpu(), strict=True):
+            rows.append(
+                {
+                    "id": example.item_id,
+                    "label": int(label.item()),
+                    "prediction": int(probability.argmax().item()),
+                    "probabilities": [float(value) for value in probability.tolist()],
+                }
+            )
+    return torch.cat(probs), torch.cat(labels), rows
 
 
 def score_predictions(probabilities: torch.Tensor, labels: torch.Tensor) -> dict[str, float]:
@@ -266,7 +349,7 @@ def score_predictions(probabilities: torch.Tensor, labels: torch.Tensor) -> dict
     return {"accuracy": accuracy, **calibration_metrics(probabilities, labels)}
 
 
-def majority_reference(train: Sequence[ARCExample], evaluation: Sequence[ARCExample]) -> dict[str, float]:
+def majority_reference(train: Sequence[ARCExample], evaluation: Sequence[ARCExample]) -> dict[str, float | int]:
     counts = np.bincount([example.label for example in train], minlength=4)
     majority = int(counts.argmax())
     labels = torch.tensor([example.label for example in evaluation])
@@ -288,7 +371,8 @@ def run_arc_smoke(
     validation_limit: int | None = None,
     device: str = "cpu",
 ) -> dict:
-    if len(set(seeds)) != len(seeds) or not seeds:
+    normalized_seeds = [int(seed) for seed in seeds]
+    if len(set(normalized_seeds)) != len(normalized_seeds) or not normalized_seeds:
         raise ValueError("seeds must be non-empty and unique")
     train_data = list(train[:train_limit] if train_limit else train)
     validation_data = list(validation[:validation_limit] if validation_limit else validation)
@@ -300,10 +384,17 @@ def run_arc_smoke(
     cfg = LAMJEPAConfig()
     records: list[dict] = []
     reversed_validation = [reverse_choices(example) for example in validation_data]
+    expected_ids = [example.item_id for example in validation_data]
 
-    for seed in [int(value) for value in seeds]:
+    for seed in normalized_seeds:
         baseline = _train_supervised_baseline(
-            train_data, cfg=cfg, seed=seed, epochs=epochs, batch_size=batch_size, lr=lr, device=device
+            train_data,
+            cfg=cfg,
+            seed=seed,
+            epochs=epochs,
+            batch_size=batch_size,
+            lr=lr,
+            device=device,
         )
         lam = _train_lam_jepa(
             train_data,
@@ -315,10 +406,10 @@ def run_arc_smoke(
             model_steps=model_steps,
             device=device,
         )
-        baseline_probs, labels = _predict_baseline(
+        baseline_probs, labels, baseline_rows = _predict_baseline(
             baseline, validation_data, cfg=cfg, batch_size=batch_size, device=device
         )
-        lam_probs, lam_labels = _predict_lam(
+        lam_probs, lam_labels, lam_rows = _predict_lam(
             lam,
             validation_data,
             cfg=cfg,
@@ -326,7 +417,7 @@ def run_arc_smoke(
             model_steps=model_steps,
             device=device,
         )
-        reversed_probs, reversed_labels = _predict_lam(
+        reversed_probs, reversed_labels, reversed_rows = _predict_lam(
             lam,
             reversed_validation,
             cfg=cfg,
@@ -336,12 +427,25 @@ def run_arc_smoke(
         )
         if not torch.equal(labels, lam_labels):
             raise RuntimeError("baseline and LAM-JEPA labels are not aligned")
+        if [row["id"] for row in baseline_rows] != expected_ids or [row["id"] for row in lam_rows] != expected_ids:
+            raise RuntimeError("validation row identity changed between models")
+        if [row["id"] for row in reversed_rows] != expected_ids:
+            raise RuntimeError("choice-order robustness rows do not align with canonical validation rows")
         records.append(
             {
                 "seed": seed,
+                "parameter_counts": {
+                    "hash_encoder_baseline": parameter_count(baseline),
+                    "lam_jepa_arc": parameter_count(lam),
+                },
                 "hash_encoder_baseline": score_predictions(baseline_probs, labels),
                 "lam_jepa": score_predictions(lam_probs, lam_labels),
                 "lam_jepa_reversed_choices": score_predictions(reversed_probs, reversed_labels),
+                "raw_predictions": {
+                    "hash_encoder_baseline": baseline_rows,
+                    "lam_jepa": lam_rows,
+                    "lam_jepa_reversed_choices": reversed_rows,
+                },
             }
         )
 
@@ -351,7 +455,7 @@ def run_arc_smoke(
             "dataset": "AI2 ARC-Challenge",
             "train_digest": dataset_digest(train_data),
             "validation_digest": dataset_digest(validation_data),
-            "seeds": [int(value) for value in seeds],
+            "seeds": normalized_seeds,
             "epochs": epochs,
             "batch_size": batch_size,
             "learning_rate": lr,
@@ -362,7 +466,8 @@ def run_arc_smoke(
             "calibration_metrics": ["Brier score", "ECE", "mean true-class probability"],
             "robustness_check": "deterministic reversal of answer-choice order with label remapping",
             "test_split_policy": "held out from this command",
-            "claim_boundary": "CI/small-budget runs certify plumbing only. Scientific comparison requires the full preregistered budget, >=5 seeds, strong pretrained baseline, test-set lock, and independent reproduction."
+            "baseline_boundary": "The hash-encoder baseline shares the input encoder family but is not parameter matched and is not the required strong pretrained baseline.",
+            "claim_boundary": "CI/small-budget runs certify external-data plumbing only. Scientific comparison requires the full preregistered budget, >=5 seeds, a parameter-matched baseline, a strong pretrained baseline, locked test-set evaluation, and independent reproduction."
         },
         "majority_reference": majority,
         "records": records,
