@@ -1,0 +1,97 @@
+name: ARC negative control
+
+on:
+  pull_request:
+    paths:
+      - "protocols/arc_challenge_v2.json"
+      - "data/manifests/arc_challenge.json"
+      - "scripts/data/download_arc_challenge.py"
+      - "scripts/benchmark/run_arc_negative_control.py"
+      - "scripts/ci/verify_arc_negative_control.py"
+      - ".github/workflows/arc-negative-control.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shuffled-label-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+
+      - name: Compile negative-control code
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/benchmark/run_arc_negative_control.py \
+            scripts/ci/verify_arc_negative_control.py
+
+      - name: Verify frozen protocol v2
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol_v2.py \
+            --protocol protocols/arc_challenge_v2.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-v2-verification.json
+
+      - name: Download checksum-addressed ARC train and validation only
+        run: |
+          set -euo pipefail
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/arc-download-negative-control.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run shuffled-label development smoke
+        run: |
+          set -euo pipefail
+          python scripts/benchmark/run_arc_negative_control.py \
+            --protocol protocols/arc_challenge_v2.json \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --seeds 1 2 \
+            --epochs 1 \
+            --batch-size 8 \
+            --learning-rate 3e-4 \
+            --model-steps 1 \
+            --train-limit 64 \
+            --validation-limit 64 \
+            --device cpu \
+            --out ci-evidence/arc-negative-control.json \
+            | tee ci-evidence/arc-negative-control-output.txt
+
+      - name: Independently verify negative-control evidence
+        run: |
+          set -euo pipefail
+          python scripts/ci/verify_arc_negative_control.py \
+            --results ci-evidence/arc-negative-control.json \
+            --protocol protocols/arc_challenge_v2.json \
+            --report ci-evidence/arc-negative-control-verification.json \
+            | tee ci-evidence/arc-negative-control-verifier-output.txt
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-negative-control-smoke
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 14
