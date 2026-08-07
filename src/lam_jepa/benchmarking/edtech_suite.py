@@ -49,7 +49,10 @@ def train_model(
     device: str = "cpu",
     task: str = "mixed",
     cfg: LAMJEPAConfig | None = None,
+    model_steps: int = 0,
 ) -> tuple[LAMJEPA, LAMJEPAConfig, Trainer]:
+    if model_steps < 0:
+        raise ValueError("model_steps must be non-negative")
     set_seed(seed)
     cfg = build_config(cfg)
     model = LAMJEPA(cfg)
@@ -68,6 +71,7 @@ def train_model(
             eval_every=max(steps // 4, 1),
             save_every=max(steps // 2, 1),
             amp=False,
+            forward_steps=model_steps,
         ),
     )
     model = trainer.fit()
@@ -78,6 +82,7 @@ def _forward_without_advancing_sampler_rng(
     model: LAMJEPA,
     tokens: torch.Tensor,
     numeric_x: torch.Tensor | None,
+    model_steps: int = 0,
 ) -> dict:
     """Run inference while preserving RNG streams used by benchmark sampling."""
 
@@ -86,7 +91,13 @@ def _forward_without_advancing_sampler_rng(
     cpu_state = torch.random.get_rng_state()
     cuda_states = torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None
     try:
-        return model(tokens, numeric_x=numeric_x, steps=0)
+        return model(
+            tokens,
+            numeric_x=numeric_x,
+            steps=model_steps,
+            sample_rollout=False,
+            noise_std=0.0,
+        )
     finally:
         random.setstate(python_state)
         np.random.set_state(numpy_state)
@@ -102,11 +113,14 @@ def evaluate_model(
     tasks: Sequence[str] = EDTECH_TASKS,
     batch_size: int = 64,
     batches: int = 8,
+    model_steps: int = 0,
 ) -> Dict[str, Dict[str, float | int | str]]:
     if batch_size < 1:
         raise ValueError("batch_size must be at least 1")
     if batches < 1:
         raise ValueError("batches must be at least 1")
+    if model_steps < 0:
+        raise ValueError("model_steps must be non-negative")
 
     model.eval()
     try:
@@ -122,6 +136,7 @@ def evaluate_model(
         ordered_labels: list[int] = []
         input_fingerprints: set[str] = set()
         prompts: set[str] = set()
+        action_steps_seen: list[int] = []
 
         for _ in range(batches):
             batch = sample_evaluation_batch(task, batch_size=batch_size, vocab_size=cfg.vocab_size)
@@ -129,11 +144,17 @@ def evaluate_model(
             numeric_x = batch.numeric_x.to(device) if batch.numeric_x is not None else None
             labels = batch.labels.to(device)
 
-            res = _forward_without_advancing_sampler_rng(model, tokens, numeric_x)
+            res = _forward_without_advancing_sampler_rng(
+                model,
+                tokens,
+                numeric_x,
+                model_steps=model_steps,
+            )
             pred = res["logits"].argmax(dim=-1)
             correct = (pred == labels).float()
             accs.append(float(correct.mean().item()))
             confs.append(float(res["confidence"].mean().item()))
+            action_steps_seen.append(len(res["actions"]))
             labels_cpu = labels.detach().cpu().reshape(-1)
             labels_all.append(labels_cpu)
             ordered_labels.extend(int(value) for value in labels_cpu.tolist())
@@ -148,6 +169,12 @@ def evaluate_model(
                 prompts.update(str(value) for value in batch_prompts if value)
 
         labels = torch.cat(labels_all)
+        expected_action_steps = model_steps if cfg.use_planner else 0
+        if any(value != expected_action_steps for value in action_steps_seen):
+            raise RuntimeError(
+                f"planner execution mismatch: expected {expected_action_steps} action steps, "
+                f"observed {action_steps_seen}"
+            )
         out[task] = {
             "accuracy": float(np.mean(accs)),
             "confidence": float(np.mean(confs)),
@@ -157,6 +184,8 @@ def evaluate_model(
             "unique_prompts": len(prompts),
             "sample_digest": evaluation_sample_digest(ordered_fingerprints, ordered_labels),
             "target_semantics": TARGET_SEMANTICS[task],
+            "requested_model_steps": model_steps,
+            "executed_action_steps": expected_action_steps,
         }
     return out
 
@@ -169,6 +198,7 @@ def seed_sweep(
     task: str = "mixed",
     eval_batches: int = 6,
     evaluation_seed: int = 1007,
+    model_steps: int = 0,
 ) -> dict:
     normalized_seeds = [int(seed) for seed in seeds]
     if not normalized_seeds:
@@ -181,6 +211,8 @@ def seed_sweep(
         raise ValueError("batch_size must be at least 1")
     if eval_batches < 1:
         raise ValueError("eval_batches must be at least 1")
+    if model_steps < 0:
+        raise ValueError("model_steps must be non-negative")
 
     records = []
     per_task: dict[str, list[float]] = {t: [] for t in EDTECH_TASKS}
@@ -193,12 +225,16 @@ def seed_sweep(
             batch_size=batch_size,
             device=device,
             task=task,
+            model_steps=model_steps,
         )
-        # Every trained model is evaluated on the same deterministic rows. This
-        # prevents evaluation-sample variance from being silently conflated with
-        # training-seed variance in paper tables.
         set_seed(evaluation_seed)
-        scores = evaluate_model(model, cfg, batch_size=batch_size, batches=eval_batches)
+        scores = evaluate_model(
+            model,
+            cfg,
+            batch_size=batch_size,
+            batches=eval_batches,
+            model_steps=model_steps,
+        )
         digests = {name: str(metrics["sample_digest"]) for name, metrics in scores.items()}
         if expected_digests is None:
             expected_digests = digests
@@ -208,6 +244,7 @@ def seed_sweep(
         records.append({
             "training_seed": seed,
             "evaluation_seed": evaluation_seed,
+            "model_steps": model_steps,
             "history_tail": trainer.history[-5:],
             "scores": scores,
         })
@@ -220,6 +257,7 @@ def seed_sweep(
             "training_seeds": normalized_seeds,
             "evaluation_seed": evaluation_seed,
             "steps": steps,
+            "model_steps": model_steps,
             "batch_size": batch_size,
             "eval_batches": eval_batches,
             "device": device,
@@ -242,14 +280,17 @@ def ablation_suite(
     task: str = "mixed",
     eval_batches: int = 6,
     evaluation_seed: int = 1007,
+    model_steps: int = 1,
 ) -> dict:
-    """Run paired component ablations on identical evaluation rows.
+    """Run paired, mechanism-exercising component ablations.
 
-    Training seed is paired across variants: for each seed, every architecture
-    variant starts from that same top-level seed. Evaluation is then reset to a
-    separate fixed seed before every model evaluation. The resulting sample
-    digests are required to match across every seed and variant, so an apparent
-    ablation effect cannot be caused by evaluating different sampled examples.
+    The same training seeds are paired across variants. Evaluation is reset to a
+    separate fixed seed before every model evaluation, and ordered sample digests
+    must match across every seed and variant. `model_steps` defaults to one so
+    the full model actually exercises its latent-action planner; the no-planner
+    variant must report zero executed action steps. This prevents a nominal
+    planner ablation from comparing two computation graphs that both bypass the
+    planner.
     """
 
     normalized_seeds = [int(seed) for seed in seeds]
@@ -263,6 +304,8 @@ def ablation_suite(
         raise ValueError("batch_size must be at least 1")
     if eval_batches < 1:
         raise ValueError("eval_batches must be at least 1")
+    if model_steps < 1:
+        raise ValueError("ablation_suite requires model_steps >= 1 to exercise the planner")
 
     base = LAMJEPAConfig()
     expected_digests: dict[str, str] | None = None
@@ -283,6 +326,7 @@ def ablation_suite(
                 device=device,
                 task=task,
                 cfg=cfg,
+                model_steps=model_steps,
             )
 
             set_seed(evaluation_seed)
@@ -291,6 +335,7 @@ def ablation_suite(
                 cfg,
                 batch_size=batch_size,
                 batches=eval_batches,
+                model_steps=model_steps,
             )
             digests = {name: str(metrics["sample_digest"]) for name, metrics in scores.items()}
             if expected_digests is None:
@@ -300,9 +345,18 @@ def ablation_suite(
                     f"evaluation sample digests changed for variant={variant} seed={seed}"
                 )
 
+            expected_action_steps = 0 if variant == "no_planner" else model_steps
+            for task_name, metrics in scores.items():
+                observed = int(metrics["executed_action_steps"])
+                if observed != expected_action_steps:
+                    raise RuntimeError(
+                        f"{variant}/{task_name}: expected {expected_action_steps} action steps, observed {observed}"
+                    )
+
             records.append({
                 "training_seed": seed,
                 "evaluation_seed": evaluation_seed,
+                "model_steps": model_steps,
                 "history_tail": trainer.history[-5:],
                 "scores": scores,
             })
@@ -338,6 +392,7 @@ def ablation_suite(
             "training_seeds": normalized_seeds,
             "evaluation_seed": evaluation_seed,
             "steps": steps,
+            "model_steps": model_steps,
             "batch_size": batch_size,
             "eval_batches": eval_batches,
             "device": device,
@@ -345,9 +400,10 @@ def ablation_suite(
             "variants": list(ABLATION_VARIANTS),
             "tasks": list(EDTECH_TASKS),
             "pairing": "same training seeds and identical ordered evaluation rows across variants",
+            "mechanism_gate": "full model must exercise latent-action rollout; no_planner must execute zero action steps",
             "claim_boundary": (
                 "Ablation effects are descriptive unless the declared training budget, data, "
-                "baselines, and statistical power are adequate for the scientific claim."
+                "baselines, mechanism sensitivity, and statistical power are adequate for the scientific claim."
             ),
         },
         "target_semantics": dict(TARGET_SEMANTICS),
