@@ -4,8 +4,14 @@ on:
   pull_request:
     paths:
       - "protocols/arc_challenge_v3.json"
+      - "scripts/data/filter_arc_four_choice_v3.py"
+      - "scripts/benchmark/run_arc_matched_baseline.py"
+      - "scripts/benchmark/run_arc_pretrained_v2_deberta.py"
       - "scripts/benchmark/run_arc_pretrained_v3_deberta.py"
+      - "scripts/ci/verify_arc_matched_baseline.py"
+      - "scripts/ci/verify_arc_pretrained_v2_deberta.py"
       - "scripts/ci/verify_arc_protocol_v3.py"
+      - "scripts/ci/verify_arc_filter_v3.py"
       - "scripts/ci/verify_arc_pretrained_v3_deberta.py"
       - ".github/workflows/arc-protocol-v3-runtime.yml"
   workflow_dispatch:
@@ -52,13 +58,17 @@ jobs:
         run: |
           set -euo pipefail
           python -m py_compile \
+            scripts/data/filter_arc_four_choice_v3.py \
+            scripts/benchmark/run_arc_matched_baseline.py \
             scripts/benchmark/run_arc_pretrained_v2_deberta.py \
             scripts/benchmark/run_arc_pretrained_v3_deberta.py \
+            scripts/ci/verify_arc_matched_baseline.py \
             scripts/ci/verify_arc_pretrained_v2_deberta.py \
             scripts/ci/verify_arc_protocol_v3.py \
+            scripts/ci/verify_arc_filter_v3.py \
             scripts/ci/verify_arc_pretrained_v3_deberta.py
 
-      - name: Verify immutable v2 base and frozen v3 runtime addendum
+      - name: Verify immutable v2 base and frozen v3 addenda
         run: |
           set -euo pipefail
           mkdir -p ci-evidence-v3
@@ -75,12 +85,63 @@ jobs:
             | tee ci-evidence-v3/arc-download-v3.json
           test ! -e ci-evidence-v3/arc-data/arc-challenge-test.parquet
 
+      - name: Apply protocol-v3 four-choice structural filter
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence-v3/arc-filtered
+          python scripts/data/filter_arc_four_choice_v3.py \
+            --input ci-evidence-v3/arc-data/arc-challenge-train.parquet \
+            --output ci-evidence-v3/arc-filtered/arc-challenge-train-four-choice.parquet \
+            --split train \
+            --report ci-evidence-v3/arc-filter-train.json \
+            | tee ci-evidence-v3/arc-filter-train-output.txt
+          python scripts/data/filter_arc_four_choice_v3.py \
+            --input ci-evidence-v3/arc-data/arc-challenge-validation.parquet \
+            --output ci-evidence-v3/arc-filtered/arc-challenge-validation-four-choice.parquet \
+            --split validation \
+            --report ci-evidence-v3/arc-filter-validation.json \
+            | tee ci-evidence-v3/arc-filter-validation-output.txt
+          test ! -e ci-evidence-v3/arc-data/arc-challenge-test.parquet
+
+      - name: Independently verify structural filter evidence
+        run: |
+          set -euo pipefail
+          python scripts/ci/verify_arc_filter_v3.py \
+            --protocol protocols/arc_challenge_v3.json \
+            --train-report ci-evidence-v3/arc-filter-train.json \
+            --validation-report ci-evidence-v3/arc-filter-validation.json \
+            --train-filtered ci-evidence-v3/arc-filtered/arc-challenge-train-four-choice.parquet \
+            --validation-filtered ci-evidence-v3/arc-filtered/arc-challenge-validation-four-choice.parquet \
+            --report ci-evidence-v3/arc-filter-v3-verification.json \
+            | tee ci-evidence-v3/arc-filter-v3-verifier-output.txt
+
+      - name: Prove matched baseline executes on filtered rows
+        run: |
+          set -euo pipefail
+          python scripts/benchmark/run_arc_matched_baseline.py \
+            --train ci-evidence-v3/arc-filtered/arc-challenge-train-four-choice.parquet \
+            --validation ci-evidence-v3/arc-filtered/arc-challenge-validation-four-choice.parquet \
+            --seeds 1 2 \
+            --epochs 1 \
+            --batch-size 4 \
+            --model-steps 1 \
+            --train-limit 32 \
+            --validation-limit 32 \
+            --device cpu \
+            --match-tolerance 0.01 \
+            --out ci-evidence-v3/arc-matched-filtered-smoke.json \
+            | tee ci-evidence-v3/arc-matched-filtered-smoke-output.txt
+          python scripts/ci/verify_arc_matched_baseline.py \
+            --results ci-evidence-v3/arc-matched-filtered-smoke.json \
+            --report ci-evidence-v3/arc-matched-filtered-smoke-verification.json \
+            | tee ci-evidence-v3/arc-matched-filtered-smoke-verifier-output.txt
+
       - name: Run bounded protocol-v3 DeBERTa development smoke
         run: |
           set -euo pipefail
           python scripts/benchmark/run_arc_pretrained_v3_deberta.py \
-            --train ci-evidence-v3/arc-data/arc-challenge-train.parquet \
-            --validation ci-evidence-v3/arc-data/arc-challenge-validation.parquet \
+            --train ci-evidence-v3/arc-filtered/arc-challenge-train-four-choice.parquet \
+            --validation ci-evidence-v3/arc-filtered/arc-challenge-validation-four-choice.parquet \
             --seeds 1 2 \
             --epochs 1 \
             --batch-size 2 \
