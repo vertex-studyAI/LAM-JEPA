@@ -31,6 +31,7 @@ def batchify_variable(
     examples: Sequence[ARCExample],
     *,
     vocab_size: int,
+    numeric_dim: int = 4,
     max_len: int = 96,
     device: torch.device | str = "cpu",
 ) -> VariableChoiceBatch:
@@ -38,6 +39,8 @@ def batchify_variable(
         raise ValueError("cannot batch an empty ARC example list")
     if any(len(example.choices) < 2 for example in examples):
         raise ValueError("every ARC item must have at least two candidate choices")
+    if numeric_dim < 1:
+        raise ValueError("numeric_dim must be positive")
 
     candidate_tokens = [
         text_to_tokens(format_candidate(example, choice), vocab_size=vocab_size, max_len=max_len)
@@ -45,7 +48,7 @@ def batchify_variable(
         for choice in example.choices
     ]
     tokens = torch.stack(candidate_tokens)
-    numeric_x = torch.zeros(tokens.size(0), 1, dtype=torch.float32)
+    numeric_x = torch.zeros(tokens.size(0), numeric_dim, dtype=torch.float32)
     labels = torch.tensor([example.label for example in examples], dtype=torch.long)
     counts = tuple(len(example.choices) for example in examples)
     for example, count in zip(examples, counts, strict=True):
@@ -150,7 +153,12 @@ def train_variable_lam(
     model.train()
     for epoch in range(epochs):
         for examples in iter_minibatches(train, batch_size, seed + epoch):
-            batch = batchify_variable(examples, vocab_size=cfg.vocab_size, device=device)
+            batch = batchify_variable(
+                examples,
+                vocab_size=cfg.vocab_size,
+                numeric_dim=cfg.numeric_dim,
+                device=device,
+            )
             optimizer.zero_grad(set_to_none=True)
             logits, outputs = model(
                 batch.tokens,
@@ -184,7 +192,12 @@ def train_variable_hash(
     model.train()
     for epoch in range(epochs):
         for examples in iter_minibatches(train, batch_size, seed + epoch):
-            batch = batchify_variable(examples, vocab_size=cfg.vocab_size, device=device)
+            batch = batchify_variable(
+                examples,
+                vocab_size=cfg.vocab_size,
+                numeric_dim=cfg.numeric_dim,
+                device=device,
+            )
             optimizer.zero_grad(set_to_none=True)
             logits = model(batch.tokens, batch.numeric_x, batch.choice_counts)
             loss = F.cross_entropy(logits, batch.labels)
@@ -254,7 +267,12 @@ def predict_variable_lam(
     rows: list[dict[str, object]] = []
     for start in range(0, len(examples), batch_size):
         current = list(examples[start : start + batch_size])
-        batch = batchify_variable(current, vocab_size=cfg.vocab_size, device=device)
+        batch = batchify_variable(
+            current,
+            vocab_size=cfg.vocab_size,
+            numeric_dim=cfg.numeric_dim,
+            device=device,
+        )
         logits, outputs = model(
             batch.tokens,
             batch.numeric_x,
@@ -292,7 +310,12 @@ def predict_variable_hash(
     rows: list[dict[str, object]] = []
     for start in range(0, len(examples), batch_size):
         current = list(examples[start : start + batch_size])
-        batch = batchify_variable(current, vocab_size=cfg.vocab_size, device=device)
+        batch = batchify_variable(
+            current,
+            vocab_size=cfg.vocab_size,
+            numeric_dim=cfg.numeric_dim,
+            device=device,
+        )
         logits = model(batch.tokens, batch.numeric_x, batch.choice_counts)
         probabilities = torch.softmax(logits, dim=-1).cpu()
         for example, count, probability in zip(current, batch.choice_counts, probabilities, strict=True):
