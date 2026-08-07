@@ -1,0 +1,82 @@
+name: ARC V5 Quantizer Repair Gate
+
+on:
+  pull_request:
+    paths:
+      - "src/lam_jepa/benchmarking/arc_v5_repair.py"
+      - "scripts/diagnostics/arc_v5_repair_overfit.py"
+      - "tests/unit/test_arc_v5_quantizer_repair.py"
+      - ".github/workflows/arc-v5-quantizer-repair-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  primary-repair-trainability-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+          python -m pip install pytest
+      - name: Compile and unit-test explicit repair
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python -m py_compile src/lam_jepa/benchmarking/arc_v5_repair.py scripts/diagnostics/arc_v5_repair_overfit.py
+          set +e
+          pytest -q tests/unit/test_arc_v5_quantizer_repair.py 2>&1 | tee ci-evidence/arc-v5-unit-test-output.txt
+          status=${PIPESTATUS[0]}
+          set -e
+          exit "$status"
+      - name: Download checksum-addressed ARC train only
+        run: |
+          set -euo pipefail
+          python scripts/data/download_arc_challenge.py --splits train --out-dir ci-evidence/arc-data | tee ci-evidence/download-train-only.json
+          test -e ci-evidence/arc-data/arc-challenge-train.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+      - name: Run frozen two-seed primary repair gate
+        run: |
+          set -euo pipefail
+          python scripts/diagnostics/arc_v5_repair_overfit.py --train ci-evidence/arc-data/arc-challenge-train.parquet --out ci-evidence/arc-v5-quantizer-repair-gate.json | tee ci-evidence/arc-v5-quantizer-repair-gate-output.txt
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+      - name: Assert primary gate stays fail-closed for validation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('ci-evidence/arc-v5-quantizer-repair-gate.json').read_text())
+          assert p['artifact_type']=='LAM-JEPA ARC v5 quantizer repair trainability gate'
+          assert p['scope']=='training-only primary repair acceptance; no validation or test access'
+          assert p['repair_id']=='arc-v5-stable-ema-residual-0.03125'
+          assert p['repair_spec']['hard_fraction']==0.03125
+          assert p['repair_spec']['continuous_fraction']==0.96875
+          assert p['repair_spec']['legacy_default_behavior_changed'] is False
+          assert p['repair_spec']['validation_authorized'] is False
+          assert p['repair_spec']['confirmatory_test_authorized'] is False
+          assert p['subset']['rows']==32 and p['subset']['per_class']==8
+          assert p['training']['seeds']==[1,2] and p['training']['steps']==300
+          assert p['repair_trainability_gate_pass'] is True
+          assert p['verdict']=='PRIMARY_REPAIR_TRAINABILITY_GATE_PASSED'
+          assert p['summaries']['repaired_v5']['all_seeds_reach_overfit_threshold'] is True
+          assert p['claim_boundary']=={'validation_accessed':False,'test_accessed':False,'independent_reproduction_complete':False,'validation_authorized':False,'performance_claim_authorized':False,'research_complete':False}
+          PY
+      - name: Upload primary repair evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-v5-quantizer-primary-repair
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 30
