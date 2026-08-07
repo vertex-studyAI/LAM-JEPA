@@ -1,0 +1,137 @@
+name: ARC Protocol V3 Full Controls Validation
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "scripts/benchmark/run_arc_protocol_v3_controls.py"
+      - "scripts/ci/verify_arc_protocol_v3_controls.py"
+      - "scripts/ci/verify_arc_protocol_v3.py"
+      - "scripts/data/download_arc_challenge.py"
+      - "data/manifests/arc_challenge.json"
+      - "protocols/arc_challenge_v3.json"
+      - "pyproject.toml"
+      - ".github/workflows/arc-protocol-v3-full-controls-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-controls-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU research environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+
+      - name: Compile frozen controls code
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/benchmark/run_arc_protocol_v3_controls.py \
+            scripts/ci/verify_arc_protocol_v3_controls.py \
+            scripts/ci/verify_arc_protocol_v3.py
+
+      - name: Verify frozen ARC protocol v3
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol_v3.py \
+            --protocol protocols/arc_challenge_v3.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-v3-verification.json
+
+      - name: Download checksum-addressed ARC train and validation only
+        run: |
+          set -euo pipefail
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/arc-download-full-controls-v3.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run frozen five-seed twenty-epoch eligible controls validation
+        run: |
+          set -euo pipefail
+          python scripts/benchmark/run_arc_protocol_v3_controls.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --seeds 1 2 3 4 5 \
+            --epochs 20 \
+            --batch-size 32 \
+            --learning-rate 0.0003 \
+            --model-steps 1 \
+            --train-limit 0 \
+            --validation-limit 0 \
+            --device cpu \
+            --out ci-evidence/arc-protocol-v3-full-controls-validation.json \
+            | tee ci-evidence/arc-protocol-v3-full-controls-validation-output.txt
+
+      - name: Independently verify frozen controls validation
+        run: |
+          set -euo pipefail
+          python scripts/ci/verify_arc_protocol_v3_controls.py \
+            --results ci-evidence/arc-protocol-v3-full-controls-validation.json \
+            --protocol protocols/arc_challenge_v3.json \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --report ci-evidence/arc-protocol-v3-full-controls-validation-verification.json \
+            | tee ci-evidence/arc-protocol-v3-full-controls-validation-verifier-output.txt
+
+      - name: Assert full frozen controls budget from retained evidence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path('ci-evidence/arc-protocol-v3-full-controls-validation.json').read_text())
+          verification = json.loads(Path('ci-evidence/arc-protocol-v3-full-controls-validation-verification.json').read_text())
+          p = result['protocol']
+          assert p['protocol_id'] == 'lam-jepa-arc-challenge-v3'
+          assert p['seeds'] == [1, 2, 3, 4, 5]
+          assert p['epochs'] == 20
+          assert p['batch_size'] == 32
+          assert p['learning_rate'] == 0.0003
+          assert p['model_steps'] == 1
+          assert p['train_eligibility']['used_rows'] == p['train_eligibility']['eligible_rows'] == 1117
+          assert p['validation_eligibility']['used_rows'] == p['validation_eligibility']['eligible_rows'] == 295
+          assert p['test_split_policy'] == 'not downloaded or evaluated by this development command'
+          assert verification['seeds'] == [1, 2, 3, 4, 5]
+          assert verification['train_used_rows'] == verification['train_eligible_rows'] == 1117
+          assert verification['validation_used_rows'] == verification['validation_eligible_rows'] == 295
+          assert verification['locked_test_evaluated'] is False
+          assert verification['research_complete'] is False
+          print(json.dumps({
+              'status': 'passed',
+              'protocol_id': p['protocol_id'],
+              'seeds': p['seeds'],
+              'epochs': p['epochs'],
+              'batch_size': p['batch_size'],
+              'eligible_train_rows': p['train_eligibility']['eligible_rows'],
+              'eligible_validation_rows': p['validation_eligibility']['eligible_rows'],
+              'negative_control_pass': verification['negative_control_pass'],
+              'locked_test_evaluated': verification['locked_test_evaluated'],
+          }, indent=2))
+          PY
+
+      - name: Upload full controls validation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-protocol-v3-full-controls-validation
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 30
