@@ -12,7 +12,7 @@ def require(condition: bool, message: str) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Verify ARC protocol-v3 runtime addendum and immutable v2 base.")
+    parser = argparse.ArgumentParser(description="Verify ARC protocol-v3 pre-test dataset/runtime addenda and immutable v2 base.")
     parser.add_argument("--protocol", type=Path, default=Path("protocols/arc_challenge_v3.json"))
     parser.add_argument("--report", type=Path, default=Path("ci-evidence/arc-protocol-v3-verification.json"))
     args = parser.parse_args()
@@ -32,6 +32,37 @@ def main() -> None:
     v2 = json.loads(base_path.read_text(encoding="utf-8"))
     require(v2.get("protocol_id") == "lam-jepa-arc-challenge-v2", "unexpected base protocol")
     require(v2.get("status") == "FROZEN_BEFORE_CONFIRMATORY_TEST", "base protocol is not frozen")
+    require(((v2.get("models") or {}).get("lam_jepa") or {}).get("answer_head") == "four-choice ARC classifier", "v2 four-choice head changed")
+
+    dataset = v3.get("dataset_addendum") or {}
+    require(dataset.get("selection_rule") == "retain rows with exactly four answer choices", "structural filter changed")
+    require(dataset.get("decision_basis") == "choice cardinality only; never label, question content, prediction, metric, or outcome", "filter is not label/outcome independent")
+    require(dataset.get("applies_to") == ["train", "validation", "test"], "structural filter must apply to every split")
+    require(dataset.get("preserve_source_order") is True, "source ordering must be preserved")
+    require(dataset.get("renumber_or_substitute_rows") is False, "rows may not be substituted or renumbered")
+    budget = dataset.get("training_budget_override") or {}
+    require("four-choice filter" in str(budget.get("train_examples", "")), "train budget override missing filter")
+    require("four-choice filter" in str(budget.get("validation_examples", "")), "validation budget override missing filter")
+    require("four-choice filter" in str(budget.get("test_examples", "")), "test budget override missing filter")
+
+    audit = dataset.get("known_pretest_audit") or {}
+    require(audit.get("test_split_accessed") is False, "test split was accessed during pretest audit")
+    train = audit.get("train") or {}
+    validation = audit.get("validation") or {}
+    require((train.get("input_rows"), train.get("retained_rows")) == (1119, 1117), "train structural counts drift")
+    require((validation.get("input_rows"), validation.get("retained_rows")) == (299, 295), "validation structural counts drift")
+    require(train.get("excluded_rows") == [
+        {"id": "NYSEDREGENTS_2004_4_8", "choice_count": 3},
+        {"id": "TIMSS_1995_8_N3", "choice_count": 5},
+    ], "train excluded-row identity drift")
+    require(validation.get("excluded_rows") == [
+        {"id": "NYSEDREGENTS_2014_4_4", "choice_count": 3},
+        {"id": "NYSEDREGENTS_2014_4_19", "choice_count": 3},
+        {"id": "TIMSS_2003_8_pg29", "choice_count": 5},
+        {"id": "NYSEDREGENTS_2014_4_28", "choice_count": 3},
+    ], "validation excluded-row identity drift")
+    require(train.get("excluded_identity_digest") == "860fe5ba2cc99943a0fa7e0e679d63c7885038dedba2e0166f91e632b8e2b905", "train exclusion digest drift")
+    require(validation.get("excluded_identity_digest") == "3ff837fd582144446de95786bcec2e6b3e0a555086843470a92411df6bef8a8a", "validation exclusion digest drift")
 
     strong_v2 = ((v2.get("models") or {}).get("strong_pretrained_baseline") or {})
     runtime = ((v3.get("runtime_addendum") or {}).get("strong_pretrained_baseline") or {})
@@ -50,10 +81,11 @@ def main() -> None:
     require(runtime.get("weights_only") is True, "weights-only loader requirement removed")
 
     reason = str(v3.get("change_reason", ""))
-    require("No ARC test access" in reason or "no ARC test access" in reason, "pre-test correction rationale missing")
+    require("before any ARC test access" in reason, "pre-test correction rationale missing")
+    require("four-choice" in reason and "runtime" in reason, "both v3 correction reasons must be explicit")
     rule = str(v3.get("protocol_change_rule", ""))
     require("V1 and V2 remain immutable" in rule, "prior protocol audit trail not protected")
-    require("new version" in rule, "future material changes must be versioned")
+    require("new protocol version" in rule, "future material changes must be versioned")
 
     report = {
         "status": "passed",
@@ -61,7 +93,9 @@ def main() -> None:
         "base_protocol_id": v2["protocol_id"],
         "base_protocol_git_blob_sha": actual_blob,
         "scientific_contract_source": str(base_path),
-        "runtime_only_addendum": True,
+        "dataset_filter": dataset["selection_rule"],
+        "train_retained_rows": train["retained_rows"],
+        "validation_retained_rows": validation["retained_rows"],
         "confirmatory_test_accessed": False,
         "pretrained_model": runtime["model"],
         "pretrained_revision": runtime["revision"],
