@@ -91,6 +91,14 @@ def dataset_digest(examples: Sequence[ARCExample]) -> str:
     return digest.hexdigest()
 
 
+def id_digest(examples: Sequence[ARCExample]) -> str:
+    digest = hashlib.sha256()
+    for example in examples:
+        digest.update(example.item_id.encode("utf-8"))
+        digest.update(b"\n")
+    return digest.hexdigest()
+
+
 def format_prompt(example: ARCExample) -> str:
     options = " ".join(f"[{index}] {text}" for index, text in enumerate(example.choices))
     return f"Question: {example.question} Choices: {options}"
@@ -173,11 +181,7 @@ class HashEncoderClassifier(nn.Module):
 
 
 class LAMARCClassifier(nn.Module):
-    """LAM-JEPA backbone with a dedicated four-choice ARC answer head.
-
-    The tokenizer vocabulary remains independent of the answer vocabulary. This
-    avoids treating ARC labels as arbitrary entries in LAM-JEPA's token decoder.
-    """
+    """LAM-JEPA backbone with a dedicated four-choice ARC answer head."""
 
     def __init__(self, cfg: LAMJEPAConfig, num_choices: int = 4):
         super().__init__()
@@ -380,6 +384,11 @@ def run_arc_smoke(
         raise ValueError("ARC train and validation data must be non-empty")
     if any(len(example.choices) != 4 for example in train_data + validation_data):
         raise ValueError("current ARC benchmark protocol requires exactly four choices per example")
+    train_ids = {example.item_id for example in train_data}
+    validation_ids = {example.item_id for example in validation_data}
+    overlap = sorted(train_ids & validation_ids)
+    if overlap:
+        raise ValueError(f"ARC train/validation ID leakage detected: {overlap[:5]}")
 
     cfg = LAMJEPAConfig()
     records: list[dict] = []
@@ -455,6 +464,9 @@ def run_arc_smoke(
             "dataset": "AI2 ARC-Challenge",
             "train_digest": dataset_digest(train_data),
             "validation_digest": dataset_digest(validation_data),
+            "train_id_digest": id_digest(train_data),
+            "validation_id_digest": id_digest(validation_data),
+            "train_validation_overlap": 0,
             "seeds": normalized_seeds,
             "epochs": epochs,
             "batch_size": batch_size,
