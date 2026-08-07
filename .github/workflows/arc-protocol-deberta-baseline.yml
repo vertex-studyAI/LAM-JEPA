@@ -4,10 +4,12 @@ on:
   pull_request:
     paths:
       - "protocols/arc_challenge_v1.json"
+      - "protocols/arc_challenge_v2.json"
       - "data/manifests/arc_challenge.json"
       - "scripts/data/download_arc_challenge.py"
       - "scripts/benchmark/run_arc_protocol_deberta_baseline.py"
       - "scripts/ci/verify_arc_protocol_deberta_baseline.py"
+      - "scripts/ci/verify_arc_pretrained_protocol_continuity.py"
       - "pyproject.toml"
       - ".github/workflows/arc-protocol-deberta-baseline.yml"
   workflow_dispatch:
@@ -48,21 +50,34 @@ jobs:
           print("sentencepiece", sentencepiece.__version__)
           PY
 
-      - name: Compile baseline and verifier
+      - name: Compile baseline and verifiers
         run: |
           set -euo pipefail
           python -m py_compile \
             scripts/benchmark/run_arc_protocol_deberta_baseline.py \
-            scripts/ci/verify_arc_protocol_deberta_baseline.py
+            scripts/ci/verify_arc_protocol_deberta_baseline.py \
+            scripts/ci/verify_arc_pretrained_protocol_continuity.py
 
-      - name: Verify frozen scientific protocol first
+      - name: Verify immutable v1 and corrected v2 protocols
         run: |
           set -euo pipefail
           mkdir -p ci-evidence
           python scripts/ci/verify_arc_protocol.py \
             --protocol protocols/arc_challenge_v1.json \
             --dataset-manifest data/manifests/arc_challenge.json \
-            --report ci-evidence/arc-protocol-verification.json
+            --report ci-evidence/arc-protocol-v1-verification.json
+          python scripts/ci/verify_arc_protocol_v2.py \
+            --protocol protocols/arc_challenge_v2.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-v2-verification.json
+
+      - name: Prove pretrained contract continuity from v1 to v2
+        run: |
+          set -euo pipefail
+          python scripts/ci/verify_arc_pretrained_protocol_continuity.py \
+            --v1 protocols/arc_challenge_v1.json \
+            --v2 protocols/arc_challenge_v2.json \
+            --report ci-evidence/arc-pretrained-v1-v2-continuity.json
 
       - name: Download checksum-addressed ARC train and validation only
         run: |
@@ -76,6 +91,9 @@ jobs:
       - name: Run frozen DeBERTa development smoke
         run: |
           set -euo pipefail
+          # The execution harness reads immutable v1; the preceding continuity gate proves
+          # the pretrained comparator contract is byte-for-byte semantically unchanged in
+          # superseding v2. No confirmatory test data is accessed here.
           python scripts/benchmark/run_arc_protocol_deberta_baseline.py \
             --protocol protocols/arc_challenge_v1.json \
             --train ci-evidence/arc-data/arc-challenge-train.parquet \
