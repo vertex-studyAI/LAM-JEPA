@@ -1,0 +1,147 @@
+name: ARC Protocol V3 DeBERTa Validation
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "configs/arc_v3_deberta_validation.json"
+      - "scripts/benchmark/run_arc_pretrained_baseline.py"
+      - "scripts/benchmark/run_arc_pretrained_v2_deberta.py"
+      - "scripts/benchmark/run_arc_pretrained_v3_deberta.py"
+      - "scripts/ci/verify_arc_pretrained_baseline.py"
+      - "scripts/ci/verify_arc_pretrained_v3_deberta.py"
+      - "scripts/ci/verify_arc_protocol_v3.py"
+      - "scripts/data/download_arc_challenge.py"
+      - "data/manifests/arc_challenge.json"
+      - "protocols/arc_challenge_v3.json"
+      - "pyproject.toml"
+      - ".github/workflows/arc-pretrained-v3-deberta-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  HF_HUB_DISABLE_TELEMETRY: "1"
+  TOKENIZERS_PARALLELISM: "false"
+
+jobs:
+  deberta-v3-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned hardened CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[pretrained-baselines]'
+          python - <<'PY'
+          from packaging.version import Version
+          import sentencepiece
+          import torch
+          import transformers
+          assert transformers.__version__ == '4.57.6', transformers.__version__
+          assert sentencepiece.__version__ == '0.2.1', sentencepiece.__version__
+          assert Version(torch.__version__.split('+', 1)[0]) >= Version('2.6.0'), torch.__version__
+          print({'torch': torch.__version__, 'transformers': transformers.__version__, 'sentencepiece': sentencepiece.__version__})
+          PY
+
+      - name: Compile v3 DeBERTa code
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/benchmark/run_arc_pretrained_baseline.py \
+            scripts/benchmark/run_arc_pretrained_v2_deberta.py \
+            scripts/benchmark/run_arc_pretrained_v3_deberta.py \
+            scripts/ci/verify_arc_pretrained_baseline.py \
+            scripts/ci/verify_arc_pretrained_v3_deberta.py \
+            scripts/ci/verify_arc_protocol_v3.py
+
+      - name: Verify frozen scientific protocol
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol_v3.py \
+            --protocol protocols/arc_challenge_v3.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/protocol-v3.json
+
+      - name: Verify frozen implementation config before execution
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          cfg = json.loads(Path('configs/arc_v3_deberta_validation.json').read_text())
+          assert cfg['config_id'] == 'arc-v3-deberta-validation-20260807'
+          assert cfg['protocol_id'] == 'lam-jepa-arc-challenge-v3'
+          assert cfg['status'] == 'FROZEN_BEFORE_VALIDATION_EXECUTION'
+          assert cfg['seeds'] == [1,2,3,4,5]
+          assert cfg['epochs'] == 20
+          assert cfg['batch_size'] == 32
+          assert cfg['lam_jepa_learning_rate'] == 0.0003
+          assert cfg['pretrained_learning_rate'] == 0.00002
+          assert cfg['max_length'] == 96
+          assert cfg['max_train_steps'] is None
+          assert cfg['pretrained_model']['model_id'] == 'microsoft/deberta-v3-xsmall'
+          assert cfg['pretrained_model']['revision'] == '14809e4f1fe1895fcba8b258271a940c6ca45ec4'
+          print(json.dumps({'status': 'passed', 'config_id': cfg['config_id']}, indent=2))
+          PY
+
+      - name: Download checksum-addressed ARC train and validation only
+        run: |
+          set -euo pipefail
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/arc-download.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run bounded v3 DeBERTa integration smoke
+        run: |
+          set -euo pipefail
+          python scripts/benchmark/run_arc_pretrained_v3_deberta.py \
+            --run-stage development_smoke \
+            --config configs/arc_v3_deberta_validation.json \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --smoke-seeds 1 2 \
+            --smoke-epochs 1 \
+            --smoke-batch-size 2 \
+            --smoke-train-limit 8 \
+            --smoke-validation-limit 16 \
+            --smoke-max-train-steps 1 \
+            --device cpu \
+            --out ci-evidence/deberta-v3-smoke.json \
+            | tee ci-evidence/deberta-v3-smoke-output.txt
+
+      - name: Independently verify bounded v3 DeBERTa smoke
+        run: |
+          set -euo pipefail
+          python scripts/ci/verify_arc_pretrained_v3_deberta.py \
+            --results ci-evidence/deberta-v3-smoke.json \
+            --protocol protocols/arc_challenge_v3.json \
+            --config configs/arc_v3_deberta_validation.json \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --expected-stage development_smoke \
+            --report ci-evidence/deberta-v3-smoke-verification.json \
+            | tee ci-evidence/deberta-v3-smoke-verifier-output.txt
+
+      - name: Upload v3 DeBERTa smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-pretrained-v3-deberta-smoke
+          path: ci-evidence
+          if-no-files-found: error
+          retention-days: 14
