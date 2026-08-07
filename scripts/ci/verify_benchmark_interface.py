@@ -24,30 +24,58 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Verify benchmark CLI output structure.")
     parser.add_argument("--result", required=True)
     parser.add_argument("--expected-seeds", type=int, nargs="+", required=True)
+    parser.add_argument("--expected-evaluation-seed", type=int, required=True)
     parser.add_argument("--report", required=True)
     args = parser.parse_args()
 
     result_path = Path(args.result)
     payload = json.loads(result_path.read_text())
-
-    assert payload.get("seeds") == args.expected_seeds, (
-        payload.get("seeds"),
+    protocol = payload.get("protocol")
+    assert isinstance(protocol, dict), "benchmark output must contain a protocol object"
+    assert protocol.get("training_seeds") == args.expected_seeds, (
+        protocol.get("training_seeds"),
         args.expected_seeds,
     )
-    runs = payload.get("runs")
-    assert isinstance(runs, list), "benchmark output must contain a runs list"
-    assert len(runs) == len(args.expected_seeds), "one run is required per requested seed"
-    assert [run.get("seed") for run in runs] == args.expected_seeds
+    assert protocol.get("evaluation_seed") == args.expected_evaluation_seed
+    assert protocol.get("evaluation_pairing") == (
+        "identical ordered evaluation rows across training seeds"
+    )
+
+    records = payload.get("records")
+    assert isinstance(records, list), "benchmark output must contain a records list"
+    assert len(records) == len(args.expected_seeds), "one record is required per requested seed"
+    assert [record.get("training_seed") for record in records] == args.expected_seeds
+    assert all(
+        record.get("evaluation_seed") == args.expected_evaluation_seed
+        for record in records
+    )
 
     expected_tasks = set(EDTECH_TASKS)
-    for run in runs:
-        tasks = run.get("tasks")
-        assert isinstance(tasks, dict), "each run must contain task results"
+    reference_digests = payload.get("sample_digests")
+    assert isinstance(reference_digests, dict)
+    assert set(reference_digests) == expected_tasks
+
+    for record in records:
+        tasks = record.get("tasks")
+        assert isinstance(tasks, dict), "each record must contain task results"
         assert set(tasks) == expected_tasks, (
             sorted(tasks),
             sorted(expected_tasks),
         )
-        assert isinstance(run.get("history_tail"), list), "each run must retain training history"
+        assert isinstance(record.get("history_tail"), list), (
+            "each record must retain training history"
+        )
+        digests = {
+            task: str(metrics["sample_digest"])
+            for task, metrics in tasks.items()
+        }
+        assert digests == reference_digests, (
+            "every training seed must be evaluated on the same ordered rows"
+        )
+
+    aggregate = payload.get("aggregate")
+    assert isinstance(aggregate, dict), "benchmark output must contain seed-level aggregate statistics"
+    assert set(aggregate) == expected_tasks
 
     claim_boundary = payload.get("claim_boundary")
     assert isinstance(claim_boundary, str) and claim_boundary.strip(), (
@@ -57,10 +85,13 @@ def main() -> None:
     report = {
         "status": "passed",
         "result": str(result_path),
-        "seeds": args.expected_seeds,
-        "run_count": len(runs),
+        "training_seeds": args.expected_seeds,
+        "evaluation_seed": args.expected_evaluation_seed,
+        "record_count": len(records),
         "task_count": len(expected_tasks),
         "task_names": list(EDTECH_TASKS),
+        "identical_evaluation_rows": True,
+        "aggregate_present": True,
         "claim_boundary_present": True,
     }
     report_path = Path(args.report)
