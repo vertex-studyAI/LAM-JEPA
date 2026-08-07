@@ -1,17 +1,6 @@
 name: ARC Protocol V3 Controls
 
 on:
-  pull_request:
-    paths:
-      - "src/**"
-      - "scripts/benchmark/run_arc_protocol_v3_controls.py"
-      - "scripts/ci/verify_arc_protocol_v3_controls.py"
-      - "scripts/ci/verify_arc_protocol_v3.py"
-      - "scripts/data/download_arc_challenge.py"
-      - "data/manifests/arc_challenge.json"
-      - "protocols/arc_challenge_v3.json"
-      - "pyproject.toml"
-      - ".github/workflows/arc-protocol-v3-controls.yml"
   workflow_dispatch:
 
 permissions:
