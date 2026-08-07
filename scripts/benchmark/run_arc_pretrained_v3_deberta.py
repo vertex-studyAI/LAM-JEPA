@@ -7,7 +7,6 @@ import math
 import statistics
 import sys
 import time
-from collections import Counter
 from pathlib import Path
 from typing import Sequence
 
@@ -103,6 +102,7 @@ def main() -> None:
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--run-stage", choices=["development_smoke", "validation_stage"], required=True)
+    parser.add_argument("--validation-seed", type=int, default=None)
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--smoke-seeds", type=int, nargs="+", default=[1, 2])
     parser.add_argument("--smoke-epochs", type=int, default=1)
@@ -113,15 +113,29 @@ def main() -> None:
     args = parser.parse_args()
 
     config = load_config(args.config)
+    frozen_config_seeds = [int(seed) for seed in config["seeds"]]
+    if frozen_config_seeds != [1, 2, 3, 4, 5]:
+        raise ValueError("frozen validation config seeds drifted")
+
     if args.run_stage == "validation_stage":
-        seeds = [int(seed) for seed in config["seeds"]]
+        if args.validation_seed is None:
+            seeds = list(frozen_config_seeds)
+            validation_shard_seed = None
+        else:
+            if args.validation_seed not in frozen_config_seeds:
+                parser.error(f"validation shard seed {args.validation_seed} is not in frozen seeds {frozen_config_seeds}")
+            seeds = [int(args.validation_seed)]
+            validation_shard_seed = int(args.validation_seed)
         epochs = int(config["epochs"])
         batch_size = int(config["batch_size"])
         train_limit = None
         validation_limit = None
         max_train_steps = config["max_train_steps"]
     else:
+        if args.validation_seed is not None:
+            parser.error("--validation-seed is only valid with --run-stage validation_stage")
         seeds = [int(seed) for seed in args.smoke_seeds]
+        validation_shard_seed = None
         epochs = int(args.smoke_epochs)
         batch_size = int(args.smoke_batch_size)
         train_limit = int(args.smoke_train_limit)
@@ -285,6 +299,8 @@ def main() -> None:
             "implementation_config_id": config["config_id"],
             "implementation_config_sha256": file_sha256(args.config),
             "run_stage": args.run_stage,
+            "frozen_config_seeds": frozen_config_seeds,
+            "validation_shard_seed": validation_shard_seed,
             "dataset": "AI2 ARC-Challenge",
             "eligibility_rule": config["eligibility_rule"],
             "required_choice_count": ARC_PROTOCOL_CHOICE_COUNT,
