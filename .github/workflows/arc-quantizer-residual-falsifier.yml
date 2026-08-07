@@ -1,0 +1,124 @@
+name: ARC Quantizer Residual Falsifier
+
+on:
+  pull_request:
+    paths:
+      - "scripts/diagnostics/arc_quantizer_residual_falsifier.py"
+      - ".github/workflows/arc-quantizer-residual-falsifier.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quantizer-residual-falsifier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+          python -m py_compile scripts/diagnostics/arc_quantizer_residual_falsifier.py
+
+      - name: Download ARC train only
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/data/download_arc_challenge.py \
+            --splits train \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/download-train-only.json
+          test -e ci-evidence/arc-data/arc-challenge-train.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run residual-preservation falsifier
+        run: |
+          set -euo pipefail
+          python scripts/diagnostics/arc_quantizer_residual_falsifier.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --out ci-evidence/arc-quantizer-residual-falsifier.json \
+            | tee ci-evidence/arc-quantizer-residual-falsifier-output.txt
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Assert frozen diagnostic boundaries and selection rule
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p=json.loads(Path('ci-evidence/arc-quantizer-residual-falsifier.json').read_text())
+          assert p['artifact_type'] == 'LAM-JEPA ARC quantizer residual falsifier'
+          assert p['scope'] == 'training-only diagnostic; no validation or test access'
+          assert p['subset']['rows'] == 32 and p['subset']['per_class'] == 8
+          assert p['training']['seeds'] == [1,2] and p['training']['steps'] == 300
+          assert p['training']['overfit_threshold'] == 0.95
+          assert set(p['records']) == {
+              'stable_hard_1_00', 'stable_mix_0_75', 'stable_mix_0_50',
+              'stable_mix_0_25', 'no_quantizer'
+          }
+          assert p['claim_boundary'] == {
+              'validation_accessed': False,
+              'test_accessed': False,
+              'performance_claim_authorized': False,
+              'research_complete': False,
+          }
+          expected_fractions = {
+              'stable_hard_1_00': 1.0,
+              'stable_mix_0_75': 0.75,
+              'stable_mix_0_50': 0.50,
+              'stable_mix_0_25': 0.25,
+          }
+          for condition, records in p['records'].items():
+              assert [r['seed'] for r in records] == [1,2]
+              for record in records:
+                  assert len(record['history']) == 9
+                  if condition in expected_fractions:
+                      assert record['hard_fraction'] == expected_fractions[condition]
+                      assert abs(record['continuous_residual_fraction'] - (1.0-expected_fractions[condition])) < 1e-12
+                  else:
+                      assert record['hard_fraction'] is None
+                      assert record['continuous_residual_fraction'] is None
+                  for point in record['history']:
+                      q=point['quantizer_state']
+                      if q['enabled']:
+                          assert q['finite'] is True
+
+          passing=[]
+          for condition, hard_fraction in expected_fractions.items():
+              if p['summaries'][condition]['all_seeds_reach_overfit_threshold']:
+                  passing.append((hard_fraction, condition))
+          expected_selected=max(passing)[1] if passing else None
+          assert p['minimal_passing_residual_condition'] == expected_selected
+          if expected_selected:
+              expected_diag = (
+                  'STABLE_EMA_HARD_QUANTIZATION_NOW_PASSES'
+                  if expected_fractions[expected_selected] == 1.0
+                  else 'CONTROLLED_CONTINUOUS_RESIDUAL_RESTORES_TRAINABILITY'
+              )
+              assert p['diagnosis'] == expected_diag
+          elif p['summaries']['no_quantizer']['all_seeds_reach_overfit_threshold']:
+              assert p['diagnosis'] == 'DISCRETE_FORWARD_COMPONENT_REMAINS_BLOCKING_ACROSS_RESIDUAL_LADDER'
+          else:
+              assert p['diagnosis'] == 'TRAINABILITY_REFERENCE_DRIFT_OR_MIXED_FAILURE'
+          PY
+
+      - name: Upload residual falsifier evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-quantizer-residual-falsifier
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 30
