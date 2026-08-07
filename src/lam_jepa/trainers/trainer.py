@@ -31,10 +31,16 @@ class TrainerConfig:
     eval_every: int = 100
     save_every: int = 200
     early_stop_patience: int = 0
+    # Number of latent-action rollout steps exercised during supervised training
+    # and Trainer.evaluate(). Default remains zero for backwards-compatible
+    # synthetic smoke runs; mechanism-ablation experiments must opt in.
+    forward_steps: int = 0
 
 
 class Trainer:
     def __init__(self, model: LAMJEPA, cfg: LAMJEPAConfig, train_cfg: TrainerConfig):
+        if train_cfg.forward_steps < 0:
+            raise ValueError("forward_steps must be non-negative")
         set_seed(train_cfg.seed)
         self.model = model
         self.cfg = cfg
@@ -66,7 +72,7 @@ class Trainer:
 
         self.opt.zero_grad(set_to_none=True)
         with autocast_context(device=self.device, enabled=self.scaler.is_enabled()):
-            outputs = self.model(tokens, numeric_x=numeric_x, steps=0)
+            outputs = self.model(tokens, numeric_x=numeric_x, steps=self.train_cfg.forward_steps)
             loss, stats = total_loss(outputs, labels, rubric)
 
         if self.scaler.is_enabled():
@@ -87,7 +93,13 @@ class Trainer:
         acc = (pred == labels).float().mean().item()
         self.curriculum.update(acc)
 
-        record = {"step": self.step, "task": task, "acc": acc, **stats}
+        record = {
+            "step": self.step,
+            "task": task,
+            "forward_steps": self.train_cfg.forward_steps,
+            "acc": acc,
+            **stats,
+        }
         self.history.append(record)
         self.step += 1
         return record
@@ -101,7 +113,11 @@ class Trainer:
         rubrics = []
         for _ in range(batches):
             batch = sample_batch(task, batch=self.train_cfg.batch_size, vocab_size=self.cfg.vocab_size)
-            out = self.model(batch.tokens.to(self.device), numeric_x=batch.numeric_x.to(self.device), steps=0)
+            out = self.model(
+                batch.tokens.to(self.device),
+                numeric_x=batch.numeric_x.to(self.device),
+                steps=self.train_cfg.forward_steps,
+            )
             preds.append(out["logits"].argmax(dim=-1).cpu())
             labels.append(batch.labels.cpu())
             confs.append(out["confidence"].detach().cpu())
