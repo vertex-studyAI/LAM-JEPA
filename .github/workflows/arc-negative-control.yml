@@ -6,6 +6,7 @@ on:
       - "protocols/arc_challenge_v2.json"
       - "data/manifests/arc_challenge.json"
       - "scripts/data/download_arc_challenge.py"
+      - "scripts/data/audit_arc_choice_cardinality.py"
       - "scripts/benchmark/run_arc_negative_control.py"
       - "scripts/ci/verify_arc_negative_control.py"
       - ".github/workflows/arc-negative-control.yml"
@@ -35,10 +36,11 @@ jobs:
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -e '.[external-benchmarks]'
 
-      - name: Compile negative-control code
+      - name: Compile negative-control and audit code
         run: |
           set -euo pipefail
           python -m py_compile \
+            scripts/data/audit_arc_choice_cardinality.py \
             scripts/benchmark/run_arc_negative_control.py \
             scripts/ci/verify_arc_negative_control.py
 
@@ -59,6 +61,34 @@ jobs:
             --out-dir ci-evidence/arc-data \
             | tee ci-evidence/arc-download-negative-control.json
           test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Audit train and validation choice cardinality
+        run: |
+          set -euo pipefail
+          python scripts/data/audit_arc_choice_cardinality.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --out ci-evidence/arc-choice-cardinality.json \
+            | tee ci-evidence/arc-choice-cardinality-output.txt
+
+      - name: Enforce full-split protocol compatibility before training
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path('ci-evidence/arc-choice-cardinality.json').read_text())
+          incompatible = {
+              split: payload[split]['non_four_choice_rows']
+              for split in ('train', 'validation')
+              if payload[split]['non_four_choice_rows']
+          }
+          if incompatible:
+              raise SystemExit(
+                  'PROTOCOL_INCOMPATIBLE: frozen v2 requires full ARC splits but the current '
+                  f'fixed four-class ARC implementation cannot represent rows with non-four choice counts: {incompatible}'
+              )
+          PY
 
       - name: Run shuffled-label development smoke
         run: |
