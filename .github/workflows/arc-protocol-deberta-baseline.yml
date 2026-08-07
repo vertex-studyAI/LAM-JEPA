@@ -1,0 +1,112 @@
+name: ARC protocol DeBERTa baseline
+
+on:
+  pull_request:
+    paths:
+      - "protocols/arc_challenge_v1.json"
+      - "data/manifests/arc_challenge.json"
+      - "scripts/data/download_arc_challenge.py"
+      - "scripts/benchmark/run_arc_protocol_deberta_baseline.py"
+      - "scripts/ci/verify_arc_protocol_deberta_baseline.py"
+      - "pyproject.toml"
+      - ".github/workflows/arc-protocol-deberta-baseline.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  HF_HUB_DISABLE_TELEMETRY: "1"
+  TOKENIZERS_PARALLELISM: "false"
+
+jobs:
+  protocol-deberta-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned CPU baseline environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[pretrained-baselines]'
+          python - <<'PY'
+          import sentencepiece
+          import transformers
+          assert transformers.__version__ == "4.57.6", transformers.__version__
+          assert sentencepiece.__version__ == "0.2.2", sentencepiece.__version__
+          print("transformers", transformers.__version__)
+          print("sentencepiece", sentencepiece.__version__)
+          PY
+
+      - name: Compile baseline and verifier
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/benchmark/run_arc_protocol_deberta_baseline.py \
+            scripts/ci/verify_arc_protocol_deberta_baseline.py
+
+      - name: Verify frozen scientific protocol first
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol.py \
+            --protocol protocols/arc_challenge_v1.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-verification.json
+
+      - name: Download checksum-addressed ARC train and validation only
+        run: |
+          set -euo pipefail
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/arc-download-deberta.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run frozen DeBERTa development smoke
+        run: |
+          set -euo pipefail
+          python scripts/benchmark/run_arc_protocol_deberta_baseline.py \
+            --protocol protocols/arc_challenge_v1.json \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --seeds 1 2 \
+            --epochs 1 \
+            --batch-size 2 \
+            --learning-rate 2e-5 \
+            --max-length 96 \
+            --max-train-steps 1 \
+            --model-steps 1 \
+            --train-limit 8 \
+            --validation-limit 16 \
+            --device cpu \
+            --out ci-evidence/arc-protocol-deberta.json \
+            | tee ci-evidence/arc-protocol-deberta-output.txt
+
+      - name: Independently verify frozen DeBERTa artifact
+        run: |
+          set -euo pipefail
+          python scripts/ci/verify_arc_protocol_deberta_baseline.py \
+            --results ci-evidence/arc-protocol-deberta.json \
+            --protocol protocols/arc_challenge_v1.json \
+            --report ci-evidence/arc-protocol-deberta-verification.json \
+            | tee ci-evidence/arc-protocol-deberta-verifier-output.txt
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-protocol-deberta-smoke
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 14
