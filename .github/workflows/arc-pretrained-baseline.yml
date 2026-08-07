@@ -1,19 +1,6 @@
 name: ARC pretrained baseline
 
 on:
-  pull_request:
-    paths:
-      - "src/**"
-      - "scripts/benchmark/run_arc_pretrained_baseline.py"
-      - "scripts/benchmark/run_arc_pretrained_v2_deberta.py"
-      - "scripts/ci/verify_arc_pretrained_baseline.py"
-      - "scripts/ci/verify_arc_pretrained_v2_deberta.py"
-      - "scripts/ci/verify_arc_protocol_v2.py"
-      - "scripts/data/download_arc_challenge.py"
-      - "data/manifests/arc_challenge.json"
-      - "protocols/arc_challenge_v2.json"
-      - "pyproject.toml"
-      - ".github/workflows/arc-pretrained-baseline.yml"
   workflow_dispatch:
 
 permissions:
