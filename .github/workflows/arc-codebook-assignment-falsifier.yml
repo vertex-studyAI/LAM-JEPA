@@ -1,0 +1,93 @@
+name: ARC Codebook Assignment Falsifier
+
+on:
+  pull_request:
+    paths:
+      - "scripts/diagnostics/arc_codebook_assignment_falsifier.py"
+      - ".github/workflows/arc-codebook-assignment-falsifier.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  codebook-assignment-falsifier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+          python -m py_compile scripts/diagnostics/arc_codebook_assignment_falsifier.py
+
+      - name: Download ARC train only
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/data/download_arc_challenge.py \
+            --splits train \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/download-train-only.json
+          test -e ci-evidence/arc-data/arc-challenge-train.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run codebook assignment falsifier
+        run: |
+          set -euo pipefail
+          python scripts/diagnostics/arc_codebook_assignment_falsifier.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --out ci-evidence/arc-codebook-assignment-falsifier.json \
+            | tee ci-evidence/arc-codebook-assignment-falsifier-output.txt
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Assert frozen diagnostic boundaries
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('ci-evidence/arc-codebook-assignment-falsifier.json').read_text())
+          assert p['artifact_type'] == 'LAM-JEPA ARC codebook assignment falsifier'
+          assert p['scope'] == 'training-only diagnostic; no validation or test access'
+          assert p['subset']['rows'] == 32 and p['subset']['per_class'] == 8
+          assert p['training']['seeds'] == [1,2] and p['training']['steps'] == 300
+          assert p['training']['overfit_threshold'] == 0.95
+          assert set(p['records']) == {
+              'random32_frozen', 'random128_frozen', 'data32_frozen',
+              'data32_stable_ema', 'no_quantizer'
+          }
+          assert p['claim_boundary'] == {
+              'validation_accessed': False,
+              'test_accessed': False,
+              'performance_claim_authorized': False,
+              'research_complete': False,
+          }
+          for condition, records in p['records'].items():
+              assert [r['seed'] for r in records] == [1,2]
+              for record in records:
+                  assert len(record['history']) == 9
+                  for point in record['history']:
+                      q = point['quantizer_state']
+                      if q['enabled']:
+                          assert q['finite'] is True
+          PY
+
+      - name: Upload codebook assignment evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-codebook-assignment-falsifier
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 30
