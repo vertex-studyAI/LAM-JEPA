@@ -1,0 +1,106 @@
+name: ARC V5 Quantizer Repair Gate
+
+on:
+  pull_request:
+    paths:
+      - "src/lam_jepa/benchmarking/arc_v5_repair.py"
+      - "scripts/diagnostics/arc_v5_repair_overfit.py"
+      - "tests/unit/test_arc_v5_quantizer_repair.py"
+      - ".github/workflows/arc-v5-quantizer-repair-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  primary-repair-trainability-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+
+      - name: Compile and unit-test explicit repair
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            src/lam_jepa/benchmarking/arc_v5_repair.py \
+            scripts/diagnostics/arc_v5_repair_overfit.py
+          pytest -q tests/unit/test_arc_v5_quantizer_repair.py
+
+      - name: Download checksum-addressed ARC train only
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/data/download_arc_challenge.py \
+            --splits train \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/download-train-only.json
+          test -e ci-evidence/arc-data/arc-challenge-train.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run frozen two-seed primary repair gate
+        run: |
+          set -euo pipefail
+          python scripts/diagnostics/arc_v5_repair_overfit.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --out ci-evidence/arc-v5-quantizer-repair-gate.json \
+            | tee ci-evidence/arc-v5-quantizer-repair-gate-output.txt
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Assert primary gate stays fail-closed for validation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('ci-evidence/arc-v5-quantizer-repair-gate.json').read_text())
+          assert p['artifact_type'] == 'LAM-JEPA ARC v5 quantizer repair trainability gate'
+          assert p['scope'] == 'training-only primary repair acceptance; no validation or test access'
+          assert p['repair_id'] == 'arc-v5-stable-ema-residual-0.03125'
+          assert p['repair_spec'] == {
+              'repair_id': 'arc-v5-stable-ema-residual-0.03125',
+              'ema_pseudocount': 1.0,
+              'ema_weight_initialization': 'copy_live_codebook',
+              'hard_fraction': 0.03125,
+              'continuous_fraction': 0.96875,
+              'legacy_default_behavior_changed': False,
+              'validation_authorized': False,
+              'confirmatory_test_authorized': False,
+          }
+          assert p['subset']['rows'] == 32 and p['subset']['per_class'] == 8
+          assert p['training']['seeds'] == [1,2]
+          assert p['training']['steps'] == 300
+          assert p['training']['overfit_threshold'] == 0.95
+          assert p['repair_trainability_gate_pass'] is True
+          assert p['verdict'] == 'PRIMARY_REPAIR_TRAINABILITY_GATE_PASSED'
+          assert p['summaries']['repaired_v5']['all_seeds_reach_overfit_threshold'] is True
+          assert p['claim_boundary'] == {
+              'validation_accessed': False,
+              'test_accessed': False,
+              'independent_reproduction_complete': False,
+              'validation_authorized': False,
+              'performance_claim_authorized': False,
+              'research_complete': False,
+          }
+          PY
+
+      - name: Upload primary repair evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-v5-quantizer-primary-repair
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 30
