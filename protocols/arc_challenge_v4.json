@@ -1,0 +1,26 @@
+{
+  "schema_version": 4,
+  "protocol_id": "lam-jepa-arc-challenge-v4",
+  "supersedes": "lam-jepa-arc-challenge-v3",
+  "status": "FROZEN_BEFORE_CONFIRMATORY_TEST",
+  "base_protocol_file": "protocols/arc_challenge_v3.json",
+  "base_protocol_git_blob_sha": "9361aa3f580559ea7758e9a15fa51a29c081ca70",
+  "change_reason": "After protocol v3 merged and before any confirmatory ARC test access, an implementation audit found that the frozen strong-pretrained model identity was complete but its tokenizer truncation length and security-relevant loader/runtime details were not preregistered. The already-verified development DeBERTa path in PR #23 used max length 96, slow SentencePiece tokenization, trust_remote_code disabled, Transformers 4.57.6, SentencePiece 0.2.2, PyTorch checkpoint loading on Torch >=2.6 with weights_only=true. V4 freezes exactly those already-executed settings and otherwise inherits the immutable v3 scientific contract unchanged.",
+  "confirmatory_test_accessed": false,
+  "runtime_addendum": {
+    "strong_pretrained_baseline": {
+      "model": "microsoft/deberta-v3-xsmall",
+      "revision": "14809e4f1fe1895fcba8b258271a940c6ca45ec4",
+      "license": "MIT",
+      "transformers_version": "4.57.6",
+      "sentencepiece_version": "0.2.2",
+      "tokenizer_max_length": 96,
+      "tokenizer_use_fast": false,
+      "trust_remote_code": false,
+      "checkpoint_format": "pytorch_bin",
+      "minimum_torch_version": "2.6.0",
+      "weights_only": true
+    }
+  },
+  "protocol_change_rule": "V1, V2, and V3 remain immutable audit trails. V4 is the exact immutable V3 scientific contract plus only this pretrained-runtime addendum and supersedes V3 before confirmatory test access. Any later material change requires a new protocol version before confirmatory test access; observed confirmatory test outcomes may never be used to edit V1, V2, V3, or V4."
+}
