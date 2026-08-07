@@ -6,8 +6,11 @@ on:
       - "src/**"
       - "scripts/benchmark/run_arc_matched_baseline.py"
       - "scripts/ci/verify_arc_matched_baseline.py"
+      - "scripts/ci/verify_arc_matched_baseline_v2_contract.py"
+      - "scripts/ci/verify_arc_protocol_v2.py"
       - "scripts/data/download_arc_challenge.py"
       - "data/manifests/arc_challenge.json"
+      - "protocols/arc_challenge_v2.json"
       - "pyproject.toml"
       - ".github/workflows/arc-matched-baseline.yml"
   workflow_dispatch:
@@ -41,12 +44,22 @@ jobs:
           set -euo pipefail
           python -m py_compile \
             scripts/benchmark/run_arc_matched_baseline.py \
-            scripts/ci/verify_arc_matched_baseline.py
+            scripts/ci/verify_arc_matched_baseline.py \
+            scripts/ci/verify_arc_matched_baseline_v2_contract.py \
+            scripts/ci/verify_arc_protocol_v2.py
+
+      - name: Verify frozen ARC protocol v2
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol_v2.py \
+            --protocol protocols/arc_challenge_v2.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-v2-verification.json
 
       - name: Download checksum-addressed ARC train and validation only
         run: |
           set -euo pipefail
-          mkdir -p ci-evidence
           python scripts/data/download_arc_challenge.py \
             --splits train validation \
             --out-dir ci-evidence/arc-data \
@@ -66,7 +79,7 @@ jobs:
             --train-limit 32 \
             --validation-limit 32 \
             --device cpu \
-            --match-tolerance 0.05 \
+            --match-tolerance 0.01 \
             --out ci-evidence/arc-matched-baseline.json \
             | tee ci-evidence/arc-matched-baseline-output.txt
 
@@ -77,6 +90,16 @@ jobs:
             --results ci-evidence/arc-matched-baseline.json \
             --report ci-evidence/arc-matched-baseline-verification.json \
             | tee ci-evidence/arc-matched-baseline-verifier-output.txt
+
+      - name: Enforce protocol-v2 matched-capacity contract
+        run: |
+          set -euo pipefail
+          python scripts/ci/verify_arc_matched_baseline_v2_contract.py \
+            --results ci-evidence/arc-matched-baseline.json \
+            --protocol protocols/arc_challenge_v2.json \
+            --base-verification ci-evidence/arc-matched-baseline-verification.json \
+            --report ci-evidence/arc-matched-baseline-v2-contract.json \
+            | tee ci-evidence/arc-matched-baseline-v2-contract-output.txt
 
       - name: Upload evidence
         if: always()
