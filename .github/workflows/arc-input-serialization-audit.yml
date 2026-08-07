@@ -1,0 +1,79 @@
+name: ARC input serialization audit
+
+on:
+  pull_request:
+    paths:
+      - "src/lam_jepa/benchmarking/arc_challenge.py"
+      - "src/lam_jepa/benchmarking/arc_protocol.py"
+      - "src/lam_jepa/data.py"
+      - "scripts/data/audit_arc_input_serialization.py"
+      - "scripts/ci/verify_arc_input_serialization_audit.py"
+      - ".github/workflows/arc-input-serialization-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+
+      - name: Compile audit and verifier
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/data/audit_arc_input_serialization.py \
+            scripts/ci/verify_arc_input_serialization_audit.py
+
+      - name: Download checksum-addressed ARC train and validation only
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/arc-download-serialization-audit.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Audit canonical 96-byte serialization
+        run: |
+          set -euo pipefail
+          python scripts/data/audit_arc_input_serialization.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --out ci-evidence/arc-input-serialization-audit.json \
+            | tee ci-evidence/arc-input-serialization-audit-output.txt
+
+      - name: Independently verify audit summaries
+        run: |
+          set -euo pipefail
+          python scripts/ci/verify_arc_input_serialization_audit.py \
+            --audit ci-evidence/arc-input-serialization-audit.json \
+            --report ci-evidence/arc-input-serialization-audit-verification.json \
+            | tee ci-evidence/arc-input-serialization-audit-verifier-output.txt
+
+      - name: Upload serialization evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-input-serialization-audit
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 14
