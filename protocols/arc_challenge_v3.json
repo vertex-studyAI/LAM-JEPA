@@ -5,8 +5,43 @@
   "status": "FROZEN_BEFORE_CONFIRMATORY_TEST",
   "base_protocol_file": "protocols/arc_challenge_v2.json",
   "base_protocol_git_blob_sha": "cd6cc8ae4beb425fb1cac9f6e35f40fa6aa6d50b",
-  "change_reason": "Pre-confirmatory implementation audit found that protocol v2 froze the strong pretrained model identity but omitted tokenizer truncation length and loader/runtime details. PR #23 executed the exact frozen DeBERTa revision with max length 96, slow SentencePiece tokenization, trust_remote_code disabled, a hardened PyTorch >=2.6 weights-only loader, and no ARC test access. V3 freezes those already-executed development settings without changing the v2 scientific question, data, training budget, metrics, robustness, negative control, ablations, or claim gates.",
+  "change_reason": "Two pre-confirmatory implementation audits found contradictions in v2 before any ARC test access: v2 requires all manifest-declared rows while freezing a four-choice answer head, but ARC train/validation contain a small number of 3- and 5-choice items; and v2 freezes the strong pretrained model identity but omits tokenizer truncation and loader/runtime details. V3 preserves the v2 scientific question, metrics, seeds, epochs, optimizer, learning rates, robustness, negative control, ablations and claim gates; it resolves the data contradiction with one label-independent structural four-choice filter applied identically to every split and freezes the already-executed DeBERTa development runtime.",
   "confirmatory_test_accessed": false,
+  "dataset_addendum": {
+    "selection_rule": "retain rows with exactly four answer choices",
+    "decision_basis": "choice cardinality only; never label, question content, prediction, metric, or outcome",
+    "applies_to": ["train", "validation", "test"],
+    "preserve_source_order": true,
+    "renumber_or_substitute_rows": false,
+    "training_budget_override": {
+      "train_examples": "all manifest-declared train rows satisfying the structural four-choice filter",
+      "validation_examples": "all manifest-declared validation rows satisfying the structural four-choice filter",
+      "test_examples": "all manifest-declared test rows satisfying the structural four-choice filter"
+    },
+    "known_pretest_audit": {
+      "test_split_accessed": false,
+      "train": {
+        "input_rows": 1119,
+        "retained_rows": 1117,
+        "excluded_rows": [
+          {"id": "NYSEDREGENTS_2004_4_8", "choice_count": 3},
+          {"id": "TIMSS_1995_8_N3", "choice_count": 5}
+        ],
+        "excluded_identity_digest": "860fe5ba2cc99943a0fa7e0e679d63c7885038dedba2e0166f91e632b8e2b905"
+      },
+      "validation": {
+        "input_rows": 299,
+        "retained_rows": 295,
+        "excluded_rows": [
+          {"id": "NYSEDREGENTS_2014_4_4", "choice_count": 3},
+          {"id": "NYSEDREGENTS_2014_4_19", "choice_count": 3},
+          {"id": "TIMSS_2003_8_pg29", "choice_count": 5},
+          {"id": "NYSEDREGENTS_2014_4_28", "choice_count": 3}
+        ],
+        "excluded_identity_digest": "3ff837fd582144446de95786bcec2e6b3e0a555086843470a92411df6bef8a8a"
+      }
+    }
+  },
   "runtime_addendum": {
     "strong_pretrained_baseline": {
       "model": "microsoft/deberta-v3-xsmall",
@@ -22,5 +57,5 @@
       "weights_only": true
     }
   },
-  "protocol_change_rule": "V1 and V2 remain immutable audit trails. V3 consists of the exact immutable V2 scientific contract plus this runtime addendum and supersedes V2 before confirmatory test access. Any later material change requires a new version before confirmatory test access; observed confirmatory test outcomes may never be used to silently edit V1, V2, or V3."
+  "protocol_change_rule": "V1 and V2 remain immutable audit trails. V3 consists of the exact immutable V2 scientific contract plus only the dataset and runtime addenda recorded here and supersedes V2 before confirmatory test access. Any later material change requires a new protocol version before confirmatory test access; observed confirmatory test outcomes may never be used to silently edit V1, V2, or V3."
 }
