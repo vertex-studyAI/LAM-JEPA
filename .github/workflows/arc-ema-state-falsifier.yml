@@ -1,0 +1,89 @@
+name: ARC EMA State Falsifier
+
+on:
+  pull_request:
+    paths:
+      - "scripts/diagnostics/arc_ema_state_falsifier.py"
+      - ".github/workflows/arc-ema-state-falsifier.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ema-state-falsifier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+          python -m py_compile scripts/diagnostics/arc_ema_state_falsifier.py
+
+      - name: Download checksum-addressed ARC train only
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/data/download_arc_challenge.py \
+            --splits train \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/download-train-only.json
+          test -e ci-evidence/arc-data/arc-challenge-train.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run EMA state falsifier
+        run: |
+          set -euo pipefail
+          python scripts/diagnostics/arc_ema_state_falsifier.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --out ci-evidence/arc-ema-state-falsifier.json \
+            | tee ci-evidence/arc-ema-state-falsifier-output.txt
+          test ! -e ci-evidence/arc-data/arc-challenge-validation.parquet
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Assert frozen diagnostic boundaries
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('ci-evidence/arc-ema-state-falsifier.json').read_text())
+          assert p['artifact_type'] == 'LAM-JEPA ARC EMA state falsifier'
+          assert p['scope'] == 'training-only diagnostic; no validation or test access'
+          assert p['subset']['rows'] == 32 and p['subset']['per_class'] == 8
+          assert p['training']['seeds'] == [1, 2]
+          assert p['training']['steps'] == 300
+          assert p['training']['overfit_threshold'] == 0.95
+          assert set(p['records']) == {'canonical','count_only','weight_only','synchronized'}
+          assert p['claim_boundary'] == {
+              'validation_accessed': False,
+              'test_accessed': False,
+              'performance_claim_authorized': False,
+              'research_complete': False,
+          }
+          for condition, records in p['records'].items():
+              assert [r['seed'] for r in records] == [1, 2]
+              for record in records:
+                  assert record['state_after_condition_init']['finite'] is True
+                  assert record['first_training_forward']['quantizer_state_after_forward_before_optimizer']['finite'] is True
+                  assert len(record['history']) == 9
+          PY
+
+      - name: Upload EMA falsifier evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-ema-state-falsifier
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 30
