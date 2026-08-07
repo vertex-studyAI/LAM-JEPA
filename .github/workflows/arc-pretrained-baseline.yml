@@ -1,13 +1,19 @@
-name: ARC pretrained baseline
+name: ARC protocol-v3 pretrained baseline
 
 on:
   pull_request:
     paths:
       - "src/**"
       - "scripts/benchmark/run_arc_pretrained_baseline.py"
+      - "scripts/benchmark/run_arc_pretrained_baseline_v3.py"
       - "scripts/ci/verify_arc_pretrained_baseline.py"
+      - "scripts/ci/verify_arc_pretrained_baseline_v3.py"
+      - "scripts/ci/verify_arc_protocol_v2.py"
+      - "scripts/ci/verify_arc_protocol_v3.py"
       - "scripts/data/download_arc_challenge.py"
       - "data/manifests/arc_challenge.json"
+      - "protocols/arc_challenge_v2.json"
+      - "protocols/arc_challenge_v3.json"
       - "pyproject.toml"
       - ".github/workflows/arc-pretrained-baseline.yml"
   workflow_dispatch:
@@ -40,60 +46,76 @@ jobs:
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -e '.[pretrained-baselines]'
           python - <<'PY'
+          import sentencepiece
           import transformers
           assert transformers.__version__ == "4.57.6", transformers.__version__
-          print(transformers.__version__)
+          assert sentencepiece.__version__ == "0.2.2", sentencepiece.__version__
+          print({"transformers": transformers.__version__, "sentencepiece": sentencepiece.__version__})
           PY
 
-      - name: Compile pretrained-baseline code
+      - name: Compile protocol-v3 pretrained code
         run: |
           set -euo pipefail
           python -m py_compile \
             scripts/benchmark/run_arc_pretrained_baseline.py \
-            scripts/ci/verify_arc_pretrained_baseline.py
+            scripts/benchmark/run_arc_pretrained_baseline_v3.py \
+            scripts/ci/verify_arc_pretrained_baseline.py \
+            scripts/ci/verify_arc_pretrained_baseline_v3.py \
+            scripts/ci/verify_arc_protocol_v2.py \
+            scripts/ci/verify_arc_protocol_v3.py
+
+      - name: Verify frozen protocol audit trail and v3 correction
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol_v2.py \
+            --report ci-evidence/arc-protocol-v2-verification.json \
+            | tee ci-evidence/arc-protocol-v2-output.txt
+          python scripts/ci/verify_arc_protocol_v3.py \
+            --report ci-evidence/arc-protocol-v3-verification.json \
+            | tee ci-evidence/arc-protocol-v3-output.txt
 
       - name: Download checksum-addressed ARC train and validation only
         run: |
           set -euo pipefail
-          mkdir -p ci-evidence
           python scripts/data/download_arc_challenge.py \
             --splits train validation \
             --out-dir ci-evidence/arc-data \
-            | tee ci-evidence/arc-download-pretrained.json
+            | tee ci-evidence/arc-download-pretrained-v3.json
           test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
 
-      - name: Run bounded immutable pretrained comparison
+      - name: Run bounded protocol-v3 DeBERTa comparison
         run: |
           set -euo pipefail
-          python scripts/benchmark/run_arc_pretrained_baseline.py \
+          python scripts/benchmark/run_arc_pretrained_baseline_v3.py \
             --train ci-evidence/arc-data/arc-challenge-train.parquet \
             --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
             --seeds 1 2 \
             --epochs 1 \
             --batch-size 2 \
             --learning-rate 2e-5 \
-            --max-length 96 \
+            --max-length 128 \
             --max-train-steps 1 \
             --model-steps 1 \
             --train-limit 8 \
             --validation-limit 16 \
             --device cpu \
-            --out ci-evidence/arc-pretrained-baseline.json \
-            | tee ci-evidence/arc-pretrained-baseline-output.txt
+            --out ci-evidence/arc-pretrained-baseline-v3.json \
+            | tee ci-evidence/arc-pretrained-baseline-v3-output.txt
 
-      - name: Independently verify pretrained evidence
+      - name: Independently verify protocol-v3 pretrained evidence
         run: |
           set -euo pipefail
-          python scripts/ci/verify_arc_pretrained_baseline.py \
-            --results ci-evidence/arc-pretrained-baseline.json \
-            --report ci-evidence/arc-pretrained-baseline-verification.json \
-            | tee ci-evidence/arc-pretrained-baseline-verifier-output.txt
+          python scripts/ci/verify_arc_pretrained_baseline_v3.py \
+            --results ci-evidence/arc-pretrained-baseline-v3.json \
+            --report ci-evidence/arc-pretrained-baseline-v3-verification.json \
+            | tee ci-evidence/arc-pretrained-baseline-v3-verifier-output.txt
 
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: arc-pretrained-baseline-smoke
+          name: arc-pretrained-baseline-v3-smoke
           path: ci-evidence
           if-no-files-found: warn
           retention-days: 14
