@@ -1,0 +1,100 @@
+name: ARC Protocol V2 Controls
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "scripts/benchmark/run_arc_protocol_v2_controls.py"
+      - "scripts/ci/verify_arc_protocol_v2_controls.py"
+      - "scripts/ci/verify_arc_protocol_v2.py"
+      - "scripts/data/download_arc_challenge.py"
+      - "data/manifests/arc_challenge.json"
+      - "protocols/arc_challenge_v2.json"
+      - "pyproject.toml"
+      - ".github/workflows/arc-protocol-v2-controls.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  arc-protocol-v2-controls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install CPU research environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+
+      - name: Compile ARC control code
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/benchmark/run_arc_protocol_v2_controls.py \
+            scripts/ci/verify_arc_protocol_v2_controls.py \
+            scripts/ci/verify_arc_protocol_v2.py
+
+      - name: Verify frozen ARC protocol v2
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_protocol_v2.py \
+            --protocol protocols/arc_challenge_v2.json \
+            --dataset-manifest data/manifests/arc_challenge.json \
+            --report ci-evidence/arc-protocol-v2-verification.json
+
+      - name: Download checksum-addressed ARC train and validation only
+        run: |
+          set -euo pipefail
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/arc-download-controls.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+
+      - name: Run required mechanism ablations and negative control
+        run: |
+          set -euo pipefail
+          python scripts/benchmark/run_arc_protocol_v2_controls.py \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --seeds 1 2 \
+            --epochs 1 \
+            --batch-size 4 \
+            --learning-rate 0.0003 \
+            --model-steps 1 \
+            --train-limit 32 \
+            --validation-limit 64 \
+            --device cpu \
+            --out ci-evidence/arc-protocol-v2-controls.json \
+            | tee ci-evidence/arc-protocol-v2-controls-output.txt
+
+      - name: Independently verify real-ARC controls
+        run: |
+          set -euo pipefail
+          python scripts/ci/verify_arc_protocol_v2_controls.py \
+            --results ci-evidence/arc-protocol-v2-controls.json \
+            --protocol protocols/arc_challenge_v2.json \
+            --report ci-evidence/arc-protocol-v2-controls-verification.json \
+            | tee ci-evidence/arc-protocol-v2-controls-verifier-output.txt
+
+      - name: Upload ARC controls evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-protocol-v2-controls-smoke
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 14
