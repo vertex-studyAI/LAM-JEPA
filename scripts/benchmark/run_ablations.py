@@ -21,9 +21,17 @@ from lam_jepa.benchmarking.edtech_suite import ablation_suite, save_json
 
 
 def main():
-    p = argparse.ArgumentParser(description="Run paired, multi-seed component ablations.")
+    p = argparse.ArgumentParser(
+        description="Run paired, multi-seed, mechanism-exercising component ablations."
+    )
     p.add_argument("--seeds", type=int, nargs="+", default=[1, 2])
     p.add_argument("--steps", type=int, default=120)
+    p.add_argument(
+        "--model-steps",
+        type=int,
+        default=1,
+        help="Latent-action rollout steps. Must be >=1 so the planner ablation is identifiable.",
+    )
     p.add_argument("--batch-size", type=int, default=64)
     p.add_argument("--eval-batches", type=int, default=6)
     p.add_argument("--evaluation-seed", type=int, default=1007)
@@ -35,6 +43,7 @@ def main():
     results = ablation_suite(
         seeds=args.seeds,
         steps=args.steps,
+        model_steps=args.model_steps,
         batch_size=args.batch_size,
         eval_batches=args.eval_batches,
         evaluation_seed=args.evaluation_seed,

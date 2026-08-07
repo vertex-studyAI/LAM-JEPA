@@ -46,16 +46,22 @@ def main() -> None:
         protocol.get("pairing") == "same training seeds and identical ordered evaluation rows across variants",
         "paired ablation contract missing or weakened",
     )
+    require(
+        protocol.get("mechanism_gate") == "full model must exercise latent-action rollout; no_planner must execute zero action steps",
+        "mechanism-execution gate missing or weakened",
+    )
 
     seeds = protocol.get("training_seeds")
     batch_size = protocol.get("batch_size")
     eval_batches = protocol.get("eval_batches")
     evaluation_seed = protocol.get("evaluation_seed")
+    model_steps = protocol.get("model_steps")
     require(isinstance(seeds, list) and len(seeds) >= 2, "at least two training seeds are required")
     require(len(set(seeds)) == len(seeds), "training seeds must be unique")
     require(isinstance(batch_size, int) and batch_size >= 1, "invalid batch size")
     require(isinstance(eval_batches, int) and eval_batches >= 1, "invalid evaluation batch count")
     require(isinstance(evaluation_seed, int), "invalid evaluation seed")
+    require(isinstance(model_steps, int) and model_steps >= 1, "planner ablation must exercise at least one model step")
     expected_n = batch_size * eval_batches
 
     for task in EDTECH_TASKS:
@@ -75,10 +81,19 @@ def main() -> None:
         require(isinstance(records, list) and len(records) == len(seeds), f"{variant}: seed record count mismatch")
         require(isinstance(aggregate, dict) and set(aggregate) == set(EDTECH_TASKS), f"{variant}: aggregate coverage mismatch")
 
+        expected_action_steps = 0 if variant == "no_planner" else model_steps
         for expected_seed, record in zip(seeds, records, strict=True):
             require(isinstance(record, dict), f"{variant}: seed record must be an object")
             require(record.get("training_seed") == expected_seed, f"{variant}: training seed order mismatch")
             require(record.get("evaluation_seed") == evaluation_seed, f"{variant}: evaluation seed mismatch")
+            require(record.get("model_steps") == model_steps, f"{variant}: model-step contract mismatch")
+            history_tail = record.get("history_tail")
+            require(isinstance(history_tail, list) and history_tail, f"{variant}: training history missing")
+            for history_row in history_tail:
+                require(
+                    history_row.get("forward_steps") == model_steps,
+                    f"{variant}: training did not exercise declared model steps",
+                )
             scores = record.get("scores")
             require(isinstance(scores, dict) and set(scores) == set(EDTECH_TASKS), f"{variant}: task coverage mismatch")
 
@@ -88,6 +103,11 @@ def main() -> None:
                 require(row.get("n") == expected_n, f"{variant}/{task}: sample count mismatch")
                 require(row.get("target_semantics") == TARGET_SEMANTICS[task], f"{variant}/{task}: target semantics mismatch")
                 require(row.get("sample_digest") == digests[task], f"{variant}/{task}: evaluation rows are not paired")
+                require(row.get("requested_model_steps") == model_steps, f"{variant}/{task}: requested model-step mismatch")
+                require(
+                    row.get("executed_action_steps") == expected_action_steps,
+                    f"{variant}/{task}: claimed component execution does not match variant",
+                )
                 accuracy = float(row["accuracy"])
                 confidence = float(row["confidence"])
                 require(math.isfinite(accuracy) and 0.0 <= accuracy <= 1.0, f"{variant}/{task}: invalid accuracy")
@@ -134,16 +154,18 @@ def main() -> None:
 
     claim_boundary = protocol.get("claim_boundary")
     require(isinstance(claim_boundary, str), "claim boundary missing")
-    for phrase in ("descriptive", "training budget", "data", "statistical power"):
+    for phrase in ("descriptive", "training budget", "data", "mechanism sensitivity", "statistical power"):
         require(phrase in claim_boundary, f"claim boundary missing phrase: {phrase}")
 
     report = {
         "status": "passed",
         "training_seeds": seeds,
+        "model_steps": model_steps,
         "variants_verified": list(ABLATION_VARIANTS),
         "tasks_verified": list(EDTECH_TASKS),
         "sample_digests": digests,
         "pairing": protocol["pairing"],
+        "mechanism_gate": protocol["mechanism_gate"],
         "claim_boundary": claim_boundary,
     }
     args.report.parent.mkdir(parents=True, exist_ok=True)
