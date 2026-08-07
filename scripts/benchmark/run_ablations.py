@@ -17,17 +17,30 @@ for p in (ROOT, SRC):
 import argparse
 import json
 
-from lam_jepa.benchmarking.runner import ablation_suite, save_json
+from lam_jepa.benchmarking.edtech_suite import ablation_suite, save_json
 
 
 def main():
-    p = argparse.ArgumentParser(description="Run ablation study.")
+    p = argparse.ArgumentParser(description="Run paired, multi-seed component ablations.")
+    p.add_argument("--seeds", type=int, nargs="+", default=[1, 2])
     p.add_argument("--steps", type=int, default=120)
     p.add_argument("--batch-size", type=int, default=64)
+    p.add_argument("--eval-batches", type=int, default=6)
+    p.add_argument("--evaluation-seed", type=int, default=1007)
+    p.add_argument("--training-task", type=str, default="mixed")
     p.add_argument("--device", type=str, default="cpu")
     p.add_argument("--out", type=str, default="outputs/ablation_results.json")
     args = p.parse_args()
-    results = ablation_suite(steps=args.steps, batch_size=args.batch_size, device=args.device)
+
+    results = ablation_suite(
+        seeds=args.seeds,
+        steps=args.steps,
+        batch_size=args.batch_size,
+        eval_batches=args.eval_batches,
+        evaluation_seed=args.evaluation_seed,
+        task=args.training_task,
+        device=args.device,
+    )
     save_json(args.out, results)
     print(json.dumps(results, indent=2))
 

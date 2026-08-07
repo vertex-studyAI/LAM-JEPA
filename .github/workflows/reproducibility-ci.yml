@@ -158,6 +158,26 @@ jobs:
             --out-dir ci-evidence/paper-results \
             --report ci-evidence/paper-results-verification.json
 
+      - name: Run paired multi-seed component ablations
+        run: |
+          set -euo pipefail
+          python scripts/benchmark/run_ablations.py \
+            --seeds 1 2 \
+            --steps 1 \
+            --batch-size 2 \
+            --eval-batches 1 \
+            --evaluation-seed 19 \
+            --training-task parity \
+            --device cpu \
+            --out ci-evidence/ablation-results.json \
+            | tee ci-evidence/ablation-output.txt
+
+      - name: Verify paired ablation evidence
+        run: |
+          python scripts/ci/verify_ablation_smoke.py \
+            --ablation ci-evidence/ablation-results.json \
+            --report ci-evidence/ablation-verification.json
+
       - name: Upload reproducibility evidence
         if: always()
         uses: actions/upload-artifact@v7

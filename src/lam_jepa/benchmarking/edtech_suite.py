@@ -9,7 +9,7 @@ import random
 import numpy as np
 import torch
 
-from ..analysis.statistics import summarize_seed_runs
+from ..analysis.statistics import paired_summary, summarize_seed_runs
 from ..data import SUPPORTED_TASKS
 from ..model import LAMJEPA, LAMJEPAConfig
 from ..trainers.trainer import Trainer, TrainerConfig
@@ -18,6 +18,7 @@ from .evaluation_sampling import TARGET_SEMANTICS, evaluation_sample_digest, sam
 
 
 EDTECH_TASKS = SUPPORTED_TASKS
+ABLATION_VARIANTS = ("full", "no_memory", "no_planner", "no_quant", "no_target")
 
 
 def build_variant_config(base: LAMJEPAConfig, variant: str) -> LAMJEPAConfig:
@@ -233,19 +234,127 @@ def seed_sweep(
     }
 
 
-def ablation_suite(steps: int = 120, batch_size: int = 64, device: str = "cpu") -> dict:
+def ablation_suite(
+    seeds: Sequence[int] = (1, 2),
+    steps: int = 120,
+    batch_size: int = 64,
+    device: str = "cpu",
+    task: str = "mixed",
+    eval_batches: int = 6,
+    evaluation_seed: int = 1007,
+) -> dict:
+    """Run paired component ablations on identical evaluation rows.
+
+    Training seed is paired across variants: for each seed, every architecture
+    variant starts from that same top-level seed. Evaluation is then reset to a
+    separate fixed seed before every model evaluation. The resulting sample
+    digests are required to match across every seed and variant, so an apparent
+    ablation effect cannot be caused by evaluating different sampled examples.
+    """
+
+    normalized_seeds = [int(seed) for seed in seeds]
+    if len(normalized_seeds) < 2:
+        raise ValueError("ablation_suite requires at least two training seeds")
+    if len(set(normalized_seeds)) != len(normalized_seeds):
+        raise ValueError("ablation training seeds must be unique")
+    if steps < 1:
+        raise ValueError("steps must be at least 1")
+    if batch_size < 1:
+        raise ValueError("batch_size must be at least 1")
+    if eval_batches < 1:
+        raise ValueError("eval_batches must be at least 1")
+
     base = LAMJEPAConfig()
-    variants = ["full", "no_memory", "no_planner", "no_quant", "no_target"]
-    results = {}
-    for variant in variants:
-        cfg = build_variant_config(base, variant)
-        model, _, trainer = train_model(seed=7, steps=steps, batch_size=batch_size, device=device, cfg=cfg)
-        scores = evaluate_model(model, cfg, batch_size=batch_size, batches=6)
-        results[variant] = {
-            "scores": scores,
-            "history_tail": trainer.history[-5:],
+    expected_digests: dict[str, str] | None = None
+    variant_results: dict[str, dict] = {}
+    per_variant_task: dict[str, dict[str, list[float]]] = {
+        variant: {name: [] for name in EDTECH_TASKS}
+        for variant in ABLATION_VARIANTS
+    }
+
+    for variant in ABLATION_VARIANTS:
+        records = []
+        for seed in normalized_seeds:
+            cfg = build_variant_config(base, variant)
+            model, _, trainer = train_model(
+                seed=seed,
+                steps=steps,
+                batch_size=batch_size,
+                device=device,
+                task=task,
+                cfg=cfg,
+            )
+
+            set_seed(evaluation_seed)
+            scores = evaluate_model(
+                model,
+                cfg,
+                batch_size=batch_size,
+                batches=eval_batches,
+            )
+            digests = {name: str(metrics["sample_digest"]) for name, metrics in scores.items()}
+            if expected_digests is None:
+                expected_digests = digests
+            elif digests != expected_digests:
+                raise RuntimeError(
+                    f"evaluation sample digests changed for variant={variant} seed={seed}"
+                )
+
+            records.append({
+                "training_seed": seed,
+                "evaluation_seed": evaluation_seed,
+                "history_tail": trainer.history[-5:],
+                "scores": scores,
+            })
+            for name, metrics in scores.items():
+                per_variant_task[variant][name].append(float(metrics["accuracy"]))
+
+        variant_results[variant] = {
+            "records": records,
+            "aggregate": summarize_seed_runs(per_variant_task[variant]),
         }
-    return results
+
+    paired_effects: dict[str, dict[str, dict[str, float]]] = {}
+    full_scores = per_variant_task["full"]
+    for variant in ABLATION_VARIANTS:
+        if variant == "full":
+            continue
+        paired_effects[variant] = {}
+        for task_name in EDTECH_TASKS:
+            summary = paired_summary(full_scores[task_name], per_variant_task[variant][task_name])
+            paired_effects[variant][task_name] = {
+                "mean_full": summary.mean_a,
+                "mean_variant": summary.mean_b,
+                "mean_full_minus_variant": summary.mean_diff,
+                "std_paired_difference": summary.std_diff,
+                "cohen_d_paired": summary.cohen_d,
+                "ci95_low": summary.ci_low,
+                "ci95_high": summary.ci_high,
+                "paired_permutation_p": summary.p_value,
+            }
+
+    return {
+        "protocol": {
+            "training_seeds": normalized_seeds,
+            "evaluation_seed": evaluation_seed,
+            "steps": steps,
+            "batch_size": batch_size,
+            "eval_batches": eval_batches,
+            "device": device,
+            "training_task": task,
+            "variants": list(ABLATION_VARIANTS),
+            "tasks": list(EDTECH_TASKS),
+            "pairing": "same training seeds and identical ordered evaluation rows across variants",
+            "claim_boundary": (
+                "Ablation effects are descriptive unless the declared training budget, data, "
+                "baselines, and statistical power are adequate for the scientific claim."
+            ),
+        },
+        "target_semantics": dict(TARGET_SEMANTICS),
+        "sample_digests": expected_digests or {},
+        "variants": variant_results,
+        "paired_effects": paired_effects,
+    }
 
 
 def save_json(path: str | Path, payload: dict) -> Path:
