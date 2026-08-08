@@ -1,0 +1,122 @@
+name: ARC V5 Repaired Validation
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/benchmark/run_arc_v5_repaired_validation.py'
+      - 'scripts/ci/verify_arc_v5_repaired_validation.py'
+      - '.github/workflows/arc-v5-repaired-validation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/benchmark/run_arc_v5_repaired_validation.py'
+      - 'scripts/ci/verify_arc_v5_repaired_validation.py'
+      - '.github/workflows/arc-v5-repaired-validation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  static-freeze-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Compile validation code without acquiring ARC data
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/benchmark/run_arc_v5_repaired_validation.py \
+            scripts/ci/verify_arc_v5_repaired_validation.py \
+            scripts/ci/verify_arc_v5_validation_protocol.py
+      - name: Re-verify frozen protocol without acquiring ARC data
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_v5_validation_protocol.py \
+            --protocol protocols/arc_challenge_v5_repaired_validation.json \
+            --report ci-evidence/arc-v5-validation-protocol-static-verification.json
+
+  execute-frozen-validation:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: static-freeze-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout immutable merged execution code
+        uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install CPU research environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[external-benchmarks]'
+      - name: Verify frozen protocol before validation acquisition
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python scripts/ci/verify_arc_v5_validation_protocol.py \
+            --protocol protocols/arc_challenge_v5_repaired_validation.json \
+            --report ci-evidence/arc-v5-validation-protocol-verification.json
+      - name: Download checksum-addressed ARC train and validation only
+        run: |
+          set -euo pipefail
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence/arc-data \
+            | tee ci-evidence/arc-v5-download.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
+      - name: Assert frozen file SHA-256 values and absence of test
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          p=json.loads(Path('protocols/arc_challenge_v5_repaired_validation.json').read_text())
+          for split in ('train','validation'):
+              path=Path(f'ci-evidence/arc-data/arc-challenge-{split}.parquet')
+              digest=hashlib.sha256(path.read_bytes()).hexdigest()
+              expected=p['dataset'][f'{split}_sha256']
+              if digest != expected:
+                  raise SystemExit(f'{split} SHA-256 mismatch: {digest} != {expected}')
+          if Path('ci-evidence/arc-data/arc-challenge-test.parquet').exists():
+              raise SystemExit('ARC test file must not exist')
+          print('frozen train/validation SHA-256 values verified; ARC test absent')
+          PY
+      - name: Run frozen five-seed repaired validation
+        run: |
+          set -euo pipefail
+          python scripts/benchmark/run_arc_v5_repaired_validation.py \
+            --protocol protocols/arc_challenge_v5_repaired_validation.json \
+            --train ci-evidence/arc-data/arc-challenge-train.parquet \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --device cpu \
+            --out ci-evidence/arc-v5-repaired-validation.json \
+            | tee ci-evidence/arc-v5-repaired-validation-output.txt
+      - name: Independently verify result package from retained rows
+        if: always()
+        run: |
+          set -euo pipefail
+          test -f ci-evidence/arc-v5-repaired-validation.json
+          python scripts/ci/verify_arc_v5_repaired_validation.py \
+            --results ci-evidence/arc-v5-repaired-validation.json \
+            --protocol protocols/arc_challenge_v5_repaired_validation.json \
+            --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
+            --report ci-evidence/arc-v5-repaired-validation-verification.json \
+            | tee ci-evidence/arc-v5-repaired-validation-verifier-output.txt
+      - name: Upload validation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: arc-v5-repaired-validation-${{ github.sha }}
+          path: ci-evidence
+          if-no-files-found: error
+          retention-days: 30
