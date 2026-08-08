@@ -14,6 +14,10 @@ from lam_jepa.benchmarking.arc_protocol import select_protocol_eligible_examples
 BOOTSTRAP_SAMPLES = 10000
 BOOTSTRAP_BASE = 20260808
 CONDITIONS = ("legacy_ce", "repaired_v5_ce", "no_quantizer_ce", "repaired_v5_shuffled_labels")
+# Runner scalars originate from Torch float32 tensors, while retained-row QA
+# recomputes exact Python fractions. Keep tolerance far below one validation
+# example (1 / 295 ~= 3.39e-3) while allowing float32 representation error.
+FLOAT32_ABS_TOL = 2e-7
 
 
 def bootstrap_ci(values: Sequence[float], *, seed: int) -> tuple[float, float]:
@@ -24,7 +28,7 @@ def bootstrap_ci(values: Sequence[float], *, seed: int) -> tuple[float, float]:
     return samples[int(0.025 * (BOOTSTRAP_SAMPLES - 1))], samples[int(0.975 * (BOOTSTRAP_SAMPLES - 1))]
 
 
-def close(a: float, b: float, tol: float = 1e-8) -> bool:
+def close(a: float, b: float, tol: float = FLOAT32_ABS_TOL) -> bool:
     return abs(a - b) <= tol
 
 
