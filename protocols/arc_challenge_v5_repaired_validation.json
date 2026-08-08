@@ -1,0 +1,76 @@
+{
+  "protocol_id": "lam-jepa-arc-challenge-v5-repaired-validation",
+  "protocol_version": 1,
+  "status": "FROZEN_BEFORE_VALIDATION_EXECUTION",
+  "frozen_target_commit": "df249086e9171febaa77333a4c62888f35265c40",
+  "repair_id": "arc-v5-stable-ema-residual-0.03125",
+  "scientific_question": "Does the independently reproduced ARC-v5 trainability repair generalize to the frozen ARC-Challenge validation split under supervised CE training without returning to input-insensitive one-class collapse?",
+  "scope": "development validation only; not confirmatory test evidence",
+  "dataset": {
+    "name": "allenai/ai2_arc ARC-Challenge",
+    "train_sha256": "e488c1587ffdcfc8443f916c53488a95cd471c5790e0746c6bfe4cecf20962cb",
+    "validation_sha256": "395a5c88d1580d69855fbaee9450270578df1ad5af6259771cd0a42c20e99f05",
+    "train_source_rows": 1119,
+    "train_eligible_rows": 1117,
+    "validation_source_rows": 299,
+    "validation_eligible_rows": 295,
+    "eligibility": "exactly four answer choices; same frozen eligibility implementation as protocol v3",
+    "test_split_policy": "must not be downloaded, opened, evaluated, or used for selection"
+  },
+  "training": {
+    "objective": "supervised_cross_entropy_only",
+    "seeds": [1, 2, 3, 4, 5],
+    "epochs": 20,
+    "batch_size": 32,
+    "learning_rate": 0.0003,
+    "model_steps": 1,
+    "optimizer": "AdamW",
+    "gradient_clip_norm": 1.0,
+    "train_rows": "all 1117 eligible rows",
+    "validation_rows": "all 295 eligible rows",
+    "no_early_stopping": true,
+    "no_validation_model_selection": true,
+    "no_validation_hyperparameter_selection": true
+  },
+  "conditions": {
+    "legacy_ce": "legacy LAMARCClassifier with quantization enabled and no v5 repair",
+    "repaired_v5_ce": "explicit build_arc_v5_repaired_classifier with repair id arc-v5-stable-ema-residual-0.03125",
+    "no_quantizer_ce": "LAMARCClassifier with use_quantizer=false; memory/planner retained",
+    "repaired_v5_shuffled_labels": "same repaired-v5 model trained on a deterministic seed-specific permutation of train labels; validation labels remain untouched"
+  },
+  "metrics": {
+    "primary": "mean repaired_v5_ce validation accuracy across five seeds",
+    "secondary": [
+      "per-seed validation accuracy",
+      "paired repaired_v5_ce minus legacy_ce accuracy by seed",
+      "paired repaired_v5_ce minus no_quantizer_ce accuracy by seed",
+      "repaired_v5_shuffled_labels accuracy",
+      "prediction support per seed",
+      "largest predicted-class share per seed",
+      "mean maximum probability",
+      "mean logit variance across validation examples",
+      "bootstrap 95 percent interval over five seeds for repaired accuracy and paired deltas"
+    ]
+  },
+  "predeclared_decision_rules": {
+    "negative_control_valid": "upper bootstrap 95 percent bound of repaired_v5_shuffled_labels mean accuracy must be below 0.35",
+    "collapse_rejected": "every repaired_v5_ce seed must predict at least two answer classes and no repaired_v5_ce seed may place more than 0.95 of validation examples into one predicted class",
+    "generalization_supported_with_limitations": "negative_control_valid and collapse_rejected and lower bootstrap 95 percent bound of repaired_v5_ce mean accuracy is above 0.25 and lower bootstrap 95 percent bound of paired repaired_v5_ce-minus-legacy_ce accuracy is above 0",
+    "quantization_benefit_supported": "lower bootstrap 95 percent bound of paired repaired_v5_ce-minus-no_quantizer_ce accuracy is above 0",
+    "if_generalization_rule_fails": "preserve a negative or inconclusive validation result; do not tune this repair family on validation",
+    "if_negative_control_fails": "mark the validation package invalid and do not interpret performance"
+  },
+  "claim_boundaries": {
+    "planner_mechanism_claim_authorized": false,
+    "target_mechanism_claim_authorized": false,
+    "original_hard_vq_mechanism_claim_authorized": false,
+    "external_generalization_claim_authorized": false,
+    "confirmatory_test_claim_authorized": false,
+    "research_complete": false
+  },
+  "after_validation": {
+    "independent_result_reproduction_required": true,
+    "no_further_v5_hyperparameter_tuning_on_validation": true,
+    "confirmatory_test_requires_separate_explicit_authorization": true
+  }
+}
