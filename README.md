@@ -111,6 +111,16 @@ The suite covers both classic synthetic reasoning and ed-tech style tasks:
 
 Metrics are not semantically identical across all tasks. `parity`, `modadd`, `algebra`, `chain`, `equation`, and `science` currently use answer-class targets. `gsm8k`, `reading`, `tutoring`, and `reasoning` currently use concept-proxy labels produced by their synthetic generators. Accuracy on those four proxy tasks measures classification of the generated concept label; it is **not** evidence that the model produced or verified the natural-language answer. Evaluation JSON records `target_semantics` per task so downstream tables cannot silently present proxy accuracy as answer correctness.
 
+## Research release provenance
+
+The current externally grounded ARC-v5 development-validation package is tied to the frozen protocol at `protocols/arc_challenge_v5_repaired_validation.json`. That protocol records the exact `allenai/ai2_arc` ARC-Challenge dataset identity, train/validation hashes and eligible-row counts, the prohibition on confirmatory test access, frozen comparison conditions, predeclared decision rules, and the claims that remain unauthorized.
+
+See `RELEASE_PROVENANCE.md` for the repository implementation surface, dependency provenance, executable verification entry points, dataset traceability, scientific claim boundary, and the legal/bibliographic release blockers that remain intentionally unresolved.
+
+The ARC-v5 validation result remains negative or inconclusive under the frozen gate. Passing CI does not upgrade it to external generalization, confirmatory-test evidence, novelty, model superiority, or `RESEARCH_COMPLETE`.
+
+A root `LICENSE` and final `CITATION.cff` are deliberately not invented here: license selection/compatibility and public authorship/release metadata require explicit owner approval before publication packaging.
+
 ## Notes
 
 The repo is structured to support reproducible research, but benchmark quality still depends on the actual training budget, dataset quality, evaluation protocol, baselines, and seed-level statistics you run. Passing CI is an execution check, not evidence of model superiority, novelty, or educational effectiveness. Distinct-input counts expose evaluation diversity, but they do not turn synthetic proxy objectives into validated educational reasoning benchmarks.
