@@ -4,12 +4,14 @@ on:
   pull_request:
     paths:
       - 'scripts/benchmark/run_arc_v5_repaired_validation.py'
+      - 'scripts/analysis/analyze_arc_v5_negative_result.py'
       - 'scripts/ci/verify_arc_v5_repaired_validation.py'
       - '.github/workflows/arc-v5-repaired-validation.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/benchmark/run_arc_v5_repaired_validation.py'
+      - 'scripts/analysis/analyze_arc_v5_negative_result.py'
       - 'scripts/ci/verify_arc_v5_repaired_validation.py'
       - '.github/workflows/arc-v5-repaired-validation.yml'
 
@@ -26,11 +28,12 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-      - name: Compile validation code without acquiring ARC data
+      - name: Compile validation and retained-result analysis code without acquiring ARC data
         run: |
           set -euo pipefail
           python -m py_compile \
             scripts/benchmark/run_arc_v5_repaired_validation.py \
+            scripts/analysis/analyze_arc_v5_negative_result.py \
             scripts/ci/verify_arc_v5_repaired_validation.py \
             scripts/ci/verify_arc_v5_validation_protocol.py
       - name: Re-verify frozen protocol without acquiring ARC data
@@ -112,6 +115,15 @@ jobs:
             --validation ci-evidence/arc-data/arc-challenge-validation.parquet \
             --report ci-evidence/arc-v5-repaired-validation-verification.json \
             | tee ci-evidence/arc-v5-repaired-validation-verifier-output.txt
+      - name: Slice retained negative or inconclusive validation rows
+        if: always()
+        run: |
+          set -euo pipefail
+          test -f ci-evidence/arc-v5-repaired-validation.json
+          python scripts/analysis/analyze_arc_v5_negative_result.py \
+            --results ci-evidence/arc-v5-repaired-validation.json \
+            --out ci-evidence/arc-v5-negative-result-slices.json \
+            | tee ci-evidence/arc-v5-negative-result-slices-output.txt
       - name: Upload validation evidence
         if: always()
         uses: actions/upload-artifact@v7
