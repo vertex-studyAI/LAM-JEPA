@@ -1,0 +1,33 @@
+name: Research claim boundary
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  claim-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Unit test claim guard
+        run: python -m unittest tests.test_research_claim_boundary
+      - name: Verify repository research boundary
+        run: |
+          python scripts/ci/verify_research_claim_boundary.py \
+            --status RESEARCH_STATUS.md \
+            --readme README.md \
+            --out artifacts/research-claim-boundary.json
+      - name: Upload claim-boundary evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-claim-boundary
+          path: artifacts/research-claim-boundary.json
+          retention-days: 7
