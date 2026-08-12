@@ -1,7 +1,8 @@
 # LAM-JEPA Results Ledger
 
 **Reproducibility wave:** 2026-08-12  
-**Frozen source revision:** `2f59b4297e5978d4ce769ebe95adb363e1e75d7a`  
+**Frozen scientific source revision:** `2f59b4297e5978d4ce769ebe95adb363e1e75d7a`  
+**Reproducibility-repair revision:** `b72a97a99769b278eb8ec75bc5eab62dc9599f29`  
 **Scientific status:** negative / inconclusive on the frozen ARC-Challenge superiority and mechanism hypotheses  
 **Confirmatory test status:** LOCKED; do not use it to rescue the failed validation hypothesis.
 
@@ -48,25 +49,21 @@ Neither required mechanism criterion was met. No statistical significance claim 
 
 A bounded development comparison against the pinned pretrained comparator was adverse to LAM-JEPA (`0.15625` vs `0.21875`; paired delta `-0.0625`). This is characterization evidence, not a final inferiority test.
 
-## 2026-08-12 exact-head reproduction
+## Pre-fix exact-head reproduction
 
-The repository's `Reproducibility CI` job was rerun without changing the source revision after observing prior results.
+The repository's `Reproducibility CI` was rerun on `2f59b4297e5978d4ce769ebe95adb363e1e75d7a` after prior results were observed. Run `31610608912`, attempt 2, job `94178401933` completed successfully on GitHub-hosted Ubuntu / Python 3.11 / CPU in about 101 seconds.
 
-- workflow run: `31610608912`
-- rerun attempt: `2`
-- job: `94178401933` (`deterministic-training-smoke`)
-- head SHA: `2f59b4297e5978d4ce769ebe95adb363e1e75d7a`
-- runner: GitHub-hosted `ubuntu-latest`
-- Python: 3.11 as pinned by workflow
-- compute boundary: CPU-only; workflow asserts CUDA unavailable
-- started: `2026-08-12T16:06:02Z`
-- completed: `2026-08-12T16:07:43Z`
-- wall-clock job duration: about 101 s
-- conclusion: **SUCCESS**
+That workflow success did **not** establish same-seed checkpoint reproducibility. A subsequent exact rerun showed that `train_single.py` sampled initial weights before the requested seed was applied. Under nominally identical SHA / CLI / seed / CPU execution, the one-step loss changed from `10.853294372558594` to `10.34877872467041`. This pre-fix nondeterminism is retained as invalidated reproducibility evidence rather than overwritten.
 
-The rerun successfully re-exercised protocol verification, checksum-addressed ARC train/validation download, a bounded external ARC smoke, a paired two-seed benchmark interface, deterministic training/checkpoint verification, all-task evaluation, matched reference baselines, exact-row comparison, a paper-results package, paired component ablations, and evidence upload.
+## Deterministic seed-order repair and replay
 
-**Important distinction:** this CI rerun verifies the executable evidence pipeline at the exact current revision. It is not a new five-seed 20-epoch confirmatory statistical sample and must not be reported as one. The canonical scientific estimates above remain the retained frozen validation evidence.
+PR #61 applied the smallest repair: seed before `LAMJEPA(cfg)` construction while retaining trainer-side seeding for the subsequent data/training stream. No ARC split, seed set, threshold, metric, architecture, gate, or locked-test policy changed.
+
+The repaired PR head `ced95ee10021d09419816aade3f5906a3d99663c` passed Reproducibility CI `31618228743`, deterministic replay `31618227708`, ARC Protocol V2 QA `31618228252`, and Research claim boundary `31618228424`. Its replay artifact was ID `9150159954`, SHA-256 `6ebd9a6e2d55b6cb2b06a65dc267cd354088ed314b0c41469fd5e76ddbd49c6c`. PR #61 merged as `b72a97a99769b278eb8ec75bc5eab62dc9599f29`.
+
+The independent replay lineage now contains four verified attempts. The latest retained replay is workflow run `31631032761` on head `6aceefa1f4afb0e01869eda2734744753965c976`, artifact ID `9156974552`, SHA-256 `91f4aae1f5f02b7b9fae24909e34f31b2067d7325957c4d78b66dfcbe1751a49`. Within each attempt, same-seed model state, final metrics, and RNG state were exact. Across attempts, final loss and final accuracy were exact, while some floating-point submetrics drifted at roughly `1e-6` to `1e-7` and serialized PyTorch checkpoint bytes were not identical. The cross-attempt verifier JSON SHA-256 remained `1080efccc40d7a931451ec3fa5094113e877d54b4c16739cfe1861e22292f4af`.
+
+Therefore the defensible claim is **semantic same-seed reproducibility under the verified CI path**, not byte-for-byte checkpoint identity across independent GitHub runners.
 
 ## Repaired ARC-v5 line
 
@@ -74,14 +71,16 @@ A train-only causal investigation found a failure in the quantized latent path. 
 
 ## Result
 
-The defensible conclusion is **not** that LAM-JEPA beats ARC baselines. The reproducible result is that the current pipeline executes, adverse evidence is retained, and the frozen ARC superiority/mechanism hypotheses are unsupported. The repaired training path does not rescue the original hard-VQ claim.
+The defensible conclusion is **not** that LAM-JEPA beats ARC baselines. The current pipeline executes, the seed-order defect is preserved and minimally repaired, four independent same-seed replay attempts support semantic reproducibility under the documented CI path, adverse ARC evidence is retained, and the frozen ARC superiority/mechanism hypotheses remain unsupported. The repaired training path does not rescue the original hard-VQ claim.
 
 ## Uncertainty and limitations
 
-- Five validation seeds are enough to expose instability but not to justify broad significance or benchmark-wide generalization claims.
+- Five validation seeds do not justify broad benchmark-general significance claims.
 - ARC-Challenge is one benchmark family and the test split remains intentionally locked for this failed hypothesis line.
 - The pretrained comparator result is bounded development characterization, not a full matched confirmatory trial.
-- CI smoke settings are deliberately tiny and establish reproducibility plumbing, not scientific effect size.
+- CI smoke settings establish execution/reproducibility plumbing, not scientific effect size.
+- Independent runners exhibit low-order floating-point drift and non-identical serialized checkpoint bytes; byte-exact cross-run identity is not claimed.
+- The deterministic replay is not a substitute for an independent full five-seed ARC scientific rerun.
 - No claim of educational effectiveness, general benchmark superiority, AGI, or general intelligence is supported.
 
 ## Stop rule
