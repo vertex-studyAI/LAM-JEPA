@@ -41,20 +41,20 @@ The repair seeds before model construction and adds an exact same-seed replay ga
 - semantic metadata exact: true
 - RNG state exact: true
 
-Artifact ID: `9149892758`; artifact digest: `sha256:c08fd6a086fb83dd1b9a8c3b97c5f992bf1211c5a8c2dcd632dde175270808ba`.
-
 The first version of the replay verifier failed after the training outputs already matched exactly because it compared serialized RNG tensor objects rather than their values. That verifier bug was preserved in Actions history, corrected to structural/value equality, and rerun to green. No scientific configuration was changed.
 
 ## Independent workflow-attempt replay boundary
 
-After the seed-order repair was merged to `main` at SHA `b72a97a99769b278eb8ec75bc5eab62dc9599f29`, the exact-same-seed workflow was run twice as separate GitHub Actions attempts. Both attempts independently passed the within-job verifier: model state, metrics, semantic metadata, and RNG state matched exactly between the two clean output paths inside each attempt.
+The repaired exact-same-seed workflow has now been independently replayed **five times**. The latest replay is Actions run `31631032761`, attempt 5, artifact `9158902481`, digest `sha256:9385a4d87fc8794379d51b61496f94e2ecc386a698166cc137ff34670cd59b89`, on head `6aceefa1f4afb0e01869eda2734744753965c976`.
 
-Across the two independent workflow attempts, the primary one-step outputs were stable:
+Within each attempt, the verifier passes exact same-seed semantic replay for model state, metrics, semantic metadata, and RNG state. Across attempts 4 and 5, the primary one-step outputs remain exact:
 
 - final loss: `11.704492568969727` in both attempts;
 - final accuracy: `0.0` in both attempts;
-- replay verifier JSON: byte-identical SHA-256 `1080efccc40d7a931451ec3fa5094113e877d54b4c16739cfe1861e22292f4af`.
+- artifact file count: `35` in both attempts.
 
-However, a few floating-point submetrics differed at approximately the `1e-6` to `1e-7` level across attempts (for example `uni`, `conf`, `rub`, `plan`, and `eval_confidence`), and serialized PyTorch checkpoint bytes differed. Therefore the defensible claim is **semantic same-seed reproducibility within a fixed runner attempt plus numerically stable primary outputs across independent CPU CI attempts**, not byte-for-byte checkpoint reproducibility across separate runners.
+The artifact archives themselves are not byte-identical. Direct file comparison of attempts 4 and 5 again found low-order floating-point drift in secondary metrics and raw probabilities, typically around `1e-8` to `1e-6`, plus non-identical PyTorch checkpoint serialization. For example, the final training `cov` term moved from `22.98987579345703` to `22.989877700805664`, while final loss and accuracy did not change.
 
-This cross-attempt numerical drift does not alter the frozen ARC-v5 scientific result, but it is now retained as an explicit reproducibility limitation.
+Therefore the defensible claim remains **semantic same-seed reproducibility within a runner attempt plus numerically stable primary outputs across independent CPU CI attempts**, not byte-for-byte checkpoint or full-float identity across runners.
+
+This cross-attempt numerical drift does not alter the frozen ARC-v5 scientific result and is retained as an explicit reproducibility limitation.
