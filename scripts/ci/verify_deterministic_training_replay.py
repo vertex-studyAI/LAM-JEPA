@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import argparse
 import json
-import pickle
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import torch
 
 
@@ -14,16 +14,24 @@ def require(condition: bool, message: str) -> None:
         raise SystemExit(message)
 
 
+def values_equal(left: Any, right: Any) -> bool:
+    """Compare checkpoint state by semantic value, not serialization identity."""
+    if torch.is_tensor(left) and torch.is_tensor(right):
+        return bool(torch.equal(left, right))
+    if isinstance(left, np.ndarray) and isinstance(right, np.ndarray):
+        return bool(np.array_equal(left, right))
+    if isinstance(left, dict) and isinstance(right, dict):
+        return set(left) == set(right) and all(values_equal(left[key], right[key]) for key in left)
+    if isinstance(left, (tuple, list)) and isinstance(right, type(left)):
+        return len(left) == len(right) and all(values_equal(a, b) for a, b in zip(left, right))
+    return bool(left == right)
+
+
 def compare_tensors(left: dict[str, Any], right: dict[str, Any], namespace: str) -> list[str]:
     require(set(left) == set(right), f"{namespace} keys differ")
     mismatches: list[str] = []
     for key in sorted(left):
-        a = left[key]
-        b = right[key]
-        if torch.is_tensor(a) and torch.is_tensor(b):
-            if not torch.equal(a, b):
-                mismatches.append(key)
-        elif a != b:
+        if not values_equal(left[key], right[key]):
             mismatches.append(key)
     return mismatches
 
@@ -58,16 +66,13 @@ def main() -> None:
     model_mismatches = compare_tensors(first.get("model", {}), second.get("model", {}), "model")
     require(not model_mismatches, f"model replay mismatch: {model_mismatches[:8]}")
 
-    require(first.get("step") == second.get("step"), "checkpoint step differs")
-    require(first.get("metrics") == second.get("metrics"), "checkpoint metrics differ")
-    require(normalized_extra(first) == normalized_extra(second), "semantic checkpoint metadata differs")
+    require(values_equal(first.get("step"), second.get("step")), "checkpoint step differs")
+    require(values_equal(first.get("metrics"), second.get("metrics")), "checkpoint metrics differ")
+    require(values_equal(normalized_extra(first), normalized_extra(second)), "semantic checkpoint metadata differs")
 
     first_rng = first.get("rng") or {}
     second_rng = second.get("rng") or {}
-    require(
-        pickle.dumps(first_rng, protocol=5) == pickle.dumps(second_rng, protocol=5),
-        "RNG replay state differs",
-    )
+    require(values_equal(first_rng, second_rng), "RNG replay state differs")
 
     metrics = first.get("metrics") or {}
     report = {
