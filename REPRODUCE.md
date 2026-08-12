@@ -1,28 +1,22 @@
 # Reproduce LAM-JEPA
 
-This document separates the fast executable reproducibility gate from the retained full scientific validation result.
+This document separates the fast executable reproducibility gate from the retained full scientific validation result and preserves the pre-fix deterministic-training failure.
 
 ## Freeze the revision
 
+For the current repaired execution path:
+
 ```bash
-git checkout 2f59b4297e5978d4ce769ebe95adb363e1e75d7a
+git checkout b72a97a99769b278eb8ec75bc5eab62dc9599f29
 git status --short
 git rev-parse HEAD
 ```
 
-Do not change model, data, thresholds, seeds, or evaluation policy after seeing a result. If an execution bug is found, retain the old failed evidence, make the smallest versioned fix, and rerun under a newly identified revision.
+The frozen ARC scientific estimates remain tied to their retained artifacts and protocol lineage; do not reinterpret the seed-order repair as a new ARC result. Do not change model, data, thresholds, seeds, or evaluation policy after seeing a result. If an execution bug is found, retain the old failed evidence, make the smallest versioned fix, and rerun under a newly identified revision.
 
 ## Environment
 
-The exact-head reproduction wave used the repository's `Reproducibility CI`:
-
-- GitHub-hosted Ubuntu runner (`ubuntu-latest`)
-- Python 3.11
-- CPU-only PyTorch
-- editable package install with `.[external-benchmarks]`
-- CUDA explicitly asserted unavailable
-
-Equivalent setup:
+The repaired exact-head reproduction used GitHub-hosted Ubuntu runners with Python 3.11 and CPU-only PyTorch. Equivalent setup:
 
 ```bash
 python -m pip install --upgrade pip
@@ -90,18 +84,35 @@ python scripts/bench/run_benchmarks.py \
 
 ## Deterministic checkpoint and evaluation path
 
+Run the same seed twice into separate outputs. On revisions before the seed-order fix this check can fail because model initialization happened before the requested seed was applied.
+
 ```bash
+mkdir -p ci-evidence/replay-a ci-evidence/replay-b
+
 python scripts/train/train_single.py \
   --seed 1 \
   --steps 1 \
   --batch-size 2 \
   --task parity \
   --device cpu \
-  --out-dir ci-evidence/checkpoints \
-  --out ci-evidence/final.pt
+  --out-dir ci-evidence/replay-a/checkpoints \
+  --out ci-evidence/replay-a/final.pt
 
+python scripts/train/train_single.py \
+  --seed 1 \
+  --steps 1 \
+  --batch-size 2 \
+  --task parity \
+  --device cpu \
+  --out-dir ci-evidence/replay-b/checkpoints \
+  --out ci-evidence/replay-b/final.pt
+```
+
+Use the repository deterministic replay verifier/workflow to require exact model-state, final-metric, and RNG-state equality. Then evaluate the accepted checkpoint:
+
+```bash
 python scripts/eval/eval_all.py \
-  --checkpoint ci-evidence/final.pt \
+  --checkpoint ci-evidence/replay-a/final.pt \
   --device cpu \
   --batch-size 2 \
   --batches 1 \
@@ -154,18 +165,31 @@ Run the repository verifier scripts after each generated artifact, as done in `.
 
 The canonical ARC full-controls result uses the already frozen scientific protocol: five paired seeds, 20 epochs, batch size 32, learning rate 0.0003, model steps 1, all 1,117 eligible train rows, and all 295 eligible validation rows. Consult the versioned protocol and retained raw artifacts before rerunning; do not reconstruct missing details from memory or silently substitute the CI smoke settings.
 
-## 2026-08-12 reproduction record
+## 2026-08-12 lineage record
+
+### Pre-fix execution
 
 - source SHA: `2f59b4297e5978d4ce769ebe95adb363e1e75d7a`
-- GitHub Actions workflow run: `31610608912`
-- rerun attempt: `2`
+- Reproducibility CI run: `31610608912`, attempt `2`
 - job: `94178401933`
-- start: `2026-08-12T16:06:02Z`
-- completion: `2026-08-12T16:07:43Z`
-- conclusion: `success`
-- evidence artifact name: `lam-jepa-training-evaluation-smoke`
-- retention configured by workflow: 7 days
+- result: workflow success, but later same-seed replay exposed checkpoint nondeterminism
+- observed one-step losses under nominally identical SHA / CLI / seed / CPU execution: `10.853294372558594` and `10.34877872467041`
+- disposition: retain as invalidated reproducibility evidence; do not overwrite
+
+### Minimal fix and rerun
+
+- repaired PR head: `ced95ee10021d09419816aade3f5906a3d99663c`
+- merged main commit: `b72a97a99769b278eb8ec75bc5eab62dc9599f29`
+- Reproducibility CI: `31618228743` — success
+- Deterministic training replay: `31618227708` — success
+- ARC Protocol V2 QA: `31618228252` — success
+- Research claim boundary: `31618228424` — success
+- deterministic replay artifact ID: `9150159954`
+- artifact SHA-256: `6ebd9a6e2d55b6cb2b06a65dc267cd354088ed314b0c41469fd5e76ddbd49c6c`
+- artifact expiry: `2026-09-11`
+
+The fix seeds before model construction and leaves the ARC scientific protocol, metrics, thresholds, seed set, data splits, architecture, and locked-test policy unchanged.
 
 ## Reporting policy
 
-Report means, dispersion, paired deltas, sample count, and confidence intervals where they exist. Do not claim significance without a suitable predeclared test. Do not select only the best seed. Do not use the locked test set to rescue the current negative/inconclusive ARC line.
+Report means, dispersion, paired deltas, sample count, and confidence intervals where they exist. Do not claim significance without a suitable predeclared test. Do not select only the best seed. Preserve pre-fix and post-fix lineage separately. Do not use the locked test set to rescue the current negative/inconclusive ARC line.
