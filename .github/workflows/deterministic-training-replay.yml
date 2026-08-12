@@ -1,0 +1,90 @@
+name: Deterministic training replay
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/train/train_single.py'
+      - 'scripts/ci/verify_deterministic_training_replay.py'
+      - '.github/workflows/deterministic-training-replay.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/train/train_single.py'
+      - 'scripts/ci/verify_deterministic_training_replay.py'
+      - '.github/workflows/deterministic-training-replay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-same-seed-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install CPU research environment
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e .
+
+      - name: Compile repaired entry point and verifier
+        run: |
+          python -m py_compile \
+            scripts/train/train_single.py \
+            scripts/ci/verify_deterministic_training_replay.py
+
+      - name: Run first seed-1 training smoke
+        run: |
+          set -euo pipefail
+          mkdir -p replay-evidence
+          python scripts/train/train_single.py \
+            --seed 1 \
+            --steps 1 \
+            --batch-size 2 \
+            --task parity \
+            --device cpu \
+            --out-dir replay-evidence/first-checkpoints \
+            --out replay-evidence/first.pt \
+            | tee replay-evidence/first-output.txt
+
+      - name: Run second seed-1 training smoke from a clean output path
+        run: |
+          set -euo pipefail
+          python scripts/train/train_single.py \
+            --seed 1 \
+            --steps 1 \
+            --batch-size 2 \
+            --task parity \
+            --device cpu \
+            --out-dir replay-evidence/second-checkpoints \
+            --out replay-evidence/second.pt \
+            | tee replay-evidence/second-output.txt
+
+      - name: Verify exact replay of model, metrics, and RNG state
+        run: |
+          python scripts/ci/verify_deterministic_training_replay.py \
+            --first replay-evidence/first.pt \
+            --second replay-evidence/second.pt \
+            --report replay-evidence/replay-verification.json
+
+      - name: Upload replay evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: deterministic-training-replay-${{ github.sha }}
+          path: replay-evidence
+          if-no-files-found: error
+          retention-days: 30
