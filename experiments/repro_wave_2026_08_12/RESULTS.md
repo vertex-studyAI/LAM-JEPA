@@ -44,3 +44,17 @@ The repair seeds before model construction and adds an exact same-seed replay ga
 Artifact ID: `9149892758`; artifact digest: `sha256:c08fd6a086fb83dd1b9a8c3b97c5f992bf1211c5a8c2dcd632dde175270808ba`.
 
 The first version of the replay verifier failed after the training outputs already matched exactly because it compared serialized RNG tensor objects rather than their values. That verifier bug was preserved in Actions history, corrected to structural/value equality, and rerun to green. No scientific configuration was changed.
+
+## Independent workflow-attempt replay boundary
+
+After the seed-order repair was merged to `main` at SHA `b72a97a99769b278eb8ec75bc5eab62dc9599f29`, the exact-same-seed workflow was run twice as separate GitHub Actions attempts. Both attempts independently passed the within-job verifier: model state, metrics, semantic metadata, and RNG state matched exactly between the two clean output paths inside each attempt.
+
+Across the two independent workflow attempts, the primary one-step outputs were stable:
+
+- final loss: `11.704492568969727` in both attempts;
+- final accuracy: `0.0` in both attempts;
+- replay verifier JSON: byte-identical SHA-256 `1080efccc40d7a931451ec3fa5094113e877d54b4c16739cfe1861e22292f4af`.
+
+However, a few floating-point submetrics differed at approximately the `1e-6` to `1e-7` level across attempts (for example `uni`, `conf`, `rub`, `plan`, and `eval_confidence`), and serialized PyTorch checkpoint bytes differed. Therefore the defensible claim is **semantic same-seed reproducibility within a fixed runner attempt plus numerically stable primary outputs across independent CPU CI attempts**, not byte-for-byte checkpoint reproducibility across separate runners.
+
+This cross-attempt numerical drift does not alter the frozen ARC-v5 scientific result, but it is now retained as an explicit reproducibility limitation.
