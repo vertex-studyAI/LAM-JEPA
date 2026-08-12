@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "project": "LAM-JEPA",
+  "wave_date": "2026-08-12",
+  "source_commit": "2f59b4297e5978d4ce769ebe95adb363e1e75d7a",
+  "scientific_question": "Does LAM-JEPA outperform a capacity-matched supervised baseline on frozen ARC-Challenge validation, and do the planner, target path, or repaired quantized latent mechanism contribute a reproducible benefit?",
+  "dataset": {
+    "name": "ARC-Challenge",
+    "splits_used": ["train", "validation"],
+    "locked_split_excluded": "test",
+    "eligible_train_rows": 1117,
+    "eligible_validation_rows": 295
+  },
+  "full_validation_protocol": {
+    "paired_seed_count": 5,
+    "epochs": 20,
+    "batch_size": 32,
+    "learning_rate": 0.0003,
+    "model_steps": 1,
+    "device_class": "CPU-capable protocol; consult retained run manifests for original devices/precision",
+    "note": "Exact seed identifiers and per-seed raw rows remain authoritative in retained artifacts; this wave does not infer unstated identifiers."
+  },
+  "canonical_metrics": {
+    "full_lam_jepa_accuracy": {"mean": 0.2549152542, "sample_sd": 0.0129968064, "n": 5},
+    "matched_supervised_accuracy": {"mean": 0.2664406780, "sample_sd": 0.0154600058, "n": 5},
+    "paired_lam_minus_matched": {"mean": -0.0115254237, "sample_sd": 0.0140994131, "n": 5},
+    "no_planner_accuracy": {"mean": 0.2501694915, "sample_sd": 0.0129968064, "n": 5},
+    "no_target_accuracy": {"mean": 0.2616949153, "sample_sd": 0.0203954020, "n": 5},
+    "shuffled_label_accuracy": {"mean": 0.2630508475, "sample_sd": 0.0145011862, "n": 5},
+    "full_minus_no_planner": {"mean": 0.0047457627, "bootstrap_95_ci": [0.0, 0.0142372881], "n": 5},
+    "full_minus_no_target": {"mean": -0.0067796610, "bootstrap_95_ci": [-0.0135593220, 0.0], "n": 5},
+    "bounded_pretrained_characterization": {
+      "lam_jepa_accuracy": 0.15625,
+      "deberta_accuracy": 0.21875,
+      "paired_delta": -0.0625,
+      "claim_boundary": "development characterization only"
+    }
+  },
+  "exact_head_reproduction": {
+    "type": "GitHub Actions executable evidence rerun",
+    "workflow": "Reproducibility CI",
+    "workflow_run_id": 31610608912,
+    "run_attempt": 2,
+    "job_id": 94178401933,
+    "job_name": "deterministic-training-smoke",
+    "head_sha": "2f59b4297e5978d4ce769ebe95adb363e1e75d7a",
+    "runner": "ubuntu-latest",
+    "python": "3.11",
+    "cuda_required_absent": true,
+    "started_at": "2026-08-12T16:06:02Z",
+    "completed_at": "2026-08-12T16:07:43Z",
+    "approx_wall_seconds": 101,
+    "conclusion": "success",
+    "artifact_name": "lam-jepa-training-evaluation-smoke",
+    "artifact_retention_days": 7,
+    "scientific_scope": "pipeline/evidence reproducibility smoke; not a new five-seed full-validation sample"
+  },
+  "result": "ARC superiority and mechanism hypotheses unsupported; repaired validation negative or inconclusive",
+  "statistical_claim": "No new significance claim is made by this wave.",
+  "limitations": [
+    "Five frozen validation seeds do not justify broad benchmark-general significance claims.",
+    "The locked ARC test must not be used to rescue this failed hypothesis line.",
+    "The exact-head CI rerun uses deliberately small smoke settings and is not a full scientific rerun.",
+    "The bounded DeBERTa comparison is development characterization rather than a final confirmatory inferiority trial."
+  ]
+}
