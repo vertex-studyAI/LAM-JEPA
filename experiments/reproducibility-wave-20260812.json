@@ -1,8 +1,9 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "project": "LAM-JEPA",
   "wave_date": "2026-08-12",
-  "source_commit": "2f59b4297e5978d4ce769ebe95adb363e1e75d7a",
+  "scientific_source_commit": "2f59b4297e5978d4ce769ebe95adb363e1e75d7a",
+  "reproducibility_repair_main_commit": "b72a97a99769b278eb8ec75bc5eab62dc9599f29",
   "scientific_question": "Does LAM-JEPA outperform a capacity-matched supervised baseline on frozen ARC-Challenge validation, and do the planner, target path, or repaired quantized latent mechanism contribute a reproducible benefit?",
   "dataset": {
     "name": "ARC-Challenge",
@@ -36,31 +37,43 @@
       "claim_boundary": "development characterization only"
     }
   },
-  "exact_head_reproduction": {
-    "type": "GitHub Actions executable evidence rerun",
-    "workflow": "Reproducibility CI",
+  "pre_fix_reproduction": {
+    "source_sha": "2f59b4297e5978d4ce769ebe95adb363e1e75d7a",
     "workflow_run_id": 31610608912,
     "run_attempt": 2,
     "job_id": 94178401933,
-    "job_name": "deterministic-training-smoke",
-    "head_sha": "2f59b4297e5978d4ce769ebe95adb363e1e75d7a",
-    "runner": "ubuntu-latest",
-    "python": "3.11",
-    "cuda_required_absent": true,
-    "started_at": "2026-08-12T16:06:02Z",
-    "completed_at": "2026-08-12T16:07:43Z",
-    "approx_wall_seconds": 101,
-    "conclusion": "success",
-    "artifact_name": "lam-jepa-training-evaluation-smoke",
-    "artifact_retention_days": 7,
-    "scientific_scope": "pipeline/evidence reproducibility smoke; not a new five-seed full-validation sample"
+    "workflow_conclusion": "success",
+    "later_replay_verdict": "invalidated_for_same_seed_checkpoint_reproducibility",
+    "observed_nominally_identical_one_step_losses": [10.853294372558594, 10.34877872467041],
+    "root_cause": "LAMJEPA model construction occurred before the requested seed was applied in Trainer.__init__",
+    "scientific_scope": "pipeline execution evidence only; ARC scientific estimates unchanged"
   },
-  "result": "ARC superiority and mechanism hypotheses unsupported; repaired validation negative or inconclusive",
+  "minimal_fix": {
+    "description": "Apply the requested seed before LAMJEPA(cfg) model construction while retaining trainer-side seeding for the subsequent data/training stream.",
+    "protocol_fields_changed": [],
+    "arc_test_accessed": false
+  },
+  "post_fix_reproduction": {
+    "pr_head_sha": "ced95ee10021d09419816aade3f5906a3d99663c",
+    "merged_main_sha": "b72a97a99769b278eb8ec75bc5eab62dc9599f29",
+    "reproducibility_ci": {"workflow_run_id": 31618228743, "conclusion": "success"},
+    "deterministic_training_replay": {
+      "workflow_run_id": 31618227708,
+      "conclusion": "success",
+      "artifact_id": 9150159954,
+      "artifact_name": "deterministic-training-replay-12ca98387fb360358eca8abe3a479b98f9532d75",
+      "artifact_sha256": "6ebd9a6e2d55b6cb2b06a65dc267cd354088ed314b0c41469fd5e76ddbd49c6c",
+      "artifact_expires_at": "2026-09-11T16:35:02Z"
+    },
+    "arc_protocol_v2_qa": {"workflow_run_id": 31618228252, "conclusion": "success"},
+    "research_claim_boundary": {"workflow_run_id": 31618228424, "conclusion": "success"}
+  },
+  "result": "ARC superiority and mechanism hypotheses unsupported; repaired validation negative or inconclusive; deterministic training entry point repaired and replay-verified.",
   "statistical_claim": "No new significance claim is made by this wave.",
   "limitations": [
     "Five frozen validation seeds do not justify broad benchmark-general significance claims.",
     "The locked ARC test must not be used to rescue this failed hypothesis line.",
-    "The exact-head CI rerun uses deliberately small smoke settings and is not a full scientific rerun.",
+    "The deterministic replay validates the repaired CI training entry point, not a new full five-seed ARC experiment.",
     "The bounded DeBERTa comparison is development characterization rather than a final confirmatory inferiority trial."
   ]
 }
