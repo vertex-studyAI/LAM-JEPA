@@ -1,7 +1,8 @@
 # LAM-JEPA Research Status
 
-**Evidence cutoff:** 10 August 2026  
-**Source base:** `05c039fcc02c09c0aa1c1487596dcdd741ee6d51`  
+**Evidence cutoff:** 12 August 2026  
+**Frozen scientific evidence base:** `05c039fcc02c09c0aa1c1487596dcdd741ee6d51` and the versioned ARC-v5 evidence lineage cited below  
+**Exact executable head reproduced in this wave:** `2f59b4297e5978d4ce769ebe95adb363e1e75d7a`  
 **Classification:** `RESEARCH_ACTIVE / EXECUTION_REPRODUCIBLE / ARC SUPERIORITY HYPOTHESIS UNSUPPORTED / RESEARCH_COMPLETE_FALSE`
 
 ## Executive result
@@ -11,6 +12,24 @@ LAM-JEPA has a real, reproducible research pipeline with external ARC-Challenge 
 The current evidence does **not** support claims that LAM-JEPA outperforms strong baselines on ARC, that the planner or target mechanism provides a validated ARC benefit, that the repaired quantizer provides a validated generalization/quantization advantage, or that LAM-JEPA is research-complete.
 
 The locked ARC confirmatory test must not be used to rescue the failed validation hypothesis.
+
+## 12 August 2026 reproducibility-wave verification
+
+The current repository head was rerun without changing the experiment after observing prior results:
+
+- workflow: `Reproducibility CI`;
+- workflow run: `31610608912`;
+- rerun attempt: `2`;
+- job: `94178401933` (`deterministic-training-smoke`);
+- head SHA: `2f59b4297e5978d4ce769ebe95adb363e1e75d7a`;
+- environment: GitHub-hosted Ubuntu, Python 3.11, CPU-only PyTorch with CUDA required absent;
+- started: `2026-08-12T16:06:02Z`;
+- completed: `2026-08-12T16:07:43Z`;
+- conclusion: `success`.
+
+The fresh run successfully re-exercised protocol verification, checksum-addressed ARC train/validation acquisition with the test split absent, external ARC smoke execution, paired multi-seed benchmark plumbing, deterministic training/checkpoint verification, all-task evaluation, reference baselines, exact-row comparisons, paper-results generation, paired component ablations, and evidence upload.
+
+This is an **execution/evidence-pipeline reproduction**, not a new five-seed 20-epoch scientific sample. It therefore does not replace or inflate the frozen validation estimates below.
 
 ## Evidence ledger
 
@@ -114,7 +133,8 @@ The repository can defensibly state that:
 4. frozen multi-seed ARC validation and required controls were executed;
 5. adverse/negative results were retained rather than tuned away;
 6. the bounded v5 repair improves trainability under its declared train-only gate;
-7. repaired ARC validation remained negative/inconclusive.
+7. repaired ARC validation remained negative/inconclusive;
+8. the exact current executable head passed a fresh reproducibility-pipeline rerun on 12 August 2026.
 
 ## Claims not supported
 
