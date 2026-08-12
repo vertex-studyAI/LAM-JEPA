@@ -1,7 +1,8 @@
 # LAM-JEPA Results Ledger
 
 **Reproducibility wave:** 2026-08-12  
-**Frozen source revision:** `2f59b4297e5978d4ce769ebe95adb363e1e75d7a`  
+**Frozen scientific source revision:** `2f59b4297e5978d4ce769ebe95adb363e1e75d7a`  
+**Current reproducibility-repair main revision:** `b72a97a99769b278eb8ec75bc5eab62dc9599f29`  
 **Scientific status:** negative / inconclusive on the frozen ARC-Challenge superiority and mechanism hypotheses  
 **Confirmatory test status:** LOCKED; do not use it to rescue the failed validation hypothesis.
 
@@ -48,14 +49,13 @@ Neither required mechanism criterion was met. No statistical significance claim 
 
 A bounded development comparison against the pinned pretrained comparator was adverse to LAM-JEPA (`0.15625` vs `0.21875`; paired delta `-0.0625`). This is characterization evidence, not a final inferiority test.
 
-## 2026-08-12 exact-head reproduction
+## 2026-08-12 pre-fix exact-head reproduction
 
-The repository's `Reproducibility CI` job was rerun without changing the source revision after observing prior results.
+The repository's `Reproducibility CI` job was rerun on source revision `2f59b4297e5978d4ce769ebe95adb363e1e75d7a` after prior results were observed.
 
 - workflow run: `31610608912`
 - rerun attempt: `2`
 - job: `94178401933` (`deterministic-training-smoke`)
-- head SHA: `2f59b4297e5978d4ce769ebe95adb363e1e75d7a`
 - runner: GitHub-hosted `ubuntu-latest`
 - Python: 3.11 as pinned by workflow
 - compute boundary: CPU-only; workflow asserts CUDA unavailable
@@ -64,9 +64,22 @@ The repository's `Reproducibility CI` job was rerun without changing the source 
 - wall-clock job duration: about 101 s
 - conclusion: **SUCCESS**
 
-The rerun successfully re-exercised protocol verification, checksum-addressed ARC train/validation download, a bounded external ARC smoke, a paired two-seed benchmark interface, deterministic training/checkpoint verification, all-task evaluation, matched reference baselines, exact-row comparison, a paper-results package, paired component ablations, and evidence upload.
+That run re-exercised the executable evidence pipeline, but it did **not** prove same-seed checkpoint reproducibility. A subsequent exact rerun exposed that `train_single.py` sampled initial model weights before the requested seed was applied. Under the same SHA / CLI / seed / CPU workflow, the one-step loss changed from `10.853294372558594` to `10.34877872467041`. This pre-fix nondeterminism is retained as an invalidated reproducibility result rather than overwritten.
 
-**Important distinction:** this CI rerun verifies the executable evidence pipeline at the exact current revision. It is not a new five-seed 20-epoch confirmatory statistical sample and must not be reported as one. The canonical scientific estimates above remain the retained frozen validation evidence.
+## Deterministic seed-order repair
+
+The root cause was localized to model construction occurring before trainer-side seeding. PR #61 applied the smallest repair: seed before `LAMJEPA(cfg)` construction while retaining trainer-side seeding for the subsequent data/training stream. No ARC split, seed set, threshold, metric, architecture, gate, or locked-test policy was changed.
+
+Exact repaired PR head `ced95ee10021d09419816aade3f5906a3d99663c` passed:
+
+- `Reproducibility CI` run `31618228743`;
+- `Deterministic training replay` run `31618227708`;
+- `ARC Protocol V2 QA` run `31618228252`;
+- `Research claim boundary` run `31618228424`.
+
+The dedicated deterministic replay retained artifact `9150159954`, name `deterministic-training-replay-12ca98387fb360358eca8abe3a479b98f9532d75`, SHA-256 `6ebd9a6e2d55b6cb2b06a65dc267cd354088ed314b0c41469fd5e76ddbd49c6c`, expiring 2026-09-11. PR #61 merged as `b72a97a99769b278eb8ec75bc5eab62dc9599f29`.
+
+This repair strengthens execution reproducibility only. It does not create a new five-seed ARC sample and does not alter the negative/inconclusive scientific verdict.
 
 ## Repaired ARC-v5 line
 
@@ -74,7 +87,7 @@ A train-only causal investigation found a failure in the quantized latent path. 
 
 ## Result
 
-The defensible conclusion is **not** that LAM-JEPA beats ARC baselines. The reproducible result is that the current pipeline executes, adverse evidence is retained, and the frozen ARC superiority/mechanism hypotheses are unsupported. The repaired training path does not rescue the original hard-VQ claim.
+The defensible conclusion is **not** that LAM-JEPA beats ARC baselines. The reproducible result is that the current pipeline executes, the same-seed initialization defect was preserved and repaired with an explicit lineage break, adverse ARC evidence is retained, and the frozen ARC superiority/mechanism hypotheses remain unsupported. The repaired training path does not rescue the original hard-VQ claim.
 
 ## Uncertainty and limitations
 
@@ -82,6 +95,7 @@ The defensible conclusion is **not** that LAM-JEPA beats ARC baselines. The repr
 - ARC-Challenge is one benchmark family and the test split remains intentionally locked for this failed hypothesis line.
 - The pretrained comparator result is bounded development characterization, not a full matched confirmatory trial.
 - CI smoke settings are deliberately tiny and establish reproducibility plumbing, not scientific effect size.
+- The deterministic replay validates the repaired training entry point under the CI configuration; it is not a substitute for an independent full scientific rerun.
 - No claim of educational effectiveness, general benchmark superiority, AGI, or general intelligence is supported.
 
 ## Stop rule
