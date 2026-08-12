@@ -1,0 +1,16 @@
+{
+  "project": "LAM-JEPA",
+  "wave_date": "2026-08-12",
+  "reproduction_status": "EXECUTED_AND_BUG_REPAIRED",
+  "scientific_question": "Does the independently reproduced ARC-v5 trainability repair generalize to the frozen ARC-Challenge validation split under supervised CE training without returning to input-insensitive one-class collapse?",
+  "dataset_task": "AI2 ARC-Challenge; checksum-pinned train and validation only; exactly four-choice eligible rows; multiple-choice validation accuracy",
+  "baselines": ["legacy CE", "no-quantizer CE", "repaired-v5 shuffled-label negative control"],
+  "proposed_method": "repaired v5 CE condition defined by the frozen protocol",
+  "seed_policy": [1, 2, 3, 4, 5],
+  "training_protocol": {"epochs": 20, "batch_size": 32, "learning_rate": 0.0003, "model_steps": 1, "optimizer": "AdamW", "gradient_clip_norm": 1.0, "no_early_stopping": true, "no_validation_model_selection": true, "no_validation_hyperparameter_selection": true},
+  "compute": {"ci_os": "Ubuntu 24.04.4", "python": "3.11.15", "device": "CPU", "post_fix_replay_torch": "2.13.0+cpu"},
+  "scientific_result": "VALID_NEGATIVE_OR_INCONCLUSIVE_VALIDATION",
+  "limitations": ["development validation only", "ARC test not accessed", "collapse rejection criterion failed", "generalization support criterion failed", "quantization benefit criterion failed", "independent result reproduction remains required"],
+  "reproducibility_bug": {"pre_fix_sha": "2f59b4297e5978d4ce769ebe95adb363e1e75d7a", "description": "train_single.py initialized LAMJEPA before applying the requested seed", "fix_branch": "repro-wave-2026-08-12", "fix_pr": 61},
+  "claim_boundary": "The seed-order repair is a software reproducibility repair only and does not change the frozen ARC-v5 scientific verdict."
+}
