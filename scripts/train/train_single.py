@@ -20,6 +20,7 @@ for p in (ROOT, SRC):
 
 from lam_jepa.model import LAMJEPA, LAMJEPAConfig
 from lam_jepa.training import Trainer, TrainerConfig
+from lam_jepa.utils import set_seed
 
 
 def main() -> None:
@@ -58,6 +59,11 @@ def main() -> None:
         parser.error("--batch-size must be at least 1")
 
     checkpoint_dir = Path(args.checkpoint_dir or args.out_dir or "experiments/checkpoints")
+
+    # Seed before model construction. Trainer.__init__ seeds again for the
+    # data/training stream, but model parameters must be initialized from the
+    # same requested seed as well or repeated CLI runs are not reproducible.
+    set_seed(args.seed)
     cfg = LAMJEPAConfig()
     model = LAMJEPA(cfg)
     tcfg = TrainerConfig(
