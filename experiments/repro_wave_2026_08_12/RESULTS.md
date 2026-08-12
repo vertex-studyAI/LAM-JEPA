@@ -45,15 +45,16 @@ The first version of the replay verifier failed after the training outputs alrea
 
 ## Independent workflow-attempt replay boundary
 
-The repaired exact-same-seed workflow has now been independently replayed **five times**. The latest replay is Actions run `31631032761`, attempt 5, artifact `9158902481`, digest `sha256:9385a4d87fc8794379d51b61496f94e2ecc386a698166cc137ff34670cd59b89`, on head `6aceefa1f4afb0e01869eda2734744753965c976`.
+The repaired exact-same-seed workflow has now been independently replayed **six times**. The latest replay is Actions run `31641305854`, attempt 6, artifact `9160533550`, digest `sha256:84ef6f4a9c4274441a8e8a4b959620551cd37ae6fbd29a0efd07510553359354`, on head `96ddbe4433f514aeeede87e734085a9c8a9313e9`.
 
-Within each attempt, the verifier passes exact same-seed semantic replay for model state, metrics, semantic metadata, and RNG state. Across attempts 4 and 5, the primary one-step outputs remain exact:
+Attempt 6 retained 35 files. Its verification record reports PyTorch `2.13.0+cpu`, checkpoint step `1`, 178 state tensors, 201,072 parameters, final loss `11.704492568969727`, and final accuracy `0.0`. ARC protocol/data checks, paired multi-seed benchmark verification, checkpoint/evaluation evidence, baseline verification, paper-package verification, and frozen ablation verification all passed before artifact upload.
 
-- final loss: `11.704492568969727` in both attempts;
-- final accuracy: `0.0` in both attempts;
-- artifact file count: `35` in both attempts.
+Within each attempt, the verifier passes exact same-seed semantic replay for model state, metrics, semantic metadata, and RNG state. Across independent attempts, the primary one-step outputs remain exact:
 
-The artifact archives themselves are not byte-identical. Direct file comparison of attempts 4 and 5 again found low-order floating-point drift in secondary metrics and raw probabilities, typically around `1e-8` to `1e-6`, plus non-identical PyTorch checkpoint serialization. For example, the final training `cov` term moved from `22.98987579345703` to `22.989877700805664`, while final loss and accuracy did not change.
+- final loss: `11.704492568969727`;
+- final accuracy: `0.0`.
+
+The cross-run boundary remains unchanged from the direct attempt-4/attempt-5 comparison: artifact archives and PyTorch checkpoints are not claimed byte-identical across independent runners, and secondary floating-point quantities can drift around `1e-8` to `1e-6` even though the primary final loss/accuracy remain stable.
 
 Therefore the defensible claim remains **semantic same-seed reproducibility within a runner attempt plus numerically stable primary outputs across independent CPU CI attempts**, not byte-for-byte checkpoint or full-float identity across runners.
 
