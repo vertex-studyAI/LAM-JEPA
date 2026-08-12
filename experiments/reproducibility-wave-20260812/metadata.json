@@ -1,0 +1,64 @@
+{
+  "experiment_family": "LAM-JEPA ARC reproducibility audit",
+  "audit_date": "2026-08-12",
+  "repository": "vertex-studyAI/LAM-JEPA",
+  "audited_head": "2f59b4297e5978d4ce769ebe95adb363e1e75d7a",
+  "canonical_scientific_evidence_base": "05c039fcc02c09c0aa1c1487596dcdd741ee6d51",
+  "provenance": {
+    "fresh_full_arc_rerun_in_current_sandbox": false,
+    "reason": "runtime sandbox has no outbound GitHub/dataset network; connected GitHub repository inspection remains available",
+    "head_repository_ci_observed": true,
+    "head_push_workflows_observed": 4,
+    "scientific_conclusion_changed": false
+  },
+  "hypothesis": "Under the frozen ARC-Challenge protocol, LAM-JEPA improves validation accuracy over a gradient-active-parameter-matched supervised baseline and its planner/target mechanisms provide positive measurable effects.",
+  "dataset": {
+    "name": "ARC-Challenge",
+    "train_eligible": 1117,
+    "train_total": 1119,
+    "validation_eligible": 295,
+    "validation_total": 299,
+    "locked_confirmatory_test_used_to_rescue_failed_validation": false
+  },
+  "protocol": {
+    "seeds": 5,
+    "epochs": 20,
+    "batch_size": 32,
+    "learning_rate": 0.0003,
+    "model_steps": 1
+  },
+  "capacity": {
+    "lam_jepa_gradient_active_parameters": 86372,
+    "matched_supervised_gradient_active_parameters": 86644,
+    "ratio": 1.0031491687
+  },
+  "retained_metrics": {
+    "full_lam_jepa_accuracy_mean": 0.2549152542,
+    "full_lam_jepa_accuracy_dispersion": 0.0129968064,
+    "matched_supervised_accuracy_mean": 0.2664406780,
+    "matched_supervised_accuracy_dispersion": 0.0154600058,
+    "paired_lam_minus_matched_mean": -0.0115254237,
+    "paired_lam_minus_matched_dispersion": 0.0140994131,
+    "no_planner_accuracy_mean": 0.2501694915,
+    "no_target_accuracy_mean": 0.2616949153,
+    "shuffled_label_accuracy_mean": 0.2630508475,
+    "full_minus_no_planner": 0.0047457627,
+    "full_minus_no_planner_bootstrap_ci95": [0.0, 0.0142372881],
+    "full_minus_no_target": -0.0067796610,
+    "full_minus_no_target_bootstrap_ci95": [-0.0135593220, 0.0]
+  },
+  "verdict": "VALID_NEGATIVE_OR_INCONCLUSIVE_VALIDATION",
+  "supported_claims": [
+    "documented training/checkpoint/evaluation pipeline exists and is repository-verified",
+    "external ARC benchmark plumbing and retained evidence exist",
+    "matched-capacity and strong-pretrained comparison paths exist",
+    "negative and adverse validation outcomes are preserved"
+  ],
+  "unsupported_claims": [
+    "LAM-JEPA superiority on ARC",
+    "planner benefit on ARC",
+    "target/EMA benefit on ARC",
+    "quantization benefit from repaired validation",
+    "research complete"
+  ]
+}
