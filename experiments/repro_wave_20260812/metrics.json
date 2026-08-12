@@ -1,0 +1,27 @@
+{
+  "frozen_arc_validation": {
+    "n_seeds": 5,
+    "lam_accuracy_mean": 0.2549152542,
+    "lam_accuracy_sd": 0.0129968064,
+    "matched_accuracy_mean": 0.2664406780,
+    "matched_accuracy_sd": 0.0154600058,
+    "paired_lam_minus_matched_mean": -0.0115254237,
+    "paired_lam_minus_matched_sd": 0.0140994131
+  },
+  "controls_and_ablations": {
+    "full_accuracy_mean": 0.2549152542,
+    "no_planner_accuracy_mean": 0.2501694915,
+    "no_target_accuracy_mean": 0.2616949153,
+    "shuffled_label_accuracy_mean": 0.2630508475,
+    "full_minus_no_planner": 0.0047457627,
+    "full_minus_no_planner_bootstrap_95ci": [0.0, 0.0142372881],
+    "full_minus_no_target": -0.0067796610,
+    "full_minus_no_target_bootstrap_95ci": [-0.0135593220, 0.0]
+  },
+  "bounded_deberta_development_comparison": {
+    "lam_accuracy": 0.15625,
+    "deberta_accuracy": 0.21875,
+    "lam_minus_deberta": -0.0625
+  },
+  "claim_boundary": "No ARC superiority, planner benefit, target mechanism benefit or repaired quantization benefit is supported."
+}
