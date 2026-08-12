@@ -1,0 +1,37 @@
+{
+  "frozen_arc_v5": {
+    "head_sha": "1001fbe580b6369d5ff7ee7abb9e4edaae96121d",
+    "run_id": 31459399884,
+    "seeds": [1, 2, 3, 4, 5],
+    "summaries": {
+      "legacy_ce": {"n": 5, "mean": 0.26169490814208984, "std": 0.02039539375324249, "bootstrap_ci95_low": 0.24542372822761535, "bootstrap_ci95_high": 0.2779660880565643},
+      "repaired_v5_ce": {"n": 5, "mean": 0.2657627105712891, "std": 0.02191623676002865, "bootstrap_ci95_low": 0.24745762944221497, "bootstrap_ci95_high": 0.28203389048576355},
+      "no_quantizer_ce": {"n": 5, "mean": 0.2623728781938553, "std": 0.018348965388210407, "bootstrap_ci95_low": 0.24813559651374817, "bootstrap_ci95_high": 0.2766101598739624},
+      "repaired_v5_shuffled_labels": {"n": 5, "mean": 0.2501694858074188, "std": 0.02316521559789027, "bootstrap_ci95_low": 0.2332203358411789, "bootstrap_ci95_high": 0.2698304980993271},
+      "repaired_minus_legacy": {"n": 5, "mean": 0.004067802429199218, "std": 0.023411920697753393, "bootstrap_ci95_low": -0.013559311628341675, "bootstrap_ci95_high": 0.02169491648674011},
+      "repaired_minus_no_quantizer": {"n": 5, "mean": 0.0033898323774337767, "std": 0.0075798872982720525, "bootstrap_ci95_low": -0.002711859345436096, "bootstrap_ci95_high": 0.00949152112007141}
+    },
+    "decision_rules": {"negative_control_valid": true, "collapse_rejected": false, "generalization_supported_with_limitations": false, "quantization_benefit_supported": false},
+    "verdict": "VALID_NEGATIVE_OR_INCONCLUSIVE_VALIDATION"
+  },
+  "seed_order_bug": {
+    "pre_fix_sha": "2f59b4297e5978d4ce769ebe95adb363e1e75d7a",
+    "same_declared_seed_observed_losses": [10.853294372558594, 10.34877872467041],
+    "root_cause": "model initialization occurred before set_seed(seed)"
+  },
+  "post_fix_replay": {
+    "fix_sha": "fcd9af58c8e9fd4a8f8ac622a63d089f251c009e",
+    "workflow_run_id": 31617532593,
+    "artifact_id": 9149892758,
+    "artifact_digest": "sha256:c08fd6a086fb83dd1b9a8c3b97c5f992bf1211c5a8c2dcd632dde175270808ba",
+    "seed": 1,
+    "step": 1,
+    "final_loss": 11.704492568969727,
+    "final_accuracy": 0.0,
+    "model_tensor_count": 178,
+    "model_state_exact": true,
+    "metrics_exact": true,
+    "semantic_metadata_exact": true,
+    "rng_state_exact": true
+  }
+}
