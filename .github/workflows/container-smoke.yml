@@ -1,0 +1,52 @@
+name: Container Smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - pyproject.toml
+      - src/**
+      - .github/workflows/container-smoke.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - pyproject.toml
+      - src/**
+      - .github/workflows/container-smoke.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lam-jepa-container-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Build research image
+        run: |
+          set -euo pipefail
+          docker build --pull --tag "lam-jepa-ci:${GITHUB_SHA}" .
+
+      - name: Verify CLI entry point in container
+        run: |
+          set -euo pipefail
+          docker run --rm "lam-jepa-ci:${GITHUB_SHA}" lam-jepa --help
+
+      - name: Verify installed package and CPU-safe import
+        run: |
+          set -euo pipefail
+          docker run --rm "lam-jepa-ci:${GITHUB_SHA}" \
+            python -c 'import lam_jepa, torch; print({"package": lam_jepa.__name__, "torch": torch.__version__, "cuda_available": torch.cuda.is_available()})'
