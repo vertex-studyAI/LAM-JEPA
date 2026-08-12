@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "project": "LAM-JEPA",
   "wave_date": "2026-08-12",
   "scientific_source_commit": "2f59b4297e5978d4ce769ebe95adb363e1e75d7a",
@@ -53,7 +53,7 @@
     "protocol_fields_changed": [],
     "arc_test_accessed": false
   },
-  "post_fix_reproduction": {
+  "post_fix_pr_head_reproduction": {
     "pr_head_sha": "ced95ee10021d09419816aade3f5906a3d99663c",
     "merged_main_sha": "b72a97a99769b278eb8ec75bc5eab62dc9599f29",
     "reproducibility_ci": {"workflow_run_id": 31618228743, "conclusion": "success"},
@@ -68,12 +68,28 @@
     "arc_protocol_v2_qa": {"workflow_run_id": 31618228252, "conclusion": "success"},
     "research_claim_boundary": {"workflow_run_id": 31618228424, "conclusion": "success"}
   },
-  "result": "ARC superiority and mechanism hypotheses unsupported; repaired validation negative or inconclusive; deterministic training entry point repaired and replay-verified.",
+  "independent_merged_main_replay": {
+    "workflow_run_id": 31620784264,
+    "source_sha": "b72a97a99769b278eb8ec75bc5eab62dc9599f29",
+    "attempts_verified": 2,
+    "within_attempt_model_state_exact": true,
+    "within_attempt_metrics_exact": true,
+    "within_attempt_rng_state_exact": true,
+    "cross_attempt_final_loss_exact": true,
+    "cross_attempt_final_accuracy_exact": true,
+    "cross_attempt_verifier_json_sha256": "1080efccc40d7a931451ec3fa5094113e877d54b4c16739cfe1861e22292f4af",
+    "cross_attempt_checkpoint_bytes_exact": false,
+    "cross_attempt_low_order_float_drift": true,
+    "approx_float_drift_scale": "1e-6 to 1e-7",
+    "claim_boundary": "Semantic same-seed reproducibility is verified under the documented CI path; byte-for-byte checkpoint identity across independent GitHub runners is not claimed."
+  },
+  "result": "ARC superiority and mechanism hypotheses unsupported; repaired validation negative or inconclusive; deterministic training seed-order defect repaired; semantic same-seed CI replay verified with explicit cross-run numerical/serialization limitations.",
   "statistical_claim": "No new significance claim is made by this wave.",
   "limitations": [
     "Five frozen validation seeds do not justify broad benchmark-general significance claims.",
     "The locked ARC test must not be used to rescue this failed hypothesis line.",
     "The deterministic replay validates the repaired CI training entry point, not a new full five-seed ARC experiment.",
+    "Independent GitHub runners show low-order floating-point drift and non-identical serialized checkpoint bytes despite exact final loss and accuracy.",
     "The bounded DeBERTa comparison is development characterization rather than a final confirmatory inferiority trial."
   ]
 }
