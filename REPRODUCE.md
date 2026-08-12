@@ -4,7 +4,7 @@ This document separates the fast executable reproducibility gate from the retain
 
 ## Freeze the revision
 
-For the current repaired execution path:
+For the repaired execution path:
 
 ```bash
 git checkout b72a97a99769b278eb8ec75bc5eab62dc9599f29
@@ -43,7 +43,7 @@ python scripts/data/download_arc_challenge.py \
 test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
 ```
 
-The final line is a scientific boundary, not a convenience check: the locked test split must remain absent for the current failed hypothesis line.
+The final line is a scientific boundary: the locked test split must remain absent for the current failed hypothesis line.
 
 ## Exact CI external-benchmark smoke
 
@@ -108,7 +108,7 @@ python scripts/train/train_single.py \
   --out ci-evidence/replay-b/final.pt
 ```
 
-Use the repository deterministic replay verifier/workflow to require exact model-state, final-metric, and RNG-state equality. Then evaluate the accepted checkpoint:
+Use the repository deterministic replay verifier/workflow to require exact model-state, final-metric, and RNG-state equality **within the same runner attempt**. Then evaluate an accepted checkpoint:
 
 ```bash
 python scripts/eval/eval_all.py \
@@ -119,6 +119,8 @@ python scripts/eval/eval_all.py \
   --seed 1 \
   --out ci-evidence/eval-all.json
 ```
+
+Do not require serialized `.pt` files to be byte-identical across independent GitHub runners. The retained independent replay found exact final loss and accuracy across attempts but low-order (`~1e-6` to `1e-7`) drift in some floating-point submetrics and non-identical checkpoint bytes.
 
 ## Reference baselines and exact-row comparison
 
@@ -176,7 +178,7 @@ The canonical ARC full-controls result uses the already frozen scientific protoc
 - observed one-step losses under nominally identical SHA / CLI / seed / CPU execution: `10.853294372558594` and `10.34877872467041`
 - disposition: retain as invalidated reproducibility evidence; do not overwrite
 
-### Minimal fix and rerun
+### Minimal fix and PR-head rerun
 
 - repaired PR head: `ced95ee10021d09419816aade3f5906a3d99663c`
 - merged main commit: `b72a97a99769b278eb8ec75bc5eab62dc9599f29`
@@ -186,10 +188,23 @@ The canonical ARC full-controls result uses the already frozen scientific protoc
 - Research claim boundary: `31618228424` — success
 - deterministic replay artifact ID: `9150159954`
 - artifact SHA-256: `6ebd9a6e2d55b6cb2b06a65dc267cd354088ed314b0c41469fd5e76ddbd49c6c`
-- artifact expiry: `2026-09-11`
 
-The fix seeds before model construction and leaves the ARC scientific protocol, metrics, thresholds, seed set, data splits, architecture, and locked-test policy unchanged.
+### Independent merged-main replay
+
+- workflow run: `31620784264`
+- merged repair SHA: `b72a97a99769b278eb8ec75bc5eab62dc9599f29`
+- attempts verified: `2`
+- within-attempt model state exact: `true`
+- within-attempt final metrics exact: `true`
+- within-attempt RNG state exact: `true`
+- cross-attempt final loss exact: `true`
+- cross-attempt final accuracy exact: `true`
+- cross-attempt verifier JSON SHA-256: `1080efccc40d7a931451ec3fa5094113e877d54b4c16739cfe1861e22292f4af`
+- cross-attempt checkpoint bytes exact: `false`
+- cross-attempt low-order floating-point drift: `true`
+
+The fix seeds before model construction and leaves the ARC scientific protocol, metrics, thresholds, seed set, data splits, architecture, and locked-test policy unchanged. Report this as semantic same-seed reproducibility under the documented CI path, not byte-for-byte identity across independent runners.
 
 ## Reporting policy
 
-Report means, dispersion, paired deltas, sample count, and confidence intervals where they exist. Do not claim significance without a suitable predeclared test. Do not select only the best seed. Preserve pre-fix and post-fix lineage separately. Do not use the locked test set to rescue the current negative/inconclusive ARC line.
+Report means, dispersion, paired deltas, sample count, and confidence intervals where they exist. Do not claim significance without a suitable predeclared test. Do not select only the best seed. Preserve pre-fix and post-fix lineage separately. Do not claim byte-exact cross-run checkpoint identity. Do not use the locked test set to rescue the current negative/inconclusive ARC line.
