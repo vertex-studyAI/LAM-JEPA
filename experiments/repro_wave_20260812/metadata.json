@@ -1,0 +1,24 @@
+{
+  "project": "LAM-JEPA",
+  "wave_date": "2026-08-12",
+  "source_commit": "2f59b4297e5978d4ce769ebe95adb363e1e75d7a",
+  "canonical_scientific_evidence": "frozen_five_seed_arc_validation",
+  "current_wave_execution": "verified_and_downloaded_current_head_github_actions_artifact_not_new_full_training_run",
+  "workflow_run_id": 31610608912,
+  "workflow_attempt": 2,
+  "artifact_id": 9149221882,
+  "artifact_sha256": "5546b87ac6170d6b5a5c58404c57fec7c79fc481b351ce619c62292859102a94",
+  "seed_policy": {
+    "canonical_validation_seed_count": 5,
+    "ci_smoke_training_seeds": [1, 2],
+    "ci_smoke_is_scientific_result": false
+  },
+  "result_classification": "negative_or_inconclusive",
+  "protocol_modified_after_observation": false,
+  "confirmatory_test_locked": true,
+  "limitations": [
+    "Current wave did not launch a new full ARC training job; it verified the canonical frozen evidence and exact-head execution artifact.",
+    "CI smoke budgets are plumbing checks only.",
+    "No superiority or mechanism-benefit claim is supported by the frozen validation evidence."
+  ]
+}
