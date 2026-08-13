@@ -120,9 +120,19 @@ This software reproducibility repair does not rescue the negative ARC scientific
 
 The separate train-only quantizer repair `arc-v5-stable-ema-residual-0.03125` restored its bounded trainability gate, but repaired validation remained `VALID_NEGATIVE_OR_INCONCLUSIVE_VALIDATION`. The generalization and quantization-benefit gates were not supported.
 
+## 13 August independent artifact-integrity audit
+
+An isolated reproducibility-wave audit re-downloaded artifacts `9149336081` and `9162165932` through authenticated GitHub access and independently verified their ZIP digests, file manifests, cross-attempt hashes, numeric drift, raw aggregate metrics, and verifier summary.
+
+The advertised artifact digests exactly match the downloaded ZIP SHA-256 values. The audit independently reproduces the same `35,526` numeric / `0` non-numeric leaf differences and maximum drift `0.0005918592214584351`. Independently parsed aggregates are full `0.2549152542372881 ± 0.01299680644927512`, `no_planner` `0.2501694915254237 ± 0.01299680644927512`, `no_target` `0.26169491525423727 ± 0.02039540197490349`, and negative control `0.2630508474576271 ± 0.014501186194038939`, all `n=5`.
+
+The retained verifier remains `PROTOCOL_V3_FULL_CONTROLS_VALIDATION_VERIFIED`, `locked_test_evaluated=false`, `mechanism_claim_authorized=false`, and `research_complete=false`.
+
+See `audits/REPRO_WAVE_2026-08-13.md` and `audits/repro_wave_2026-08-13.json` for the independent audit record. This audit is not counted as an additional scientific training sample.
+
 ## Result
 
-The defensible conclusion is **not** that LAM-JEPA beats ARC baselines. The full five-seed ARC controls result has now survived another independent frozen rerun with exactly matching aggregate scientific conclusions and verifier outputs. LAM-JEPA remains below its capacity-matched supervised baseline, and the planner/target mechanism criteria remain unsupported.
+The defensible conclusion is **not** that LAM-JEPA beats ARC baselines. The full five-seed ARC controls result has now survived another independent frozen rerun and a separate artifact-integrity audit with exactly matching aggregate scientific conclusions and verifier outputs. LAM-JEPA remains below its capacity-matched supervised baseline, and the planner/target mechanism criteria remain unsupported.
 
 ## Limitations
 
@@ -131,6 +141,7 @@ The defensible conclusion is **not** that LAM-JEPA beats ARC baselines. The full
 - Independent runners exhibit low-order floating-point drift in per-example probabilities.
 - The stale raw claim-boundary string is a reporting defect and should not be read as the executed budget.
 - The pretrained comparator is bounded development characterization, not a full matched confirmatory trial.
+- The 13 August audit environment could not perform a fresh repository clone/full training run because outbound DNS to `github.com` was unavailable; it independently verified retained authenticated Actions artifacts instead.
 - No claim of educational effectiveness, general benchmark superiority, AGI, or general intelligence is supported.
 
 ## Stop rule
