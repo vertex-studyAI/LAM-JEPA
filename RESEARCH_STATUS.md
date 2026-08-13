@@ -4,7 +4,7 @@
 **Current audit base:** `6c6f5c10e8610239ce6c72a4fa7f549659662014`  
 **Frozen full ARC-v3 scientific source:** `760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb`  
 **Seed-order software repair:** `b72a97a99769b278eb8ec75bc5eab62dc9599f29`  
-**Classification:** `RESEARCH_ACTIVE / SCIENTIFIC_RESULT_REPRODUCED / ARC_SUPERIORITY_AND_MECHANISM_HYPOTHESES_UNSUPPORTED / RESEARCH_COMPLETE_FALSE`
+**Classification:** `RESEARCH_ACTIVE / SCIENTIFIC_RESULT_REPRODUCED / ARC SUPERIORITY HYPOTHESIS UNSUPPORTED / MECHANISM HYPOTHESES UNSUPPORTED / RESEARCH_COMPLETE_FALSE`
 
 ## Executive result
 
@@ -12,7 +12,7 @@ LAM-JEPA now has a traceable external-benchmark reproducibility package covering
 
 The scientific conclusion remains negative/inconclusive. The current evidence does **not** support LAM-JEPA superiority on ARC, a validated planner benefit, a validated target/EMA benefit, or a repaired quantization/generalization benefit. Negative evidence is intentionally retained rather than tuned away.
 
-The locked ARC confirmatory test remains unavailable to this failed hypothesis line and must not be used to rescue it.
+The locked ARC confirmatory test must not be used to rescue the failed validation hypothesis.
 
 ## Full scientific reproduction closure — 13 August 2026
 
