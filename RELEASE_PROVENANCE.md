@@ -1,99 +1,140 @@
 # LAM-JEPA release provenance and claim boundary
 
-This document records repository-verifiable provenance for the current research package. It intentionally does **not** supply a license, author list, citation metadata, or ownership statement that has not been explicitly approved by the repository owner.
+**Evidence cutoff:** 13 August 2026  
+**Documentation head before this closure branch:** `6c6f5c10e8610239ce6c72a4fa7f549659662014`  
+**Frozen full-controls scientific source:** `760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb`  
+**Scientific verdict:** `ARC_SUPERIORITY_AND_MECHANISM_HYPOTHESES_UNSUPPORTED`
 
-## 1. Repository implementation surface
+This file records repository-verifiable provenance for the negative/inconclusive ARC research package. It does not turn reproducibility into a superiority claim and it does not authorize access to the locked ARC confirmatory test.
 
-The installable package is defined by `pyproject.toml` and loads Python modules from `src/lam_jepa/`. Reproducibility and research execution are implemented through repository-local scripts under `scripts/`, frozen protocols under `protocols/`, tests under `tests/`, and exact-head GitHub Actions workflows under `.github/workflows/`.
+## 1. Canonical implementation and evidence surfaces
 
-This identifies where the implementation lives. It does not independently establish original authorship or legal ownership of every historical line of code.
+The installable package is defined by `pyproject.toml` and `src/lam_jepa/`. Frozen research protocols live under `protocols/`; executable research and verification entry points live under `scripts/`; tests live under `tests/`; retained machine-readable metadata for the 12–13 August reproducibility wave lives at:
 
-## 2. Current external validation dataset
+`experiments/repro_wave_2026_08_12/experiment_metadata.json`.
 
-The frozen ARC-v5 repaired-validation protocol declares:
+The human-readable reproduction contract is `REPRODUCE.md`.
 
-- dataset: `allenai/ai2_arc`, `ARC-Challenge`;
-- train split SHA-256: `e488c1587ffdcfc8443f916c53488a95cd471c5790e0746c6bfe4cecf20962cb`;
-- validation split SHA-256: `395a5c88d1580d69855fbaee9450270578df1ad5af6259771cd0a42c20e99f05`;
-- train source rows: `1119`;
-- train eligible rows: `1117`;
-- validation source rows: `299`;
-- validation eligible rows: `295`;
-- eligibility rule: exactly four answer choices using the frozen protocol implementation;
-- confirmatory test policy: the test split must not be downloaded, opened, evaluated, or used for selection.
+## 2. External benchmark boundary
 
-Canonical protocol: `protocols/arc_challenge_v5_repaired_validation.json`.
+The evaluated dataset is AI2 ARC-Challenge using checksum-addressed train and validation data only. The frozen eligibility rule keeps rows with exactly four answer choices:
 
-The protocol is explicitly development-validation evidence, not confirmatory test evidence.
+- train: 1,117 / 1,119 eligible;
+- validation: 295 / 299 eligible;
+- locked ARC test evaluated: **false**.
 
-## 3. Frozen scientific question and conditions
+The confirmatory test must remain unopened for the failed superiority/mechanism hypothesis line.
 
-The repaired-v5 validation asks whether the independently reproduced ARC-v5 trainability repair generalizes to the frozen ARC-Challenge validation split under supervised cross-entropy training without returning to input-insensitive one-class collapse.
+## 3. Frozen full-controls scientific protocol
 
-The frozen comparison conditions are:
+The full scientific comparison uses:
 
-- legacy quantized CE classifier;
-- repaired-v5 quantized CE classifier;
-- no-quantizer CE classifier with memory/planner retained;
-- repaired-v5 shuffled-label negative control.
+- seeds: `[1, 2, 3, 4, 5]`;
+- epochs: `20`;
+- batch size: `32`;
+- learning rate: `0.0003`;
+- model steps: `1`;
+- device class: CPU;
+- all eligible train/validation rows;
+- full LAM-JEPA, `no_planner`, `no_target`, deterministic shuffled-label control, and separately retained capacity-matched/pretrained comparator evidence.
 
-The predeclared decision rules and claim boundaries live in the protocol file and must not be loosened after observing validation results.
+The source revision for this frozen full-controls result is `760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb`.
 
-## 4. Current scientific verdict boundary
+## 4. Independent full scientific reruns
 
-Repository verification preserves the ARC-v5 validation outcome as negative or inconclusive rather than converting it into a positive result by post-hoc tuning.
+The frozen full-controls workflow was independently rerun without retuning the model, data, seeds, thresholds, or decision rules.
 
-The frozen protocol explicitly leaves these claims unauthorized:
+### Attempt 2
 
-- planner-mechanism claim;
-- target-mechanism claim;
-- original hard-VQ mechanism claim;
-- external-generalization claim;
-- confirmatory-test claim;
-- `RESEARCH_COMPLETE` status.
+- workflow run: `31203337502`;
+- job: `94178988063`;
+- artifact: `9149336081`;
+- digest: `sha256:c45710b5dae6a767ccb6bab7f6e3d8e9578752d8cf9b79fd82a65ae824dded1b`;
+- conclusion: success.
 
-Independent result reproduction is required, further v5 hyperparameter tuning on validation is prohibited, and confirmatory test access requires a separate explicit authorization boundary.
+### Attempt 3
 
-## 5. Runtime/package dependencies
+- workflow run: `31203337502`;
+- job: `94291056903`;
+- artifact: `9162165932`;
+- digest: `sha256:caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b`;
+- conclusion: success.
 
-The current installable project declares these core Python dependencies in `pyproject.toml`:
+Each artifact retains 10 files. Eight files are byte-identical. Raw result JSON and normalized-input JSON are not byte-identical because low-order per-example floating-point values drift across runners. The maximum observed numeric drift is approximately `5.9186e-4`; no non-numeric leaf changed.
 
-- PyTorch (`torch>=2.2`);
-- NumPy (`numpy>=1.26`);
-- tqdm (`tqdm>=4.66`);
-- SymPy (`sympy>=1.12`);
-- scikit-learn (`scikit-learn>=1.4`);
-- Matplotlib (`matplotlib>=3.8`);
-- pandas (`pandas>=2.2`).
+The following scientific summaries reproduce **exactly** across the two independent attempts:
 
-Optional dependency groups expose `pyarrow` for external benchmarks and pinned `transformers` / `sentencepiece` packages for pretrained-baseline work. Their presence in package metadata does not by itself prove that a particular frozen experiment used a pretrained checkpoint; experiment-specific provenance must come from the corresponding protocol/artifact.
+- full validation aggregate;
+- `no_planner` aggregate;
+- `no_target` aggregate;
+- paired mechanism effects;
+- shuffled-label summary;
+- verifier summary;
+- strict verifier verdict.
 
-## 6. Reproduction entry points
+Therefore the defensible wording is **semantic/scientific aggregate reproducibility**, not byte-for-byte numerical identity.
 
-General repository execution is documented in `README.md`. The ARC-v5 validation-specific executable/verification paths include:
+## 5. Frozen result
 
-- `scripts/benchmark/run_arc_v5_repaired_validation.py`;
-- `scripts/ci/verify_arc_v5_repaired_validation.py`;
-- `scripts/ci/verify_arc_v5_validation_protocol.py`;
-- `protocols/arc_challenge_v5_repaired_validation.json`;
-- `.github/workflows/arc-v5-repaired-validation.yml`;
-- `.github/workflows/arc-v5-validation-protocol-freeze.yml`.
+The retained full-controls summary is:
 
-Any release reproduction command should be pinned to an immutable release commit/tag once the owner approves the release package and the remaining release gates are closed.
+| Condition | Mean validation accuracy | n |
+|---|---:|---:|
+| Full LAM-JEPA | 0.2549152493 | 5 |
+| `no_planner` | 0.2501694888 | 5 |
+| `no_target` | 0.2616949081 | 5 |
+| Shuffled-label control | 0.2630508393 | 5 |
 
-## 7. Legal and bibliographic blockers that remain intentionally unresolved
+Paired effects:
 
-The following items are **not** filled in automatically:
+- full − `no_planner`: `+0.0047457606`, bootstrap 95% CI `[0.0, 0.0142372817]`, criterion **not met**;
+- full − `no_target`: `-0.0067796588`, bootstrap 95% CI `[-0.0135593176, 0.0]`, criterion **not met**.
 
-1. **Root license** — the owner must select/approve the license and confirm compatibility with third-party code/data obligations.
-2. **`CITATION.cff` author list and release metadata** — names, authorship order, release title/version, identifiers, and publication metadata require explicit owner approval.
-3. **Historical code-origin attestation** — if a formal release requires per-component authorship or third-party code provenance beyond what Git history/repository metadata establishes, that attestation must be supplied by the owner/maintainers.
-4. **Dataset licensing/redistribution review** — this document records the dataset identity and hashes used by the protocol; it does not grant redistribution rights.
+The separately retained capacity-matched supervised baseline has higher mean validation accuracy. No LAM-JEPA superiority, planner-benefit, target-benefit, or repaired-quantization-benefit claim is authorized.
 
-These blockers must not be bypassed merely to make the repository look release-ready.
+## 6. Deterministic training replay provenance
 
-## 8. Release rule
+A reproducibility defect was found because `train_single.py` instantiated `LAMJEPA` before applying the requested seed. The pre-fix evidence is retained as invalidated reproducibility evidence rather than deleted.
 
-Passing CI proves executable repository paths and reproducibility checks. It does not prove benchmark validity, educational effectiveness, novelty, model superiority, legal packageability, or research completion.
+The narrow seed-order repair merged at `b72a97a99769b278eb8ec75bc5eab62dc9599f29` (PR #61) without changing the scientific protocol.
 
-A release should link an immutable source revision, the exact frozen protocol, retained raw/summary evidence, independent verification, approved legal metadata, and the scientific claim boundary together as one package.
+Independent deterministic replay metadata records six verified attempts. Within each attempt, model state, metrics, and RNG state are exact. Across attempts, final loss `11.704492568969727` and final accuracy `0.0` are exact, while secondary floats and serialized checkpoint bytes are not guaranteed identical.
+
+Do not claim byte-identical checkpoints across independent runners.
+
+## 7. Preserved reporting defect
+
+The frozen raw full-controls payload contains a stale sentence saying the invocation is not the final five-seed/20-epoch protocol. The actual command, frozen protocol fields, and independent verifier establish that the final five-seed/20-epoch budget was executed.
+
+Classification: `NON_INVALIDATING_REPORTING_METADATA_DEFECT`.
+
+The raw artifact is intentionally not rewritten after the result. The discrepancy is documented rather than erased.
+
+## 8. Reproduction entry points
+
+Use `REPRODUCE.md` for executable commands. The canonical full-controls paths include:
+
+- `scripts/benchmark/run_arc_protocol_v3_controls.py`;
+- `scripts/ci/verify_arc_protocol_v3_full_controls.py`;
+- `protocols/arc_challenge_v3.json`;
+- `.github/workflows/arc-protocol-v3-full-controls-validation.yml`;
+- `.github/workflows/arc-protocol-v3-full-controls-reverify.yml`.
+
+The repaired-v5 line remains a separate negative/inconclusive result and must not be conflated with the frozen v3 full-controls result.
+
+## 9. Legal and bibliographic blockers
+
+The following are intentionally unresolved until the repository owner supplies/approves them:
+
+1. root license and third-party compatibility review;
+2. `CITATION.cff` author list/order and release metadata;
+3. any formal historical code-origin attestation beyond repository history;
+4. dataset redistribution/licensing review.
+
+These blockers do not invalidate the negative scientific result, but they block a formal release package from being called publication-complete.
+
+## 10. Release rule
+
+Passing CI and reproducing aggregate results establish repository execution and reproducibility evidence. They do not establish novelty, model superiority, educational effectiveness, production readiness, AGI capability, or `RESEARCH_COMPLETE`.
+
+A release-quality evidence package must link an immutable source revision, frozen protocol, retained raw artifacts and digests, independent verification, reproduction commands, explicit claim ledger, approved bibliographic/legal metadata, and the negative-result boundary above.
