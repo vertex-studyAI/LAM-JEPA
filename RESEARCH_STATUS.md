@@ -5,11 +5,15 @@
 **Seed-order reproducibility repair:** `b72a97a99769b278eb8ec75bc5eab62dc9599f29`  
 **Classification:** `RESEARCH_ACTIVE / FROZEN_ARC_RESULT_REPRODUCED / ARC_SUPERIORITY_HYPOTHESIS_UNSUPPORTED / MECHANISM_HYPOTHESES_UNSUPPORTED / RESEARCH_COMPLETE_FALSE`
 
+**ARC SUPERIORITY HYPOTHESIS UNSUPPORTED**
+
 ## Executive result
 
 LAM-JEPA has a reproducible ARC-Challenge research pipeline with checksum-addressed train/validation acquisition, capacity-matched and pretrained comparison paths, five-seed validation, ablations, negative controls, retained raw evidence, and independent verification.
 
 The scientific outcome is **negative / inconclusive**, not a superiority result. The current evidence does **not** support claims that LAM-JEPA outperforms the capacity-matched supervised baseline on ARC, that the planner or target mechanism provides a validated ARC benefit, or that the repaired quantizer provides a validated generalization/quantization advantage.
+
+The locked ARC confirmatory test must not be used to rescue the failed validation hypothesis.
 
 The locked ARC confirmatory test remains unused and must not be opened to rescue this failed hypothesis line.
 
