@@ -1,4 +1,51 @@
 {
+  "frozen_arc_protocol_v3_full_controls": {
+    "scientific_source_sha": "760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb",
+    "workflow_run_id": 31203337502,
+    "seeds": [1, 2, 3, 4, 5],
+    "epochs": 20,
+    "batch_size": 32,
+    "learning_rate": 0.0003,
+    "model_steps": 1,
+    "train_eligible_rows": 1117,
+    "validation_eligible_rows": 295,
+    "locked_test_evaluated": false,
+    "summaries": {
+      "full": {"n": 5, "mean": 0.2549152493476868, "sample_sd": 0.01299680055624953},
+      "no_planner": {"n": 5, "mean": 0.25016948878765105, "sample_sd": 0.01299680055624953},
+      "no_target": {"n": 5, "mean": 0.26169490814208984, "sample_sd": 0.02039539375324249},
+      "negative_control": {"n": 5, "mean": 0.263050839304924, "sample_sd": 0.014501180290680909, "pass": true, "frozen_ceiling": 0.35},
+      "full_minus_no_planner": {"mean": 0.004745760560035705, "sample_sd": 0.01061184321717731, "bootstrap_ci95": [0.0, 0.014237281680107117], "criterion_met": false},
+      "full_minus_no_target": {"mean": -0.006779658794403076, "sample_sd": 0.00928343013470711, "bootstrap_ci95": [-0.013559317588806153, 0.0], "criterion_met": false}
+    },
+    "verdict": "ARC_SUPERIORITY_AND_MECHANISM_HYPOTHESES_UNSUPPORTED",
+    "independent_reruns": {
+      "attempt_2": {
+        "job_id": 94178988063,
+        "artifact_id": 9149336081,
+        "artifact_digest": "sha256:c45710b5dae6a767ccb6bab7f6e3d8e9578752d8cf9b79fd82a65ae824dded1b",
+        "status": "success"
+      },
+      "attempt_3": {
+        "job_id": 94291056903,
+        "artifact_id": 9162165932,
+        "artifact_digest": "sha256:caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b",
+        "status": "success"
+      },
+      "files_per_artifact": 10,
+      "byte_identical_files": 8,
+      "non_numeric_leaf_differences": 0,
+      "numeric_leaf_differences": 35526,
+      "max_observed_numeric_drift": 0.0005918592214584351,
+      "aggregate_full_accuracy_exact": true,
+      "aggregate_no_planner_accuracy_exact": true,
+      "aggregate_no_target_accuracy_exact": true,
+      "paired_effects_exact": true,
+      "negative_control_summary_exact": true,
+      "verifier_summary_exact": true,
+      "strict_verifier_report_exact": true
+    }
+  },
   "frozen_arc_v5": {
     "head_sha": "1001fbe580b6369d5ff7ee7abb9e4edaae96121d",
     "run_id": 31459399884,
@@ -16,22 +63,36 @@
   },
   "seed_order_bug": {
     "pre_fix_sha": "2f59b4297e5978d4ce769ebe95adb363e1e75d7a",
+    "merged_fix_sha": "b72a97a99769b278eb8ec75bc5eab62dc9599f29",
+    "fix_pr": 61,
+    "scientific_protocol_changed": false,
     "same_declared_seed_observed_losses": [10.853294372558594, 10.34877872467041],
     "root_cause": "model initialization occurred before set_seed(seed)"
   },
   "post_fix_replay": {
-    "fix_sha": "fcd9af58c8e9fd4a8f8ac622a63d089f251c009e",
-    "workflow_run_id": 31617532593,
-    "artifact_id": 9149892758,
-    "artifact_digest": "sha256:c08fd6a086fb83dd1b9a8c3b97c5f992bf1211c5a8c2dcd632dde175270808ba",
+    "workflow_run_id": 31641305854,
+    "attempts_verified": 6,
+    "latest_artifact_id": 9160533550,
+    "latest_artifact_digest": "sha256:84ef6f4a9c4274441a8e8a4b959620551cd37ae6fbd29a0efd07510553359354",
+    "head_sha": "96ddbe4433f514aeeede87e734085a9c8a9313e9",
     "seed": 1,
     "step": 1,
     "final_loss": 11.704492568969727,
     "final_accuracy": 0.0,
     "model_tensor_count": 178,
-    "model_state_exact": true,
-    "metrics_exact": true,
-    "semantic_metadata_exact": true,
-    "rng_state_exact": true
+    "parameter_count": 201072,
+    "torch_version": "2.13.0+cpu",
+    "within_attempt_model_state_exact": true,
+    "within_attempt_metrics_exact": true,
+    "within_attempt_rng_state_exact": true,
+    "cross_attempt_final_loss_exact": true,
+    "cross_attempt_final_accuracy_exact": true,
+    "cross_attempt_checkpoint_bytes_exact": false,
+    "cross_attempt_low_order_float_drift": true
+  },
+  "reporting_metadata_defect": {
+    "classification": "NON_INVALIDATING_REPORTING_METADATA_DEFECT",
+    "scientific_metrics_invalidated": false,
+    "raw_artifact_rewritten": false
   }
 }
