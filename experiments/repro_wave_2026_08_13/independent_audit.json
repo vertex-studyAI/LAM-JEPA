@@ -1,0 +1,126 @@
+{
+  "project": "LAM-JEPA",
+  "audit_date": "2026-08-13",
+  "auditor_scope": "Independent retained-artifact and GitHub Actions provenance audit; no scientific protocol, thresholds, seeds, model, data, or raw artifact modified.",
+  "scientific_head_sha": "760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb",
+  "workflow_run": 31203337502,
+  "run_attempt": 4,
+  "job_id": 94302727334,
+  "artifact_id": 9163503934,
+  "artifact_digest": "sha256:14c315cd64b2b96d48af4b865bca700a101ea66842a78f35382a5f408805b10a",
+  "artifact_file_count": 10,
+  "workflow_started_at": "2026-08-13T00:10:11Z",
+  "workflow_updated_at": "2026-08-13T00:12:47Z",
+  "workflow_wall_clock_seconds": 156,
+  "environment": {
+    "runner_os": "Ubuntu 24.04.4 LTS",
+    "runner_image": "ubuntu-24.04",
+    "runner_image_version": "20260720.247.2",
+    "python": "3.11.15",
+    "torch": "2.13.0+cpu",
+    "numpy": "2.4.6",
+    "device": "CPU"
+  },
+  "checkout_provenance": {
+    "workflow_event": "pull_request",
+    "reported_head_sha": "760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb",
+    "actual_checkout_sha": "ed81a16c5b2e3379eb37c4d94a79941d0cd0ff10",
+    "checkout_description": "PR merge ref merging scientific head 760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb into base 4de9c4298dd66fd70af883c52aab30cf663cda30",
+    "compare_base_to_checkout_ahead_by": 1,
+    "compare_changed_files": 0,
+    "experiment_tree_equivalent_to_scientific_head": true,
+    "classification": "NON_INVALIDATING_PROVENANCE_CLARIFICATION"
+  },
+  "protocol": {
+    "dataset": "AI2 ARC-Challenge",
+    "seeds": [1, 2, 3, 4, 5],
+    "epochs": 20,
+    "batch_size": 32,
+    "learning_rate": 0.0003,
+    "model_steps": 1,
+    "eligible_train_rows": 1117,
+    "eligible_validation_rows": 295,
+    "locked_test_evaluated": false
+  },
+  "independent_raw_recomputation": {
+    "full_accuracy": {
+      "seed_values": [0.24067796766757965, 0.2644067704677582, 0.2644067704677582, 0.24067796766757965, 0.2644067704677582],
+      "n": 5,
+      "mean": 0.2549152493476868,
+      "sample_sd": 0.01299680055624953,
+      "stored_summary_exact": true
+    },
+    "no_planner_accuracy": {
+      "seed_values": [0.24067796766757965, 0.2644067704677582, 0.24067796766757965, 0.24067796766757965, 0.2644067704677582],
+      "n": 5,
+      "mean": 0.25016948878765105,
+      "sample_sd": 0.01299680055624953,
+      "stored_summary_exact": true
+    },
+    "no_target_accuracy": {
+      "seed_values": [0.24067796766757965, 0.2644067704677582, 0.28135591745376587, 0.24067796766757965, 0.28135591745376587],
+      "n": 5,
+      "mean": 0.26169490814208984,
+      "sample_sd": 0.02039539375324249,
+      "stored_summary_exact": true
+    },
+    "negative_control_accuracy": {
+      "seed_values": [0.2644067704677582, 0.24067796766757965, 0.28135591745376587, 0.2644067704677582, 0.2644067704677582],
+      "n": 5,
+      "mean": 0.263050839304924,
+      "sample_sd": 0.014501180290680909,
+      "frozen_ceiling": 0.35,
+      "pass": true,
+      "stored_summary_exact": true
+    }
+  },
+  "attempt3_to_attempt4_comparison": {
+    "artifact_3": 9162165932,
+    "artifact_4": 9163503934,
+    "same_file_set": true,
+    "files_per_artifact": 10,
+    "byte_identical_files": 8,
+    "differing_files": [
+      "arc-protocol-v3-full-controls-validation-verification-normalized-input.json",
+      "arc-protocol-v3-full-controls-validation.json"
+    ],
+    "numeric_leaf_differences": 36468,
+    "non_numeric_leaf_differences": 0,
+    "maximum_observed_numeric_drift": 0.0007445961236953735,
+    "maximum_drift_path": "/negative_control/records[1]/predictions[121]/probabilities[0]",
+    "aggregate_summary_exact": true,
+    "strict_verifier_report_byte_identical": true,
+    "verification_json_byte_identical": true,
+    "verifier_output_byte_identical": true,
+    "interpretation": "Attempt 4 reproduces the exact aggregate scientific conclusion and verifier decision from attempt 3 while low-order per-example floating-point probabilities remain non-byte-identical."
+  },
+  "attempt4_file_sha256": {
+    "arc-data/arc-challenge-validation.parquet": "395a5c88d1580d69855fbaee9450270578df1ad5af6259771cd0a42c20e99f05",
+    "arc-data/arc-challenge-train.parquet": "e488c1587ffdcfc8443f916c53488a95cd471c5790e0746c6bfe4cecf20962cb",
+    "arc-download-full-controls-v3.json": "f538ece60fc86a69d33d3a43cf9a4cc3b12f1ab32f503309645aa3e30e5d6656",
+    "arc-protocol-v3-full-controls-validation-output.txt": "b2294ab339fbf6b11586c4cd56c00fabdb5fabbb3e90a5d4b44089857852dcb0",
+    "arc-protocol-v3-full-controls-validation-verification-normalized-input.json": "384cd542e7aceead8553d0e99dc1965e3d250d6768a44c8d3f00479c29612cd5",
+    "arc-protocol-v3-full-controls-validation-verification-strict-report.json": "b21c992c773ec58a390cb1bddf848c25b446b988ae6bdcd5a70c78ff13e9de5a",
+    "arc-protocol-v3-full-controls-validation-verification.json": "10704c164a885169832175a68fba4e501b5370dada5ebf3b87f6c3c94a7031a2",
+    "arc-protocol-v3-full-controls-validation-verifier-output.txt": "a43b3d1f911e3649d29f292a72d98e9ea9a1d6e8c701c2c0d546d5dce2703107",
+    "arc-protocol-v3-full-controls-validation.json": "f341f301ba5b9ff90afe433d2e57bbea710b262b2872acf6fa22324daba31a34",
+    "arc-protocol-v3-verification.json": "00a06ec6efb5d1b25d45f0afac8847ec3b91ffaa26fbce20e76d053e79a002b6"
+  },
+  "verifier": {
+    "verdict": "PROTOCOL_V3_FULL_CONTROLS_VALIDATION_VERIFIED",
+    "final_five_seed_20_epoch_protocol_executed": true,
+    "mechanism_claim_authorized": false,
+    "research_complete": false,
+    "aggregate_normalization_only": true,
+    "aggregate_tolerance": 1e-6,
+    "maximum_observed_aggregate_drift": 1.075914349280005e-08
+  },
+  "scientific_conclusion": "NEGATIVE_OR_INCONCLUSIVE_REPRODUCED",
+  "limitations": [
+    "The ARC locked test remains unused and must not be opened to rescue this hypothesis line.",
+    "Five validation seeds do not establish broad benchmark-general significance.",
+    "Per-example probabilities exhibit low-order cross-run floating-point drift.",
+    "The raw protocol.claim_boundary sentence is stale for the full-budget invocation and is preserved unchanged.",
+    "The historical workflow rerun checks out a PR merge ref; zero changed files versus the scientific head were verified for attempt 4."
+  ]
+}
