@@ -1,7 +1,7 @@
 {
   "project": "LAM-JEPA",
   "wave_date": "2026-08-12_to_2026-08-13",
-  "reproduction_status": "EXECUTED_BUG_REPAIRED_DETERMINISTIC_REPLAYED_AND_FULL_ARC_RERUN",
+  "reproduction_status": "EXECUTED_BUG_REPAIRED_DETERMINISTIC_REPLAYED_FULL_ARC_RERUN_AND_ATTEMPT4_INDEPENDENTLY_AUDITED",
   "scientific_question": "Under the frozen ARC-Challenge protocol, does LAM-JEPA beat meaningful baselines and do the planner, target path, or repaired quantized mechanism provide reproducible validation benefit?",
   "dataset_task": "AI2 ARC-Challenge; checksum-pinned train and validation only; exactly four-choice eligible rows; multiple-choice validation accuracy",
   "baselines": [
@@ -47,7 +47,29 @@
       "artifact_digest": "sha256:caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b",
       "status": "success"
     },
-    "artifact_comparison": {
+    "attempt_4": {
+      "job_id": 94302727334,
+      "artifact_id": 9163503934,
+      "artifact_digest": "sha256:14c315cd64b2b96d48af4b865bca700a101ea66842a78f35382a5f408805b10a",
+      "status": "success",
+      "workflow_started_at": "2026-08-13T00:10:11Z",
+      "workflow_updated_at": "2026-08-13T00:12:47Z",
+      "workflow_wall_clock_seconds": 156,
+      "environment": {
+        "runner_os": "Ubuntu 24.04.4 LTS",
+        "runner_image": "ubuntu-24.04",
+        "runner_image_version": "20260720.247.2",
+        "python": "3.11.15",
+        "torch": "2.13.0+cpu",
+        "numpy": "2.4.6",
+        "device": "CPU"
+      },
+      "actual_checkout_sha": "ed81a16c5b2e3379eb37c4d94a79941d0cd0ff10",
+      "checkout_tree_equivalent_to_scientific_head": true,
+      "compare_changed_files": 0,
+      "independent_raw_summary_recomputed": true
+    },
+    "artifact_comparison_attempt_2_to_3": {
       "files_per_artifact": 10,
       "byte_identical_files": 8,
       "raw_result_json_byte_identical": false,
@@ -63,7 +85,36 @@
       "verifier_summary_exact": true,
       "strict_verifier_report_exact": true,
       "interpretation": "Independent full scientific reruns reproduce the exact aggregate conclusion and verifier verdict; low-level per-example floating-point probabilities are not byte-exact across runners."
+    },
+    "artifact_comparison_attempt_3_to_4": {
+      "files_per_artifact": 10,
+      "byte_identical_files": 8,
+      "raw_result_json_byte_identical": false,
+      "normalized_input_json_byte_identical": false,
+      "non_numeric_leaf_differences": 0,
+      "numeric_leaf_differences": 36468,
+      "max_observed_numeric_drift": 0.0007445961236953735,
+      "max_drift_path": "/negative_control/records[1]/predictions[121]/probabilities[0]",
+      "aggregate_full_accuracy_exact": true,
+      "aggregate_no_planner_accuracy_exact": true,
+      "aggregate_no_target_accuracy_exact": true,
+      "paired_effects_exact": true,
+      "negative_control_summary_exact": true,
+      "verifier_summary_exact": true,
+      "strict_verifier_report_exact": true,
+      "interpretation": "Attempt 4 again reproduces the exact aggregate conclusion and verifier verdict; low-order per-example floating-point drift remains below the level needed to alter any aggregate scientific conclusion."
     }
+  },
+  "checkout_provenance_clarification": {
+    "classification": "NON_INVALIDATING_PROVENANCE_CLARIFICATION",
+    "workflow_run": 31203337502,
+    "run_attempt": 4,
+    "workflow_event": "pull_request",
+    "reported_head_sha": "760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb",
+    "actual_checkout_sha": "ed81a16c5b2e3379eb37c4d94a79941d0cd0ff10",
+    "compare_base_to_checkout_changed_files": 0,
+    "scientific_tree_equivalent": true,
+    "disposition": "Retain both the scientific head and literal checkout SHA in provenance. Zero changed files versus the scientific head means this does not invalidate attempt 4."
   },
   "reporting_metadata_defect": {
     "classification": "NON_INVALIDATING_REPORTING_METADATA_DEFECT",
@@ -102,6 +153,12 @@
       "torch_version": "2.13.0+cpu"
     }
   },
+  "independent_audit": {
+    "human_readable": "experiments/repro_wave_2026_08_13/INDEPENDENT_AUDIT.md",
+    "machine_readable": "experiments/repro_wave_2026_08_13/independent_audit.json",
+    "attempt4_artifact_files_hashed": 10,
+    "attempt4_raw_seed_summaries_recomputed": true
+  },
   "limitations": [
     "development validation only",
     "ARC test not accessed",
@@ -111,7 +168,8 @@
     "repaired ARC-v5 generalization and quantization-benefit gates remain unsupported",
     "per-example probabilities show low-order cross-run floating-point drift",
     "PyTorch checkpoint serialization is not byte-identical across independent CI attempts",
-    "frozen raw full-controls output contains a stale claim-boundary sentence"
+    "frozen raw full-controls output contains a stale claim-boundary sentence",
+    "historical workflow reruns use a pull-request merge checkout; attempt 4 was verified to have zero file differences versus the scientific head"
   ],
   "claim_boundary": "The full frozen ARC aggregate result and verifier verdict reproduce across independent attempts and remain negative/inconclusive. No superiority, planner benefit, target benefit, quantization benefit, educational effectiveness, AGI, or general-intelligence claim is supported."
 }
