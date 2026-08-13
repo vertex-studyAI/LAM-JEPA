@@ -1,6 +1,6 @@
 # Reproduce LAM-JEPA
 
-This document separates three evidence classes: fast execution smoke, deterministic same-seed replay after the seed-order repair, and the frozen full five-seed ARC scientific validation. Do not substitute one for another.
+This document separates four evidence classes: fast execution smoke, deterministic same-seed replay after the seed-order repair, the frozen five-seed ARC scientific validation, and an independent retained-artifact checker. Do not substitute one for another.
 
 ## 1. Revisions and claim boundary
 
@@ -12,7 +12,7 @@ git status --short
 git rev-parse HEAD
 ```
 
-The frozen full-controls ARC scientific rerun is tied to:
+The frozen ARC scientific head is:
 
 ```text
 760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb
@@ -32,7 +32,7 @@ python -c 'import torch; assert not torch.cuda.is_available()'
 python -m compileall -q src scripts
 ```
 
-The frozen ARC full-controls workflow uses GitHub-hosted Ubuntu with Python 3.11 and CPU PyTorch.
+Attempt 4 of the retained full-controls workflow used Ubuntu 24.04.4 LTS, Python 3.11.15, PyTorch 2.13.0+cpu and NumPy 2.4.6 on CPU.
 
 ## 3. Frozen ARC data boundary
 
@@ -52,6 +52,13 @@ test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
 ```
 
 The final assertion is a scientific stop rule, not optional housekeeping.
+
+Known retained source-file digests from attempt 4:
+
+```text
+train parquet      e488c1587ffdcfc8443f916c53488a95cd471c5790e0746c6bfe4cecf20962cb
+validation parquet 395a5c88d1580d69855fbaee9450270578df1ad5af6259771cd0a42c20e99f05
+```
 
 ## 4. Full frozen five-seed ARC controls validation
 
@@ -97,27 +104,29 @@ Required budget assertions:
 - locked test not evaluated;
 - verifier verdict `PROTOCOL_V3_FULL_CONTROLS_VALIDATION_VERIFIED`.
 
-### Retained independent reruns
+## 5. Retained independent reruns
 
-Attempt 2:
+All three retained reruns below conclude successfully:
 
-- Actions run `31203337502`, attempt `2`;
-- job `94178988063`;
-- artifact `9149336081`;
-- digest `sha256:c45710b5dae6a767ccb6bab7f6e3d8e9578752d8cf9b79fd82a65ae824dded1b`.
+| Attempt | Job | Artifact | Digest |
+|---:|---:|---:|---|
+| 2 | `94178988063` | `9149336081` | `sha256:c45710b5dae6a767ccb6bab7f6e3d8e9578752d8cf9b79fd82a65ae824dded1b` |
+| 3 | `94291056903` | `9162165932` | `sha256:caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b` |
+| 4 | `94302727334` | `9163503934` | `sha256:14c315cd64b2b96d48af4b865bca700a101ea66842a78f35382a5f408805b10a` |
 
-Attempt 3:
+The historical workflow run ID is `31203337502`.
 
-- Actions run `31203337502`, attempt `3`;
-- job `94291056903`;
-- artifact `9162165932`;
-- digest `sha256:caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b`.
+### Provenance note for attempt 4
 
-Both attempts succeeded. Aggregate model/ablation/negative-control summaries and verifier outputs are exactly equal between attempts. Raw per-example probabilities show low-order floating-point drift, so byte-exact raw JSON identity is not required.
+The run is a historical `pull_request` workflow run. `actions/checkout` checked out merge ref SHA:
 
-The artifact comparison found 10 retained files in each attempt. Eight are byte-identical. The raw full-results JSON and normalized-input copy differ numerically at prediction-probability level; maximum observed numeric drift was approximately `5.9186e-4`. No non-numeric leaf changed, and the aggregate scientific conclusion did not change.
+```text
+ed81a16c5b2e3379eb37c4d94a79941d0cd0ff10
+```
 
-## 5. Frozen scientific result expected from the full rerun
+rather than the head SHA as a literal checkout. A GitHub compare from `760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb` to `ed81a16c5b2e3379eb37c4d94a79941d0cd0ff10` reports zero changed files. Retain both SHAs in provenance. Attempt 4 is therefore tree-equivalent to the scientific head, but do not hide the literal checkout SHA.
+
+## 6. Expected frozen scientific result
 
 - full LAM-JEPA validation accuracy: `0.2549152493 ± 0.0129968006`, `n=5`;
 - `no_planner`: `0.2501694888 ± 0.0129968006`, `n=5`;
@@ -128,15 +137,87 @@ The artifact comparison found 10 retained files in each attempt. Eight are byte-
 
 The separately retained capacity-matched supervised baseline remains stronger in mean accuracy. Do not report LAM-JEPA superiority or validated planner/target benefit.
 
-## 6. Reporting-metadata defect in frozen raw output
+## 7. Independent retained-artifact checker
+
+Download the retained attempt-4 artifact into an empty directory. With GitHub CLI, one suitable command is:
+
+```bash
+mkdir -p /tmp/lam-jepa-attempt4
+cd /tmp/lam-jepa-attempt4
+gh run download 31203337502 \
+  --repo vertex-studyAI/LAM-JEPA \
+  --name arc-protocol-v3-full-controls-validation
+```
+
+If GitHub returns more than one artifact with that repeated name, select artifact ID `9163503934` explicitly through the GitHub Actions UI/API and verify its digest before analysis.
+
+Then recompute the accuracy summaries directly from the raw retained records:
+
+```bash
+python - <<'PY'
+import json
+from pathlib import Path
+from statistics import mean, stdev
+
+p = Path('arc-protocol-v3-full-controls-validation.json')
+raw = json.loads(p.read_text())
+
+expected = {
+    'full': (0.2549152493476868, 0.01299680055624953),
+    'no_planner': (0.25016948878765105, 0.01299680055624953),
+    'no_target': (0.26169490814208984, 0.02039539375324249),
+}
+
+for name, target in expected.items():
+    values = [r['metrics']['accuracy'] for r in raw['variants'][name]['records']]
+    got = (mean(values), stdev(values))
+    assert got == target, (name, got, target)
+    assert raw['variants'][name]['accuracy']['n'] == 5
+    assert raw['variants'][name]['accuracy']['mean'] == got[0]
+    assert raw['variants'][name]['accuracy']['std'] == got[1]
+    print(name, values, got)
+
+neg = [r['metrics']['accuracy'] for r in raw['negative_control']['records']]
+neg_got = (mean(neg), stdev(neg))
+neg_expected = (0.263050839304924, 0.014501180290680909)
+assert neg_got == neg_expected, (neg_got, neg_expected)
+assert raw['negative_control']['pass'] is True
+print('negative_control', neg, neg_got)
+PY
+```
+
+The independent audit performed on 13 August 2026 reproduced these stored summaries exactly.
+
+The audit and all attempt-4 per-file SHA-256 hashes are retained at:
+
+```text
+experiments/repro_wave_2026_08_13/INDEPENDENT_AUDIT.md
+experiments/repro_wave_2026_08_13/independent_audit.json
+```
+
+## 8. Attempt 3 vs attempt 4 artifact behavior
+
+The two artifacts contain the same 10 files. Eight are byte-identical. The raw full-results JSON and normalized-input copy differ only in numeric leaves:
+
+- numeric leaf differences: `36,468`;
+- non-numeric leaf differences: `0`;
+- maximum observed numeric drift: `0.0007445961236953735`;
+- aggregate accuracy summaries: exactly equal;
+- paired-effect summaries: exactly equal;
+- negative-control summary: exactly equal;
+- strict verifier report, verification JSON, and verifier output: byte-identical.
+
+Do not require byte-exact per-example probability tensors across independent runners. Do require exact aggregate conclusions and a passing independent verifier under the frozen tolerance policy.
+
+## 9. Reporting-metadata defect in frozen raw output
 
 The frozen `run_arc_protocol_v3_controls.py` payload contains a stale `protocol.claim_boundary` sentence saying the invocation is “not the final five-seed/20-epoch protocol.” Preserve that raw artifact unchanged.
 
-For attempts 2 and 3, this sentence is inconsistent with the actual arguments and independent verifier: both runs use five seeds, 20 epochs, full eligible train/validation rows, and satisfy `final_five_seed_20_epoch_protocol_executed = true`.
+For the retained full-budget attempts, this sentence is inconsistent with the actual arguments and independent verifier: five seeds, 20 epochs, full eligible train/validation rows, and `final_five_seed_20_epoch_protocol_executed=true`.
 
 Treat this as a non-invalidating reporting-metadata defect. Do not use the stale sentence to override the executable command, protocol fields, or verifier evidence.
 
-## 7. Pre-fix deterministic-training failure
+## 10. Pre-fix deterministic-training failure
 
 Before the seed-order repair, `train_single.py` instantiated `LAMJEPA` before applying the requested seed. Under nominally identical SHA / command / seed / CPU execution, one-step losses differed:
 
@@ -147,7 +228,7 @@ Before the seed-order repair, `train_single.py` instantiated `LAMJEPA` before ap
 
 Retain this as invalidated reproducibility evidence rather than deleting it.
 
-## 8. Deterministic seed-order repair
+## 11. Deterministic seed-order repair
 
 PR #61 applied the narrow repair: apply the requested seed before model construction while retaining trainer-side seeding for subsequent data/training randomness.
 
@@ -157,9 +238,9 @@ Current machine-readable replay metadata records six independently verified dete
 
 Do not claim byte-for-byte checkpoint identity across independent runners.
 
-## 9. Fast smoke paths
+## 12. Fast smoke path
 
-A fast external benchmark smoke can be used to check plumbing, but not scientific effects:
+A fast external benchmark smoke can check plumbing, but not scientific effects:
 
 ```bash
 python scripts/benchmark/run_arc_challenge.py \
@@ -177,16 +258,16 @@ python scripts/benchmark/run_arc_challenge.py \
 
 Smoke success establishes executability only.
 
-## 10. Failure policy
+## 13. Failure policy
 
 If a future scientific rerun differs:
 
-1. retain the exact command, SHA, environment, seeds, logs, metrics and artifact;
-2. classify the difference as environment, data, nondeterminism, evaluator, metadata, or scientific-result drift;
+1. retain the exact command, SHA, literal checkout SHA, environment, seeds, logs, metrics and artifact;
+2. classify the difference as environment, data, nondeterminism, evaluator, metadata, provenance, or scientific-result drift;
 3. do not alter the frozen threshold or locked-test policy;
 4. if a software bug invalidates execution, preserve the old evidence, make the smallest versioned fix, rerun, and distinguish old from new results;
 5. do not select only favorable seeds.
 
 ## Reporting policy
 
-Report means, sample dispersion, paired deltas, sample count and confidence intervals where available. Do not claim significance without an appropriate predeclared analysis. Preserve negative results, low-order numerical drift, and reporting defects as part of the evidence trail.
+Report means, sample dispersion, paired deltas, sample count and confidence intervals where available. Do not claim significance without an appropriate predeclared analysis. Preserve negative results, low-order numerical drift, reporting defects and provenance clarifications as part of the evidence trail.
