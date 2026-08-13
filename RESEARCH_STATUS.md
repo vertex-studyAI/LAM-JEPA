@@ -3,13 +3,13 @@
 **Evidence cutoff:** 13 August 2026  
 **Current documentation baseline:** `6c6f5c10e8610239ce6c72a4fa7f549659662014`  
 **Frozen full-controls scientific source:** `760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb`  
-**Classification:** `GREEN_REPRODUCIBLE_NEGATIVE_RESULT / RESEARCH_COMPLETE_FALSE`
+**Classification:** `GREEN_REPRODUCIBLE_NEGATIVE_RESULT / ARC SUPERIORITY HYPOTHESIS UNSUPPORTED / RESEARCH_COMPLETE_FALSE`
 
 ## Executive result
 
 LAM-JEPA now has a reproducible negative/inconclusive ARC-Challenge evidence package. The frozen superiority and mechanism hypotheses are unsupported. This is a legitimate GREEN state for **reproducible scientific falsification**, not a claim of benchmark superiority, external generalization, publication readiness, or research completion.
 
-The locked ARC confirmatory test remains forbidden for this failed hypothesis line.
+The locked ARC confirmatory test must not be used to rescue the failed validation hypothesis.
 
 ## What is reproducibly established
 
@@ -154,4 +154,4 @@ Do not claim:
 
 ## Scientific stop rule
 
-Do not unlock the ARC confirmatory test or retune the failed validation line. Any future architecture repair, dataset, or scientific hypothesis must be versioned separately, frozen before its validation evidence is observed, and reported independently from this negative result.
+The locked ARC confirmatory test must not be used to rescue the failed validation hypothesis. Do not retune the failed validation line. Any future architecture repair, dataset, or scientific hypothesis must be versioned separately, frozen before its validation evidence is observed, and reported independently from this negative result.
