@@ -1,9 +1,33 @@
 # LAM-JEPA Research Status
 
-**Evidence cutoff:** 12 August 2026  
-**Frozen scientific evidence base:** `05c039fcc02c09c0aa1c1487596dcdd741ee6d51` and the versioned ARC-v5 evidence lineage cited below  
-**Exact executable head reproduced in this wave:** `2f59b4297e5978d4ce769ebe95adb363e1e75d7a`  
+**Evidence cutoff:** 13 August 2026  
+**Frozen ARC-v3 scientific revision:** `760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb`  
+**Seed-order reproducibility repair:** `b72a97a99769b278eb8ec75bc5eab62dc9599f29`  
+**Audited repository head:** `6c6f5c10e8610239ce6c72a4fa7f549659662014`  
 **Classification:** `RESEARCH_ACTIVE / EXECUTION_REPRODUCIBLE / ARC SUPERIORITY HYPOTHESIS UNSUPPORTED / RESEARCH_COMPLETE_FALSE`
+
+## 13 August 2026 independent artifact-integrity audit
+
+The two retained frozen ARC-v3 full-controls rerun artifacts were downloaded through authenticated GitHub access and independently inspected without changing the scientific protocol.
+
+- attempt 2 artifact `9149336081`: downloaded ZIP SHA-256 exactly matches `c45710b5dae6a767ccb6bab7f6e3d8e9578752d8cf9b79fd82a65ae824dded1b`;
+- attempt 3 artifact `9162165932`: downloaded ZIP SHA-256 exactly matches `caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b`;
+- both archives contain the same 10 retained paths;
+- 8 files are byte-identical;
+- only the raw result JSON and its normalized-input copy differ bytewise;
+- recursive comparison finds 35,526 numeric leaf differences and zero non-numeric differences in each differing JSON tree;
+- maximum observed probability drift is `0.0005918592214584351`;
+- verifier verdict remains `PROTOCOL_V3_FULL_CONTROLS_VALIDATION_VERIFIED`;
+- seeds remain `[1,2,3,4,5]`, epochs `20`, batch size `32`, all 1,117 eligible train rows and 295 eligible validation rows are used;
+- locked test evaluated remains `false`;
+- mechanism claim authorized remains `false`;
+- `research_complete` remains `false`.
+
+Independent parsing reproduces the retained aggregate scientific result: full LAM-JEPA `0.2549152542372881 ± 0.01299680644927512`, `no_planner` `0.2501694915254237 ± 0.01299680644927512`, `no_target` `0.26169491525423727 ± 0.02039540197490349`, and shuffled-label control `0.2630508474576271 ± 0.014501186194038939`, all with `n=5`.
+
+This is independent evidence auditing of retained authenticated runs, not a seventh scientific training sample. The audit environment could not resolve `github.com` for a fresh clone, so no fresh full training run is counted here. No configuration was retuned to compensate.
+
+Machine-readable details are in `audits/repro_wave_2026-08-13.json`; reviewer-facing details are in `audits/REPRO_WAVE_2026-08-13.md`.
 
 ## Executive result
 
@@ -15,7 +39,7 @@ The locked ARC confirmatory test must not be used to rescue the failed validatio
 
 ## 12 August 2026 reproducibility-wave verification
 
-The current repository head was rerun without changing the experiment after observing prior results:
+The current repository head at that checkpoint was rerun without changing the experiment after observing prior results:
 
 - workflow: `Reproducibility CI`;
 - workflow run: `31610608912`;
@@ -134,7 +158,8 @@ The repository can defensibly state that:
 5. adverse/negative results were retained rather than tuned away;
 6. the bounded v5 repair improves trainability under its declared train-only gate;
 7. repaired ARC validation remained negative/inconclusive;
-8. the exact current executable head passed a fresh reproducibility-pipeline rerun on 12 August 2026.
+8. the exact current executable head passed a fresh reproducibility-pipeline rerun on 12 August 2026;
+9. the two retained full ARC-v3 rerun artifacts independently pass integrity and cross-attempt consistency checks on 13 August 2026.
 
 ## Claims not supported
 
