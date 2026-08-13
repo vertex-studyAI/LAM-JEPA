@@ -1,0 +1,100 @@
+{
+  "audit_id": "lam-jepa-repro-wave-2026-08-13",
+  "audit_time_ist": "2026-08-13T07:13:00+05:30",
+  "repository": "vertex-studyAI/LAM-JEPA",
+  "audited_main_sha": "6c6f5c10e8610239ce6c72a4fa7f549659662014",
+  "frozen_scientific_sha": "760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb",
+  "seed_order_repair_sha": "b72a97a99769b278eb8ec75bc5eab62dc9599f29",
+  "audit_environment": {
+    "python": "3.13.5",
+    "platform": "Linux-6.18.35-x86_64-with-glibc2.41",
+    "architecture": "x86_64",
+    "network_clone_available": false,
+    "method": "GitHub Actions artifacts downloaded through authenticated repository connector and independently parsed/hash-compared"
+  },
+  "artifacts": {
+    "attempt_2": {
+      "run_id": 31203337502,
+      "attempt": 2,
+      "job_id": 94178988063,
+      "artifact_id": 9149336081,
+      "advertised_sha256": "c45710b5dae6a767ccb6bab7f6e3d8e9578752d8cf9b79fd82a65ae824dded1b",
+      "downloaded_zip_sha256": "c45710b5dae6a767ccb6bab7f6e3d8e9578752d8cf9b79fd82a65ae824dded1b",
+      "file_count": 10
+    },
+    "attempt_3": {
+      "run_id": 31203337502,
+      "attempt": 3,
+      "job_id": 94291056903,
+      "artifact_id": 9162165932,
+      "advertised_sha256": "caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b",
+      "downloaded_zip_sha256": "caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b",
+      "file_count": 10
+    }
+  },
+  "cross_attempt_comparison": {
+    "same_file_names": true,
+    "byte_identical_file_count": 8,
+    "different_files": [
+      "arc-protocol-v3-full-controls-validation.json",
+      "arc-protocol-v3-full-controls-validation-verification-normalized-input.json"
+    ],
+    "raw_numeric_leaf_differences": 35526,
+    "raw_non_numeric_leaf_differences": 0,
+    "normalized_numeric_leaf_differences": 35526,
+    "normalized_non_numeric_leaf_differences": 0,
+    "maximum_numeric_drift": 0.0005918592214584351,
+    "maximum_numeric_drift_path": "/negative_control/records/1/predictions/97/probabilities/0"
+  },
+  "verifier": {
+    "verdict": "PROTOCOL_V3_FULL_CONTROLS_VALIDATION_VERIFIED",
+    "train_source_rows": 1119,
+    "train_eligible_rows": 1117,
+    "train_used_rows": 1117,
+    "validation_source_rows": 299,
+    "validation_eligible_rows": 295,
+    "validation_used_rows": 295,
+    "seeds": [1, 2, 3, 4, 5],
+    "epochs": 20,
+    "batch_size": 32,
+    "locked_test_evaluated": false,
+    "final_five_seed_20_epoch_protocol_executed": true,
+    "mechanism_claim_authorized": false,
+    "research_complete": false,
+    "raw_results_preserved": true,
+    "aggregate_normalization_only": true,
+    "aggregate_tolerance": 0.000001,
+    "maximum_observed_aggregate_drift": 1.075914349280005e-08,
+    "maximum_observed_aggregate_drift_field": "no_planner/delta[2]"
+  },
+  "metrics": {
+    "full": {"n": 5, "mean_accuracy": 0.2549152542372881, "sample_sd": 0.01299680644927512},
+    "no_planner": {"n": 5, "mean_accuracy": 0.2501694915254237, "sample_sd": 0.01299680644927512},
+    "no_target": {"n": 5, "mean_accuracy": 0.26169491525423727, "sample_sd": 0.02039540197490349},
+    "negative_control": {"n": 5, "mean_accuracy": 0.2630508474576271, "sample_sd": 0.014501186194038939, "pass": true},
+    "full_minus_no_planner": {
+      "seed_level": [0.0, 0.0, 0.02372881355932202, 0.0, 0.0],
+      "mean": 0.004745762711864404,
+      "sample_sd": 0.010611848028812555,
+      "bootstrap_ci95": [0.0, 0.014237288135593213],
+      "criterion_met": false
+    },
+    "full_minus_no_target": {
+      "seed_level": [0.0, 0.0, -0.01694915254237289, 0.0, -0.01694915254237289],
+      "mean": -0.006779661016949157,
+      "sample_sd": 0.009283433178053668,
+      "bootstrap_ci95": [-0.013559322033898313, 0.0],
+      "criterion_met": false
+    }
+  },
+  "conclusion": {
+    "classification": "REPRODUCED_NEGATIVE_OR_INCONCLUSIVE",
+    "superiority_supported": false,
+    "planner_mechanism_supported": false,
+    "target_mechanism_supported": false,
+    "locked_test_policy_preserved": true,
+    "research_complete": false,
+    "fresh_training_run_in_audit_environment": false,
+    "reason_fresh_training_not_run": "The audit sandbox could not resolve github.com for repository cloning; no post-result scientific configuration was changed. Retained authenticated Actions artifacts were independently verified instead."
+  }
+}
