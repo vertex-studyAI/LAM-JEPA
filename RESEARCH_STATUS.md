@@ -1,140 +1,145 @@
 # LAM-JEPA Research Status
 
-**Evidence cutoff:** 12 August 2026  
-**Frozen scientific evidence base:** `05c039fcc02c09c0aa1c1487596dcdd741ee6d51` and the versioned ARC-v5 evidence lineage cited below  
-**Exact executable head reproduced in this wave:** `2f59b4297e5978d4ce769ebe95adb363e1e75d7a`  
-**Classification:** `RESEARCH_ACTIVE / EXECUTION_REPRODUCIBLE / ARC SUPERIORITY HYPOTHESIS UNSUPPORTED / RESEARCH_COMPLETE_FALSE`
+**Evidence cutoff:** 13 August 2026  
+**Current audit base:** `6c6f5c10e8610239ce6c72a4fa7f549659662014`  
+**Frozen full ARC-v3 scientific source:** `760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb`  
+**Seed-order software repair:** `b72a97a99769b278eb8ec75bc5eab62dc9599f29`  
+**Classification:** `RESEARCH_ACTIVE / SCIENTIFIC_RESULT_REPRODUCED / ARC SUPERIORITY HYPOTHESIS UNSUPPORTED / MECHANISM HYPOTHESES UNSUPPORTED / RESEARCH_COMPLETE_FALSE`
 
 ## Executive result
 
-LAM-JEPA has a real, reproducible research pipeline with external ARC-Challenge benchmark integration, matched-capacity and pretrained comparison paths, multi-seed validation, controls, retained raw evidence, and independent verification. The scientific outcome on the current ARC line is negative/inconclusive rather than a superiority result.
+LAM-JEPA now has a traceable external-benchmark reproducibility package covering the frozen ARC-Challenge protocol, fixed seeds, exact commands, matched and pretrained comparison paths, required controls, retained raw artifacts and digests, a documented reproducibility bug/fix lineage, and independent full scientific reruns.
 
-The current evidence does **not** support claims that LAM-JEPA outperforms strong baselines on ARC, that the planner or target mechanism provides a validated ARC benefit, that the repaired quantizer provides a validated generalization/quantization advantage, or that LAM-JEPA is research-complete.
+The scientific conclusion remains negative/inconclusive. The current evidence does **not** support LAM-JEPA superiority on ARC, a validated planner benefit, a validated target/EMA benefit, or a repaired quantization/generalization benefit. Negative evidence is intentionally retained rather than tuned away.
 
 The locked ARC confirmatory test must not be used to rescue the failed validation hypothesis.
 
-## 12 August 2026 reproducibility-wave verification
+## Full scientific reproduction closure — 13 August 2026
 
-The current repository head was rerun without changing the experiment after observing prior results:
+The frozen full-controls workflow `.github/workflows/arc-protocol-v3-full-controls-validation.yml` was independently rerun on scientific source `760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb` without changing the scientific protocol after observing the prior result.
 
-- workflow: `Reproducibility CI`;
-- workflow run: `31610608912`;
-- rerun attempt: `2`;
-- job: `94178401933` (`deterministic-training-smoke`);
-- head SHA: `2f59b4297e5978d4ce769ebe95adb363e1e75d7a`;
-- environment: GitHub-hosted Ubuntu, Python 3.11, CPU-only PyTorch with CUDA required absent;
-- started: `2026-08-12T16:06:02Z`;
-- completed: `2026-08-12T16:07:43Z`;
-- conclusion: `success`.
+### Attempt 2
 
-The fresh run successfully re-exercised protocol verification, checksum-addressed ARC train/validation acquisition with the test split absent, external ARC smoke execution, paired multi-seed benchmark plumbing, deterministic training/checkpoint verification, all-task evaluation, reference baselines, exact-row comparisons, paper-results generation, paired component ablations, and evidence upload.
+- Actions run: `31203337502`, attempt `2`;
+- job: `94178988063`;
+- artifact: `9149336081`;
+- artifact digest: `sha256:c45710b5dae6a767ccb6bab7f6e3d8e9578752d8cf9b79fd82a65ae824dded1b`;
+- conclusion: success.
 
-This is an **execution/evidence-pipeline reproduction**, not a new five-seed 20-epoch scientific sample. It therefore does not replace or inflate the frozen validation estimates below.
+### Attempt 3
 
-## Evidence ledger
+- Actions run: `31203337502`, attempt `3`;
+- job: `94291056903`;
+- artifact: `9162165932`;
+- artifact digest: `sha256:caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b`;
+- conclusion: success.
 
-### 1. External-benchmark protocol and eligibility
+Both attempts execute the frozen five-seed, 20-epoch ARC validation using all 1,117 eligible train rows and all 295 eligible validation rows. The aggregate full-model, ablation, negative-control, paired-effect and independent-verifier results are exactly equal between attempts. The locked test remains absent.
 
-Protocol work moved from synthetic-only execution checks to ARC-Challenge train/validation with immutable preregistration and audit history. Protocol v3 corrected an observed pre-test choice-cardinality incompatibility using a feature-only eligibility rule before test access:
+The two retained artifacts each contain 10 files; eight files are byte-identical. The raw probability-bearing JSON payloads show low-order cross-runner floating-point drift: 35,526 numeric leaves differ, no non-numeric leaves differ, and the maximum observed numeric drift is approximately `5.9186e-4`. This drift does not change any aggregate scientific metric or verifier decision. The repository therefore claims reproducibility of the aggregate scientific conclusion, not byte-exact identity of every floating-point probability.
+
+## Frozen ARC protocol and eligibility
+
+Protocol v3 uses checksum-addressed ARC-Challenge train/validation data and a deterministic feature-only eligibility rule retaining exactly-four-choice rows. This correction was frozen before confirmatory test access.
 
 - train: 1,117 / 1,119 rows eligible;
 - validation: 295 / 299 rows eligible;
-- excluded rows are retained as evidence;
+- excluded rows remain evidence;
 - source order is preserved;
-- the locked ARC test was not used for the failed superiority claim.
+- test split is not used for this failed line.
 
-### 2. Capacity-matched supervised baseline
+Frozen full-controls budget:
 
-The frozen matched-capacity comparison uses the ARC objective's actual gradient-active parameter count rather than total nominal parameters:
+- seeds: `1 2 3 4 5`;
+- epochs: `20`;
+- batch size: `32`;
+- learning rate: `0.0003`;
+- model steps: `1`;
+- device: CPU.
+
+## Canonical scientific results
+
+### Full model and required controls
+
+- full LAM-JEPA: `0.2549152493 ± 0.0129968006`, `n=5`;
+- `no_planner`: `0.2501694888 ± 0.0129968006`, `n=5`;
+- `no_target`: `0.2616949081 ± 0.0203953938`, `n=5`;
+- shuffled-label control: `0.2630508393 ± 0.0145011803`, `n=5`.
+
+Paired mechanism effects:
+
+- full minus `no_planner`: `+0.0047457606`, sample SD `0.0106118432`, bootstrap 95% CI `[0.0, 0.0142372817]`;
+- full minus `no_target`: `-0.0067796588`, sample SD `0.0092834301`, bootstrap 95% CI `[-0.0135593176, 0.0]`.
+
+The shuffled-label control remains below the frozen `0.35` failure threshold, but neither mechanism criterion is met.
+
+### Capacity-matched supervised comparison
+
+The separately retained matched comparison uses gradient-active parameter matching:
 
 - LAM-JEPA gradient-active parameters: `86,372`;
 - matched supervised gradient-active parameters: `86,644`;
 - ratio: `1.0031491687`.
 
-Under the frozen five-seed validation budget:
+Results:
 
-- LAM-JEPA accuracy: `0.2549152542 ± 0.0129968064`;
-- matched supervised accuracy: `0.2664406780 ± 0.0154600058`;
+- LAM-JEPA: `0.2549152542 ± 0.0129968064`;
+- matched supervised: `0.2664406780 ± 0.0154600058`;
 - paired LAM minus matched: `-0.0115254237 ± 0.0140994131`.
 
-**Verdict:** LAM-JEPA did not beat the capacity-matched supervised baseline on validation.
+**Verdict:** LAM-JEPA does not beat the capacity-matched supervised baseline on frozen validation.
 
-Evidence merge: `99a384f630fe469094ac5bb8cbff8e6a52191c4a`.
+### Strong pretrained comparator
 
-### 3. Required ARC controls and ablations
+The development comparator remains pinned to `microsoft/deberta-v3-xsmall` at immutable revision `14809e4f1fe1895fcba8b258271a940c6ca45ec4`.
 
-The frozen full-controls validation used five seeds, 20 epochs, batch size 32, learning rate `0.0003`, model steps 1, all 1,117 eligible train rows and all 295 eligible validation rows.
-
-Verified aggregate results:
-
-- full LAM-JEPA: `0.2549152542 ± 0.0129968064`;
-- `no_planner`: `0.2501694915 ± 0.0129968064`;
-- `no_target`: `0.2616949153 ± 0.0203954020`;
-- deterministic shuffled-label control: `0.2630508475 ± 0.0145011862`.
-
-Paired mechanism effects:
-
-- full minus `no_planner`: `+0.0047457627`, 95% bootstrap CI `[0.0, 0.0142372881]`;
-- full minus `no_target`: `-0.0067796610`, 95% bootstrap CI `[-0.0135593220, 0.0]`.
-
-The shuffled-label result remained below the frozen `0.35` failure threshold, but neither required mechanism criterion was met.
-
-**Verdict:** no planner or target-mechanism contribution is supported by the frozen ARC validation evidence.
-
-Evidence merge: `db0de546e604b18def26499ff3f87bb95e632896`.
-
-### 4. Strong pretrained comparator
-
-The benchmark pipeline includes a pinned DeBERTa comparator:
-
-- model: `microsoft/deberta-v3-xsmall`;
-- immutable model revision: `14809e4f1fe1895fcba8b258271a940c6ca45ec4`;
-- pretrained-baseline runtime is frozen before confirmatory access.
-
-A bounded development comparison was adverse to LAM-JEPA:
+Bounded development characterization:
 
 - LAM-JEPA: `0.15625`;
 - DeBERTa: `0.21875`;
-- paired LAM minus DeBERTa: `-0.0625`.
+- paired delta: `-0.0625`.
 
-This bounded comparison is characterization evidence, not a standalone final inferiority claim. It does reinforce the strict no-superiority boundary.
+This is characterization evidence, not a standalone confirmatory inferiority trial.
 
-Relevant evidence merges include `3b6c22afa5a47ca2134c56834b9ef993753a6ec0` and runtime freeze `0eca0baf5dabf7e1b1dcf158e202471b2aaab5f3`.
+## Seed-order reproducibility defect and repair
 
-### 5. ARC-v5 trainability repair
+A software reproducibility defect was found in `train_single.py`: the model was initialized before applying the requested seed. Before repair, nominally identical same-seed one-step runs produced different losses (`10.853294372558594` versus `10.34877872467041`). The discrepant pre-fix evidence remains preserved.
 
-A train-only causal investigation localized a major failure to the quantized latent path. The narrow opt-in repair `arc-v5-stable-ema-residual-0.03125` restored the predeclared bounded trainability gate and was independently reproduced before repaired validation execution.
+PR #61 applied the smallest repair: seed before `LAMJEPA(cfg)` construction while retaining trainer-side seeding for subsequent randomness. No ARC split, scientific seed set, architecture, metric, threshold, or locked-test policy changed.
 
-Repair merge: `df249086e9171febaa77333a4c62888f35265c40`.
+Six independently verified replay attempts after the repair preserve exact final loss `11.704492568969727` and final accuracy `0.0` across attempts. Some secondary floating-point quantities drift and serialized PyTorch checkpoint bytes are not byte-identical across independent runners. The seed-order repair is an execution reproducibility repair only and does not change the negative ARC conclusion.
 
-This repair does **not** rescue the original hard-VQ mechanism claim.
+## Reporting-metadata defect
 
-### 6. ARC-v5 repaired validation
+The frozen full-controls raw payload contains a stale `protocol.claim_boundary` sentence saying the invocation is not the final five-seed/20-epoch protocol. The executable arguments and independent verifier demonstrate that the final five-seed/20-epoch protocol did execute.
 
-The repaired validation protocol was frozen before execution and merged as:
+This is a **non-invalidating reporting-metadata defect**. The raw artifact remains preserved unchanged; the stale sentence must not override the actual command, protocol fields or verifier evidence.
 
-- protocol freeze: `168f6beb434610752da4cb2cb6161f15ee026663`;
+## ARC-v5 repaired line
+
+A train-only causal investigation localized a trainability problem to the quantized latent path. The narrow opt-in repair `arc-v5-stable-ema-residual-0.03125` restored its bounded trainability gate.
+
+Versioned lineage:
+
+- repair merge: `df249086e9171febaa77333a4c62888f35265c40`;
+- validation protocol freeze: `168f6beb434610752da4cb2cb6161f15ee026663`;
 - validation execution: `18bd608a05bc308056e6279b347ff3ddb2b751be`;
 - verifier-only float32 tolerance fix: `05c039fcc02c09c0aa1c1487596dcdd741ee6d51`.
 
-The independent recomputation verdict is:
-
-`VALID_NEGATIVE_OR_INCONCLUSIVE_VALIDATION`
-
-The repaired validation evidence did not support the predeclared generalization gate or quantization-benefit gate. ARC test remained absent and `research_complete` remained false.
+The independent repaired-validation verdict remains `VALID_NEGATIVE_OR_INCONCLUSIVE_VALIDATION`. The generalization and quantization-benefit gates are not supported. The repair therefore does not rescue the original hard-VQ mechanism claim.
 
 ## Supported claims
 
 The repository can defensibly state that:
 
-1. the documented core training/checkpoint/evaluation pipeline executes reproducibly;
+1. the core training/checkpoint/evaluation pipeline executes reproducibly at the semantic/aggregate level;
 2. ARC-Challenge external-benchmark plumbing and evidence retention are implemented;
-3. capacity-matched and strong-pretrained comparison paths are implemented;
-4. frozen multi-seed ARC validation and required controls were executed;
-5. adverse/negative results were retained rather than tuned away;
-6. the bounded v5 repair improves trainability under its declared train-only gate;
-7. repaired ARC validation remained negative/inconclusive;
-8. the exact current executable head passed a fresh reproducibility-pipeline rerun on 12 August 2026.
+3. the full frozen five-seed ARC controls result has been independently rerun with the same aggregate scientific conclusion and strict verifier output;
+4. matched-capacity and pinned pretrained comparison paths are implemented;
+5. adverse and negative results are retained;
+6. a real seed-order reproducibility defect was found, preserved, narrowly fixed and independently replayed;
+7. the repaired v5 trainability gate passes while repaired validation remains negative/inconclusive;
+8. command → commit → environment → seeds → raw artifact → aggregate/verifier → conclusion is traceable in `RESULTS.md`, `REPRODUCE.md`, `experiments/repro_wave_2026_08_12/experiment_metadata.json`, and `EVIDENCE_AUDIT_20260813.md`.
 
 ## Claims not supported
 
@@ -144,6 +149,7 @@ Do not claim:
 - planner benefit on ARC;
 - target/EMA mechanism benefit on ARC;
 - quantization benefit from repaired validation;
+- byte-exact cross-runner floating-point identity;
 - externally validated educational effectiveness;
 - general benchmark superiority;
 - AGI or general intelligence capability;
@@ -151,16 +157,18 @@ Do not claim:
 
 ## Scientific stop rule
 
-Do not unlock or use the ARC confirmatory test to rescue the current failed superiority/mechanism hypothesis. Any future architectural repair, new benchmark, or new scientific hypothesis should be versioned separately and preregistered before observing its validation evidence.
+Do not unlock or use the ARC confirmatory test to rescue the current failed superiority/mechanism hypothesis. Any future architectural repair, benchmark or scientific hypothesis must be versioned separately and preregistered before its validation evidence is observed.
 
-Negative results in this repository are first-class research artifacts and should remain visible in manuscripts, technical reports, and portfolio summaries.
+Negative results remain first-class research artifacts and should remain visible in manuscripts, technical reports and portfolio summaries.
 
-## Open release/package gate
+## Publication/package boundary
 
-Repository-level publication packaging remains separate from the scientific result. Issue #14 tracks owner-approved licensing, citation metadata, provenance, and release packaging. A license or author identity must not be invented.
+Scientific reproducibility and publication packaging are separate. Issue #14 remains the authoritative gate for owner-approved licensing, citation metadata, provenance and release packaging. A license, author identity or publication state must not be invented.
 
-## Canonical issue outcomes
+## Canonical evidence documents
 
-- Issue #10: external ARC benchmark gate completed with unsupported superiority/mechanism hypothesis.
-- Issue #38: repaired ARC-v5 validation completed with negative/inconclusive outcome; confirmatory test remains forbidden for that line.
-- Issue #14: publication provenance/citation package remains open.
+- `RESULTS.md` — retained scientific values and rerun comparison;
+- `REPRODUCE.md` — exact reproduction commands and failure policy;
+- `experiments/repro_wave_2026_08_12/experiment_metadata.json` — machine-readable lineage;
+- `EVIDENCE_AUDIT_20260813.md` — skeptical-reviewer traceability audit;
+- `papers/MANUSCRIPT_RESULTS_20260813.md` — conservative manuscript-ready result text.
