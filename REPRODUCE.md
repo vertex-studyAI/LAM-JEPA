@@ -187,6 +187,40 @@ If a future scientific rerun differs:
 4. if a software bug invalidates execution, preserve the old evidence, make the smallest versioned fix, rerun, and distinguish old from new results;
 5. do not select only favorable seeds.
 
+## 11. Independent retained-artifact integrity check
+
+A reviewer who has downloaded attempts 2 and 3 can verify the retained evidence without generating a new training sample:
+
+```bash
+sha256sum lam-jepa-arc-attempt2.zip lam-jepa-arc-attempt3.zip
+rm -rf attempt2 attempt3
+mkdir attempt2 attempt3
+unzip -q lam-jepa-arc-attempt2.zip -d attempt2
+unzip -q lam-jepa-arc-attempt3.zip -d attempt3
+find attempt2 -type f -print | sort
+find attempt3 -type f -print | sort
+(cd attempt2 && find . -type f -print0 | sort -z | xargs -0 sha256sum)
+(cd attempt3 && find . -type f -print0 | sort -z | xargs -0 sha256sum)
+```
+
+Expected ZIP SHA-256 values:
+
+- attempt 2: `c45710b5dae6a767ccb6bab7f6e3d8e9578752d8cf9b79fd82a65ae824dded1b`;
+- attempt 3: `caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b`.
+
+Expected structural comparison:
+
+- 10 retained file paths in each archive;
+- 8 byte-identical files;
+- differing files only `arc-protocol-v3-full-controls-validation.json` and `arc-protocol-v3-full-controls-validation-verification-normalized-input.json`;
+- 35,526 numeric leaf differences and 0 non-numeric differences in each differing JSON tree;
+- maximum observed absolute numeric drift `0.0005918592214584351`;
+- unchanged aggregate scientific result and unchanged verifier decision.
+
+The machine-readable reference for this audit is `audits/repro_wave_2026-08-13.json` and the reviewer-facing record is `audits/REPRO_WAVE_2026-08-13.md`.
+
+This artifact-integrity procedure is not a substitute for a fresh scientific rerun. It verifies that retained evidence and the written ledger agree.
+
 ## Reporting policy
 
 Report means, sample dispersion, paired deltas, sample count and confidence intervals where available. Do not claim significance without an appropriate predeclared analysis. Preserve negative results, low-order numerical drift, and reporting defects as part of the evidence trail.
