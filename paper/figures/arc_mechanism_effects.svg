@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="350" viewBox="0 0 920 350">
+<rect width="100%" height="100%" fill="white"/>
+<style>text{font-family:Arial,sans-serif;fill:#111}.label{font-size:17px}.small{font-size:13px}.title{font-size:22px;font-weight:700}</style>
+<text x="24" y="32" class="title">Paired mechanism effects on frozen ARC validation</text>
+<line x1="455" y1="58" x2="455" y2="270" stroke="#222" stroke-dasharray="6,6"/>
+<text x="420" y="294" class="small">zero effect</text>
+<text x="20" y="122" class="label">Full − no planner</text>
+<line x1="455" y1="115" x2="711.27" y2="115" stroke="#444" stroke-width="4"/>
+<line x1="455" y1="105" x2="455" y2="125" stroke="#444" stroke-width="2"/>
+<line x1="711.27" y1="105" x2="711.27" y2="125" stroke="#444" stroke-width="2"/>
+<circle cx="540.42" cy="115" r="7" fill="#111"/>
+<text x="720" y="122" class="small">+0.00475 [0.00000, 0.01424]</text>
+<text x="20" y="217" class="label">Full − no target</text>
+<line x1="210.93" y1="210" x2="455" y2="210" stroke="#444" stroke-width="4"/>
+<line x1="210.93" y1="200" x2="210.93" y2="220" stroke="#444" stroke-width="2"/>
+<line x1="455" y1="200" x2="455" y2="220" stroke="#444" stroke-width="2"/>
+<circle cx="332.97" cy="210" r="7" fill="#111"/>
+<text x="465" y="217" class="small">−0.00678 [−0.01356, 0.00000]</text>
+<text x="24" y="330" class="small">Bootstrap 95% intervals from retained evidence. Neither frozen mechanism-benefit criterion is met.</text>
+</svg>
