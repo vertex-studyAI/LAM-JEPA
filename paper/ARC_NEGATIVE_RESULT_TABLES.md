@@ -47,4 +47,4 @@ This is a bounded development characterization, not a broad inferiority theorem.
 
 ## Reproducibility wording
 
-Independent full scientific reruns reproduce the aggregate full/no-planner/no-target scores, paired mechanism effects, shuffled-label summary, verifier summary, and strict verifier verdict. Low-level per-example probability values are not byte-identical across independent runners; maximum observed numeric drift is approximately `5.9186e-4` with no non-numeric leaf changes.
+Independent full scientific reruns through retained attempt 4 reproduce the aggregate full/no-planner/no-target scores, paired mechanism effects, shuffled-label summary, verifier summary, and strict verifier verdict. Low-level per-example probability values are not byte-identical across independent runners. In the latest retained attempt-3→4 comparison, all non-numeric leaves are unchanged, aggregate summaries are exact, and the maximum observed numeric drift is `0.0007445961236953735`.
