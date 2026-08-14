@@ -1,7 +1,8 @@
 # LAM-JEPA on ARC-Challenge: A Reproducible Falsification-First Evaluation
 
 **Manuscript status:** evidence-backed working draft; not submission-ready.  
-**Scientific claim boundary:** the current ARC superiority and mechanism hypotheses are unsupported. This draft treats the negative/inconclusive result as the result rather than attempting to rescue it with the locked confirmatory test.
+**Scientific claim boundary:** the current ARC superiority and mechanism hypotheses are unsupported. This draft treats the negative/inconclusive result as the result rather than attempting to rescue it with the locked confirmatory test.  
+**Provenance companion:** `MANUSCRIPT_PROVENANCE.md`.
 
 ## Abstract
 
@@ -34,11 +35,15 @@ The present contribution is therefore best understood as a falsification-first e
 
 ## 3. Method
 
-### 3.1 LAM-JEPA configuration
+### 3.1 Source-grounded LAM-JEPA configuration
 
-The manuscript must describe only architecture components that are verified against the implementation and frozen configuration. The current evidence package identifies planner and target-path mechanisms as required ablation targets, but this draft does not reconstruct additional architecture details from project naming alone.
+The implementation used as the architectural source of truth defines a token/numeric multi-view encoder followed by a linear latent projector. The token branch embeds tokens with learned positional parameters, normalizes the token sequence and mean-pools it; an optional numeric input is projected separately. The two views are concatenated, fused by an MLP and normalized before projection into the latent space.
 
-**TODO before submission:** extract the exact module graph, tensor shapes, objective terms, quantization path, optimizer configuration, and inference path directly from the source/config files and lock them to the manuscript commit.
+When enabled, an EMA-updated vector quantizer maps the online latent to a codebook vector using nearest-code assignment and a straight-through estimator. Its repository objective exposes commitment and codebook penalties. The resulting latent can pass through a sparse-memory retrieval module with a gated correction. When the planner is enabled, a latent-action policy selects a discrete action and a residual transition model predicts a mean and log-variance for the next latent state; the frozen ARC controls use a one-step rollout (`model_steps=1`). Disabling the planner removes this rollout path.
+
+The target path contains a separately instantiated encoder and projector initialized from the online networks and updated by exponential moving average. When `use_target=False`, the implementation instead uses a detached online latent as the target representation. The model also exposes output-decoder, value, confidence, verifier, rubric, uncertainty and latent-summary heads. Their existence in the general package is not treated as evidence that each head contributes to ARC performance.
+
+The general repository loss combines supervised cross-entropy with weighted latent alignment, variance, covariance, uniformity, geodesic, confidence-calibration, verifier, trajectory-consistency, rubric and quantization terms. For the paper, benchmark-specific runner/config behavior takes precedence over the generic library objective. `MANUSCRIPT_PROVENANCE.md` records this source boundary and requires the final Method lock to remain tied to the frozen ARC runner rather than to architecture naming.
 
 ### 3.2 Capacity matching
 
@@ -74,7 +79,7 @@ Excluded rows are retained as evidence. The locked ARC test was not used to adju
 
 The full-controls validation uses:
 
-- five seeds;
+- five seeds (`1, 2, 3, 4, 5`);
 - 20 epochs;
 - batch size 32;
 - learning rate `0.0003`;
@@ -88,7 +93,7 @@ The pinned comparator path uses `microsoft/deberta-v3-xsmall` at immutable revis
 
 ### 4.4 Hardware and runtime boundary
 
-The frozen full-controls runs were executed on GitHub-hosted Ubuntu runners using Python 3.11 and CPU execution, as recorded in `EVIDENCE_AUDIT_20260813.md`. The manuscript does not infer a specific CPU model because the retained audit does not establish one. Independent reruns reproduced the aggregate scientific metrics and strict verifier output, while low-order floating-point differences remained in raw probability-bearing payloads; byte-exact raw floating-point identity is therefore not claimed.
+The frozen full-controls runs were executed on GitHub-hosted Ubuntu runners using Python 3.11 and CPU execution, as recorded in `EVIDENCE_AUDIT_20260813.md` and the frozen workflow. The manuscript does not infer a specific CPU model because the retained evidence does not establish one. Independent reruns reproduced the aggregate scientific metrics and strict verifier output, while low-order floating-point differences remained in raw probability-bearing payloads; byte-exact raw floating-point identity is therefore not claimed.
 
 ## 5. Results
 
@@ -195,6 +200,7 @@ Before submission, the artifact package must pin:
 - raw per-seed outputs;
 - aggregate tables and bootstrap calculation;
 - hardware/runtime metadata at the granularity actually retained;
+- claim/table/figure provenance via `MANUSCRIPT_PROVENANCE.md`;
 - license and citation metadata approved by the owner.
 
 Current source-level publication packaging remains incomplete until license/citation/provenance work is closed.
