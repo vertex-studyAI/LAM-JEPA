@@ -26,16 +26,11 @@ No claim of ARC superiority, planner benefit, target-mechanism benefit, quantiza
 
 ## 2. Related Work
 
-**Citation gate:** references must be verified before insertion. Do not invent citations.
+LAM-JEPA sits at the intersection of several established directions rather than introducing each ingredient from first principles. Joint-embedding predictive architectures predict representations of target content from context representations rather than reconstructing raw observations; I-JEPA established this approach for image representation learning [1]. Latent-action learning is also an established direction: LAPA learns discrete latent actions with a vector-quantized objective for action-model pretraining from video [2]. More directly relevant to the architectural combination, V-JEPA 2 couples JEPA-style video representations with an action-conditioned latent world model for planning [3], while subsequent latent-action world-model work studies learned action spaces and planning from action-free video [4]. These works mean that JEPA-style latent prediction, vector-quantized latent actions, and latent world-model planning should not be treated as individually novel contributions of the present study.
 
-The final related-work section should cover four narrowly relevant areas:
+Our empirical question is narrower. We test whether one small LAM-JEPA configuration provides measurable benefit on ARC-Challenge under a frozen protocol with a capacity-matched supervised baseline and mechanism ablations. ARC itself was introduced by Clark et al. as a natural grade-school science question-answering challenge intended to stress reasoning beyond earlier benchmarks [5]. We do not claim benchmark novelty.
 
-- joint-embedding predictive architectures and latent prediction;
-- representation learning on multiple-choice or reasoning benchmarks;
-- matched-capacity and ablation methodology for neural architectures;
-- reproducibility, preregistration, and negative-result reporting in machine learning.
-
-This draft intentionally leaves bibliographic entries unresolved until each source is checked against the final claim wording.
+The present contribution is therefore best understood as a falsification-first evaluation of a specific combined architecture. The current evidence does not establish planner or target-path benefit, so the architecture ancestry and the empirical contribution must remain separate. The value of the package lies in the frozen controls, matched comparison, adverse-result retention, repair provenance, independent reruns, and the explicit decision not to unlock the confirmatory test after validation failure.
 
 ## 3. Method
 
@@ -91,9 +86,9 @@ The full-controls validation uses:
 
 The pinned comparator path uses `microsoft/deberta-v3-xsmall` at immutable revision `14809e4f1fe1895fcba8b258271a940c6ca45ec4`.
 
-### 4.4 Hardware
+### 4.4 Hardware and runtime boundary
 
-**UNKNOWN IN THIS DRAFT.** Hardware must be copied from retained environment evidence or rerun metadata. Do not infer GPU/CPU type.
+The frozen full-controls runs were executed on GitHub-hosted Ubuntu runners using Python 3.11 and CPU execution, as recorded in `EVIDENCE_AUDIT_20260813.md`. The manuscript does not infer a specific CPU model because the retained audit does not establish one. Independent reruns reproduced the aggregate scientific metrics and strict verifier output, while low-order floating-point differences remained in raw probability-bearing payloads; byte-exact raw floating-point identity is therefore not claimed.
 
 ## 5. Results
 
@@ -122,6 +117,8 @@ Paired effects:
 - full minus `no_target`: `-0.0067796610`, 95% bootstrap CI `[-0.0135593220, 0.0]`.
 
 Neither required mechanism criterion is supported by the frozen evidence.
+
+The shuffled-label control is numerically competitive with the full configuration while still remaining below its separately frozen failure ceiling. We retain this adverse diagnostic rather than treating the ceiling pass as evidence for the representation mechanism. In a skeptical interpretation, the result increases concern that the current ARC signal is weak relative to optimization/noise effects.
 
 ### 5.3 Bounded pretrained comparison
 
@@ -153,13 +150,16 @@ The shuffled-label control should remain visible even though its numerical outco
 2. Failure to show superiority does not prove the architecture can never be useful on another task.
 3. The bounded DeBERTa comparison is not a full final comparator study.
 4. The repaired quantization path changes trainability but does not validate the original mechanism claim.
-5. Hardware/environment details still need to be tied explicitly to retained run metadata in this manuscript.
-6. Related-work references and publication metadata remain unresolved and must be verified rather than invented.
+5. The frozen run metadata establishes GitHub-hosted Ubuntu, Python 3.11 and CPU execution but not a specific CPU model.
+6. Publication metadata, owner-approved licensing/citation information, and independent external review remain unresolved.
 7. The locked confirmatory test cannot ethically be used as a rescue set after the validation hypothesis failed.
+8. The architectural ingredients substantially overlap established JEPA, latent-action and world-model planning directions; current evidence does not establish a novel mechanism.
 
 ## 8. Discussion
 
 The most useful result is methodological: the evidence pipeline prevented an executable research prototype from being mislabeled as a successful research result. Capacity matching removed one easy confound. Mechanism ablations prevented the full-model score from being attributed automatically to the planner or target path. The trainability repair demonstrated why engineering recovery and scientific validation must remain separate: a repair can make optimization behave better without producing the expected generalization advantage.
+
+The originality audit also changes the paper framing. By 2026, JEPA-style representation learning, latent actions and latent world-model planning are established directions. Because the current ablations do not validate the proposed mechanism, the paper should not claim novelty from their combination alone. Its stronger contribution is a traceable falsification of a concrete small-model hypothesis under matched controls and explicit stop rules.
 
 This makes the project a stronger candidate for a falsification-first technical report or reproducibility/negative-results submission than for a superiority paper in its current form.
 
@@ -169,7 +169,15 @@ Under the frozen ARC-Challenge validation protocol, the current LAM-JEPA evidenc
 
 ## References
 
-**TO BE VERIFIED.** No references are inserted in this draft until each citation is checked.
+[1] Mahmoud Assran, Quentin Duval, Ishan Misra, Piotr Bojanowski, Pascal Vincent, Michael Rabbat, Yann LeCun, Nicolas Ballas. *Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture*. arXiv:2301.08243, 2023.
+
+[2] Seonghyeon Ye, Joel Jang, Byeongguk Jeon, Sejune Joo, Jianwei Yang, Baolin Peng, Ajay Mandlekar, Reuben Tan, Yu-Wei Chao, Bill Yuchen Lin, Lars Liden, Kimin Lee, Jianfeng Gao, Luke Zettlemoyer, Dieter Fox, Minjoon Seo. *Latent Action Pretraining from Videos*. arXiv:2410.11758, 2024.
+
+[3] Mido Assran et al. *V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning*. arXiv:2506.09985, 2025.
+
+[4] Quentin Garrido, Tushar Nagarajan, Basile Terver, Nicolas Ballas, Yann LeCun, Michael Rabbat. *Learning Latent Action World Models In The Wild*. arXiv:2601.05230, 2026.
+
+[5] Peter Clark, Isaac Cowhey, Oren Etzioni, Tushar Khot, Ashish Sabharwal, Carissa Schoenick, Oyvind Tafjord. *Think you have Solved Question Answering? Try ARC, the AI2 Reasoning Challenge*. arXiv:1803.05457, 2018.
 
 ## Appendix A — Reproducibility package gate
 
@@ -186,7 +194,7 @@ Before submission, the artifact package must pin:
 - evaluation/recomputation command;
 - raw per-seed outputs;
 - aggregate tables and bootstrap calculation;
-- hardware metadata;
+- hardware/runtime metadata at the granularity actually retained;
 - license and citation metadata approved by the owner.
 
 Current source-level publication packaging remains incomplete until license/citation/provenance work is closed.
@@ -199,8 +207,10 @@ Current source-level publication packaging remains incomplete until license/cita
 | ARC external-benchmark plumbing implemented | Supported |
 | Five-seed frozen ARC validation executed | Supported |
 | Capacity-matched baseline comparison executed | Supported |
+| Aggregate scientific conclusion independently reproduced | Supported |
 | Planner improves ARC | Unsupported |
 | Target mechanism improves ARC | Unsupported |
 | LAM-JEPA beats matched supervised baseline | Unsupported |
 | Repaired quantization improves generalization | Unsupported |
+| LAM-JEPA introduces JEPA/latent actions/planning as new general techniques | Unsupported |
 | LAM-JEPA is research-complete | False |
