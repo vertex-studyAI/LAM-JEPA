@@ -1,9 +1,19 @@
 {
-  "schema_version": 4,
+  "schema_version": 5,
   "project": "LAM-JEPA",
   "wave_date": "2026-08-12",
-  "scientific_source_commit": "2f59b4297e5978d4ce769ebe95adb363e1e75d7a",
+  "scientific_source_commit": "760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb",
+  "pre_fix_seed_order_source_commit": "2f59b4297e5978d4ce769ebe95adb363e1e75d7a",
   "reproducibility_repair_main_commit": "b72a97a99769b278eb8ec75bc5eab62dc9599f29",
+  "metadata_corrections": [
+    {
+      "date": "2026-08-14",
+      "field": "scientific_source_commit",
+      "previous_value": "2f59b4297e5978d4ce769ebe95adb363e1e75d7a",
+      "corrected_value": "760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb",
+      "reason": "The previous top-level value duplicated the preserved pre-fix seed-order lineage. The full frozen ARC-v3 controls whose canonical metrics are summarized in this file were independently rerun from 760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb. The old value is retained explicitly as pre_fix_seed_order_source_commit and inside pre_fix_reproduction. No raw artifact, result, protocol, seed, threshold, or scientific conclusion is changed by this metadata correction."
+    }
+  ],
   "scientific_question": "Does LAM-JEPA outperform a capacity-matched supervised baseline on frozen ARC-Challenge validation, and do the planner, target path, or repaired quantized latent mechanism contribute a reproducible benefit?",
   "dataset": {
     "name": "ARC-Challenge",
@@ -85,13 +95,13 @@
     "approx_float_drift_scale": "1e-6 to 1e-7",
     "claim_boundary": "Semantic same-seed reproducibility is verified under the documented CI path; byte-for-byte checkpoint identity across independent GitHub runners is not claimed."
   },
-  "result": "ARC superiority and mechanism hypotheses unsupported; repaired validation negative or inconclusive; deterministic training seed-order defect repaired; four-attempt semantic same-seed CI replay verified with explicit cross-run numerical/serialization limitations.",
+  "result": "ARC superiority and mechanism hypotheses unsupported; repaired validation negative or inconclusive; deterministic training seed-order defect repaired; semantic same-seed CI replay verified with explicit cross-run numerical/serialization limitations.",
   "statistical_claim": "No new significance claim is made by this wave.",
   "limitations": [
     "Five frozen validation seeds do not justify broad benchmark-general significance claims.",
     "The locked ARC test must not be used to rescue this failed hypothesis line.",
     "The deterministic replay validates the repaired CI training entry point, not a new full five-seed ARC experiment.",
-    "Independent GitHub runners show low-order floating-point drift and non-identical serialized checkpoint bytes despite exact final loss and accuracy.",
+    "Independent GitHub runners show low-order floating-point drift and non-identical serialized checkpoint bytes despite exact aggregate/verifier scientific conclusions.",
     "The bounded DeBERTa comparison is development characterization rather than a final confirmatory inferiority trial."
   ]
 }
