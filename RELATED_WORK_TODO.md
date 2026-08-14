@@ -1,25 +1,21 @@
 # LAM-JEPA Related-Work Verification Ledger
 
 **Last verified:** 2026-08-14  
-**Purpose:** close the manuscript bibliography without inventing citations or inflating novelty.  
-**Scientific source boundary:** architecture statements refer to frozen commit `760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb` unless explicitly labeled as later repair/evidence tooling.
+**Purpose:** close the ARC negative-result bibliography without inventing citations or inflating novelty.  
+**Scientific source boundary:** ARC architecture statements refer to frozen commit `760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb` unless explicitly labeled as later repair/evidence tooling.
 
 ## Accepted primary sources
 
-A source below is eligible for manuscript insertion because its title/authors/year/source/identifier and supported claim were checked against a primary paper page.
-
 ### RW-01 — I-JEPA
-
 - **Title:** Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture
 - **Authors:** Mahmoud Assran; Quentin Duval; Ishan Misra; Piotr Bojanowski; Pascal Vincent; Michael Rabbat; Yann LeCun; Nicolas Ballas
 - **Year/source:** 2023, arXiv
 - **Identifier:** arXiv:2301.08243
-- **Supports:** JEPA/representation-space prediction; context-to-target embedding prediction; learned target encoder updated by EMA; collapse concerns in joint-embedding learning.
-- **Novelty effect:** prevents LAM-JEPA from claiming representation-space prediction or EMA targets as novel.
+- **Supports:** canonical JEPA representation-space prediction; context-to-distinct-target embedding prediction; learned target encoder updated by EMA.
+- **Novelty effect:** prevents representation-space targets or EMA target encoders from being claimed as novel; also provides a contrast showing that the frozen ARC path is not a canonical I-JEPA context/target task.
 - **Status:** VERIFIED.
 
 ### RW-02 — VQ-VAE
-
 - **Title:** Neural Discrete Representation Learning
 - **Authors:** Aaron van den Oord; Oriol Vinyals; Koray Kavukcuoglu
 - **Year/source:** 2017 (revised 2018), arXiv
@@ -28,38 +24,25 @@ A source below is eligible for manuscript insertion because its title/authors/ye
 - **Novelty effect:** prevents a generic vector-quantization/discrete-code novelty claim.
 - **Status:** VERIFIED.
 
-### RW-03 — VICReg
-
-- **Title:** VICReg: Variance-Invariance-Covariance Regularization for Self-Supervised Learning
-- **Authors:** Adrien Bardes; Jean Ponce; Yann LeCun
-- **Year/source:** 2021, arXiv
-- **Identifier:** arXiv:2105.04906
-- **Supports:** explicit variance and covariance regularization to stabilize non-contrastive representation learning.
-- **Novelty effect:** LAM-JEPA's variance/covariance loss terms are established categories, not mechanism novelty.
-- **Status:** VERIFIED.
-
-### RW-04 — ARC
-
+### RW-03 — ARC
 - **Title:** Think you have Solved Question Answering? Try ARC, the AI2 Reasoning Challenge
 - **Authors:** Peter Clark; Isaac Cowhey; Oren Etzioni; Tushar Khot; Ashish Sabharwal; Carissa Schoenick; Oyvind Tafjord
 - **Year/source:** 2018, arXiv
 - **Identifier:** arXiv:1803.05457
-- **Supports:** provenance and intended difficulty/scope of the AI2 Reasoning Challenge benchmark family.
+- **Supports:** provenance and intended scope of the AI2 Reasoning Challenge benchmark family.
 - **Novelty effect:** benchmark use is not a contribution by itself.
 - **Status:** VERIFIED.
 
-### RW-05 — DeBERTaV3
-
+### RW-04 — DeBERTaV3
 - **Title:** DeBERTaV3: Improving DeBERTa using ELECTRA-Style Pre-Training with Gradient-Disentangled Embedding Sharing
 - **Authors:** Pengcheng He; Jianfeng Gao; Weizhu Chen
 - **Year/source:** 2021 arXiv; conference paper at ICLR 2023
 - **Identifier:** arXiv:2111.09543
-- **Supports:** provenance of the DeBERTaV3 model family used for the pinned bounded pretrained comparison.
+- **Supports:** provenance of the DeBERTaV3 family used for the bounded pretrained comparison.
 - **Novelty effect:** comparator only; no SOTA inference from the project's development slice.
 - **Status:** VERIFIED.
 
-### RW-06 — FF-JEPA
-
+### RW-05 — FF-JEPA
 - **Title:** FF-JEPA: Long-Horizon Planning in World Models with Latent Planners
 - **Authors:** Sergi Masip; Jonathan Swinnen; Yutong Hu; Renaud Detry; Tinne Tuytelaars
 - **Year/source:** 2026, arXiv
@@ -68,8 +51,7 @@ A source below is eligible for manuscript insertion because its title/authors/ye
 - **Novelty effect:** prevents a generic claim that adding a latent planner to a JEPA setting is novel.
 - **Status:** VERIFIED.
 
-### RW-07 — reproducibility programme
-
+### RW-06 — reproducibility programme
 - **Title:** Improving Reproducibility in Machine Learning Research (A Report from the NeurIPS 2019 Reproducibility Program)
 - **Authors:** Joelle Pineau; Philippe Vincent-Lamarre; Koustuv Sinha; Vincent Lariviere; Alina Beygelzimer; Florence d'Alche-Buc; Emily Fox; Hugo Larochelle
 - **Year/source:** 2021, Journal of Machine Learning Research 22(164):1–20
@@ -78,64 +60,79 @@ A source below is eligible for manuscript insertion because its title/authors/ye
 - **Novelty effect:** the LAM evidence pipeline may be useful engineering, but reproducibility practice is not invented here.
 - **Status:** VERIFIED.
 
-## A. Joint-embedding predictive architectures
+### Optional library-context source — VICReg
+- **Title:** VICReg: Variance-Invariance-Covariance Regularization for Self-Supervised Learning
+- **Authors:** Adrien Bardes; Jean Ponce; Yann LeCun
+- **Year/source:** 2021, arXiv
+- **Identifier:** arXiv:2105.04906
+- **Use only if needed:** the repository's generic non-ARC loss library contains variance/covariance terms, but the frozen ARC benchmark `_lam_arc_loss` does **not** use those terms. Do not cite VICReg as if it were part of the reported ARC objective.
+- **Status:** VERIFIED / NOT REQUIRED FOR CURRENT ARC RESULTS.
 
-**Status: VERIFIED for the claims needed by the current negative-result manuscript.**
+## A. JEPA / target-encoder positioning
 
-The manuscript may cite RW-01 for the core JEPA idea and RW-06 when discussing why latent-planner novelty language is unsafe in 2026. The paper should describe LAM-JEPA as a **hybrid JEPA-style objective**, because the frozen implementation includes supervised cross-entropy and several auxiliary/regularization terms rather than the pure I-JEPA masked-image objective.
+**Status: VERIFIED.**
 
-Do not imply that latent-space prediction, EMA targets, stop-gradient target representations, or planning in JEPA/world-model settings are new to this project.
+RW-01 provides the canonical comparison. I-JEPA predicts representations of distinct masked target blocks from a context block. By contrast, the frozen LAM ARC forward computes `target_z` by running the EMA target encoder/projector on the **same `tokens` and `numeric_x`** supplied to the online encoder. The ARC loss then aligns `z_q` to this same-input EMA representation.
+
+Required manuscript wording: describe the tested model as the project-named **LAM-JEPA** or as a **same-input EMA target-alignment architecture**. Do not imply that the frozen ARC experiment instantiated canonical context-to-future/masked-target JEPA prediction.
 
 ## B. Discrete/quantized latent representation learning
 
-**Status: VERIFIED for generic prior-art boundary; specialized codebook-collapse bibliography remains OPTIONAL.**
+**Status: VERIFIED for generic prior-art boundary.**
 
-RW-02 establishes vector-quantized discrete latent learning as prior art. The repository's trainability repair is an engineering result under a frozen train-only gate, not evidence that vector quantization is new or generally superior.
+RW-02 establishes vector-quantized discrete latent learning as prior art. The later trainability repair is an engineering result under a frozen train-only gate, not evidence that vector quantization is new or generally superior.
 
-A specialized citation on codebook collapse/dead codes may be added only if the final discussion makes a literature-level claim about that phenomenon. It is not required merely to report the repository's observed trainability failure.
+A specialized codebook-collapse citation is optional only if the final discussion makes a literature-level claim beyond the repository's own diagnostic observation.
 
-## C. ARC and multiple-choice reasoning baselines
+## C. ARC and pretrained comparison
 
-**Status: VERIFIED for dataset and pinned model family.**
+**Status: VERIFIED.**
 
-Use RW-04 for ARC provenance and RW-05 for the DeBERTaV3 family. The pinned repository comparator revision remains the source of truth for the exact `microsoft/deberta-v3-xsmall` artifact used by the experiment.
+Use RW-03 for ARC provenance and RW-04 for the DeBERTaV3 family. The repository's pinned model revision remains the source of truth for the exact `microsoft/deberta-v3-xsmall` artifact used.
 
-Do not compare this frozen validation result to unrelated public test-set/SOTA numbers. The project's locked ARC confirmatory test remains untouched for the failed hypothesis.
+Do not compare the frozen validation result to unrelated public test-set/SOTA numbers. The locked ARC confirmatory test remains untouched for the failed hypothesis.
 
-## D. Ablation, capacity matching, and negative controls
+## D. Planner / world-model novelty boundary
+
+**Status: VERIFIED enough to block broad novelty language.**
+
+RW-05 shows explicit latent planning in a JEPA/world-model setting by June 2026. The current paper therefore cannot claim that “latent planner + JEPA” is generically new. The LAM ARC planner is a short discrete latent-action rollout evaluated only through the bounded ARC setup.
+
+## E. Ablation, capacity matching, and negative controls
 
 **Status: SOURCE-LOCAL CLAIM ONLY; no novelty citation required.**
 
-The paper can report exactly what it did: gradient-active parameter matching, `no_planner`, `no_target`, and deterministic shuffled-label controls. It must not claim the matching rule or ablation methodology is novel. If a venue later requires a methodological citation, add one only after primary-source verification.
+The paper can report exactly what it did: gradient-active parameter matching, `no_planner`, `no_target`, and deterministic shuffled-label controls. It must not claim the matching rule or ablation methodology is novel.
 
-## E. Reproducibility, preregistration, and negative results in ML
+## F. Reproducibility and adverse-result retention
 
 **Status: PARTIAL / SUFFICIENT FOR CURRENT DRAFT.**
 
-RW-07 supports the importance of reproducibility practice. The project's stronger claim is local and artifact-backed: the protocol, adverse results, hashes, replay attempts, and stop rule are retained. Do not claim that preregistration or negative-result reporting was invented here.
+RW-06 supports the general value of reproducibility. The project's stronger statements are local and artifact-backed: protocol/configs, adverse results, hashes, replay attempts, and the stop rule are retained. Do not claim preregistration or negative-result reporting was invented here.
 
-Venue-specific checklist/preregistration references can be added after a target venue is selected.
+## G. Determinism and floating-point reproducibility
 
-## F. Determinism and floating-point reproducibility
+**Status: EMPIRICAL REPOSITORY EVIDENCE COMPLETE; OPTIONAL FRAMEWORK DOC CITATION OPEN.**
 
-**Status: EMPIRICAL REPOSITORY EVIDENCE COMPLETE; OPTIONAL DOC CITATION STILL OPEN.**
-
-Required wording remains:
+Required wording:
 
 > independent reruns reproduce the aggregate scientific conclusion and verifier outputs; low-level probabilities/checkpoint bytes are not claimed bitwise identical across all platforms/releases.
 
-If the final manuscript explicitly discusses framework-level determinism, verify and cite the then-current official PyTorch reproducibility documentation. Do not use framework documentation to imply bitwise portability that it does not guarantee.
+If the final manuscript discusses framework-level determinism, verify the then-current official PyTorch reproducibility documentation before citation.
 
-## Source-verified architecture warning
+## Frozen ARC source warnings
 
-The frozen ARC scientific source does **not** contain a Transformer block in `TokenEncoder`: after embedding plus learned positional vectors, `self.encoder = nn.Identity()`, followed by layer normalization and mean pooling. Therefore manuscript wording such as “Transformer encoder” is forbidden for the frozen tested configuration unless referring to a distinct later implementation.
+These points must survive editorial cleanup:
 
-Likewise, the frozen `total_loss` combines classification cross-entropy with target alignment, variance/covariance/uniformity/geodesic regularization, confidence/verifier/rubric terms, trajectory consistency, and quantization. The paper should not characterize the evaluated objective as pure self-supervised JEPA training.
+1. `text_to_tokens` lowercases/splits whitespace tokens and maps each token deterministically with BLAKE2b into a 256-entry vocabulary. The ARC adapter uses a 96-token maximum.
+2. ARC `numeric_x` is zero for every example, so the numeric branch supplies no example-varying information in this benchmark.
+3. `TokenEncoder.encoder = nn.Identity()`; after embedding + learned positional vectors, the encoder applies `LayerNorm` and mean pooling. “Transformer encoder” is forbidden for the frozen ARC configuration.
+4. The ARC-specific objective is `_lam_arc_loss = CE + 0.5*alignment + 0.25*quantization + 0.25*trajectory`. The larger repository `total_loss` is not the reported ARC training objective.
+5. The alignment target is the EMA target encoder/projector on the same input, not a separate future/masked target view.
 
 ## Citation acceptance gate
 
 Any additional reference enters the manuscript only when all fields are recorded:
-
 - exact title;
 - authors;
 - year;
