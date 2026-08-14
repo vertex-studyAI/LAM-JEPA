@@ -22,22 +22,28 @@ A missing edge is a paper-package blocker. Processed summaries are not substitut
 | shuffled-label control `0.2630508393 ± 0.0145011803` below 0.35 ceiling | strict verifier + aggregate | same artifacts | deterministic shuffled-label arm | `760aa7...` | **COMPLETE** |
 | aggregate/verifier conclusion independently reproduced with low-order raw drift | `EVIDENCE_AUDIT_20260813.md` | attempt-2/3 artifacts and comparison | independent GitHub-hosted runs of frozen workflow | `760aa7...` | **COMPLETE** |
 
-## B. Capacity-matched supervised comparison — partial chain
+## B. Capacity-matched supervised comparison — complete chain
+
+The exact full-budget matched-comparison raw artifact was recovered from the frozen V3 workflow rather than inferred from summary prose.
 
 | Claim | Processed evidence | Raw artifact | Protocol / source | Status |
 |---|---|---|---|---|
-| active parameters LAM `86,372`, supervised `86,644` | `RESULTS.md`; `RESEARCH_STATUS.md`; `EVIDENCE_AUDIT_20260813.md` | repository records a retained matched-baseline lineage, but the paper-facing ledgers inspected in this closure do **not name an exact artifact ID/digest** | frozen matched-baseline path, same validation data/paired seed budget | **PARTIAL — RAW ARTIFACT POINTER REQUIRED** |
-| LAM `0.2549152542 ± 0.0129968064`; matched `0.2664406780 ± 0.0154600058`; paired `-0.0115254237 ± 0.0140994131` | same processed ledgers plus `experiments/reproducibility-wave-20260812.json` | exact raw artifact pointer/digest not yet surfaced here | frozen matched-baseline lineage | **PARTIAL — RAW ARTIFACT POINTER REQUIRED** |
+| active parameters LAM `86,372`, supervised `86,644`, ratio `1.0031491687` | `RESULTS.md`; `RESEARCH_STATUS.md`; `EVIDENCE_AUDIT_20260813.md` | workflow run `31203337225`, full job `92948597957`, artifact `9003785715` (`arc-matched-v3-validation-full`), digest `sha256:132688567583372ec7562e0b1f2223f6cb964655df25f410edded392688dda8b` | `.github/workflows/arc-matched-v3-validation.yml`; seeds 1–5; 20 epochs; batch 32; LR `0.0003`; train 1117; validation 295; CPU; scientific source `760aa7...` | **COMPLETE** |
+| LAM `0.2549152542 ± 0.0129968064`; matched `0.2664406780 ± 0.0154600058`; paired `-0.0115254237 ± 0.0140994131` | same processed ledgers plus `experiments/reproducibility-wave-20260812.json` | same run/job/artifact/digest | same frozen full-budget matched path | **COMPLETE** |
 
-The result remains reportable as retained evidence, but the paper package is not provenance-complete until the exact raw matched-baseline artifact is located or the absence is explicitly documented.
+The full job logs verify the requested 5-seed/20-epoch budget, all 1,117 eligible training rows and 295 eligible validation rows, gradient-active parameter accounting, and validation-only claim boundary.
 
-## C. Bounded pretrained characterization — partial chain
+## C. Bounded pretrained DeBERTa characterization — complete provenance, bounded science
+
+The adverse `0.15625` vs `0.21875` comparison is a **tiny two-seed development smoke**, not a final matched or confirmatory baseline. Completing its provenance does not promote its scientific status.
 
 | Claim | Processed evidence | Raw artifact | Protocol / source | Status |
 |---|---|---|---|---|
-| pinned `microsoft/deberta-v3-xsmall@14809e4f1fe1895fcba8b258271a940c6ca45ec4`; LAM `0.15625`, DeBERTa `0.21875`, delta `-0.0625` | `RESULTS.md`; `RESEARCH_STATUS.md`; machine-readable reproducibility summary | exact comparator artifact ID/digest is not named in the paper-facing ledgers inspected in this closure | retained pretrained comparator path; pinned model revision | **PARTIAL — RAW ARTIFACT POINTER REQUIRED** |
+| frozen `microsoft/deberta-v3-xsmall@14809e4f1fe1895fcba8b258271a940c6ca45ec4`; 70,830,337 trainable parameters; LAM `0.15625`; DeBERTa `0.21875`; paired delta `-0.0625` | issue #10 adverse-evidence record; `RESULTS.md`; `RESEARCH_STATUS.md`; `EVIDENCE_AUDIT_20260813.md` | dedicated `ARC protocol DeBERTa baseline` workflow run `31193106007`; artifact `8999680432` (`arc-protocol-deberta-smoke`); digest `sha256:f56a9e5e76a008dd655f56ace84cd308122990354e12b77a1fff998936f4e8a8` | PR #20 head `e4046d1a9725fe62f32c575c128dc0503e2118a1`; two seeds; 8 train rows; 16 validation rows; one gradient step/seed; locked test absent; canonical implementation later retained via PR #23 | **COMPLETE PROVENANCE / DEVELOPMENT-ONLY CLAIM** |
 
-This comparison is development characterization even if its provenance chain is completed.
+The verifier verdict was `FROZEN_DEBERTA_BASELINE_EXECUTION_VERIFIED_ONLY`. Issue #10 records that the exact frozen model revision and the adverse means/delta were later reproduced exactly, while still marking the run as non-confirmatory and capacity/compute unmatched.
+
+A different later workflow artifact (`9003740436`) is only another DeBERTa execution smoke and is **not** used as provenance for the `0.21875` manuscript number.
 
 ## D. Repaired-v5 line
 
@@ -70,36 +76,36 @@ All source claims below refer to scientific SHA `760aa7f9a73a177d5ff4ba7eb470f7e
 
 ## F. Figure/table provenance
 
-Existing paper displays must be treated as generated views of retained evidence, not independent sources:
+Existing paper displays are generated views of retained evidence, not independent sources:
 
 - `paper/ARC_NEGATIVE_RESULT_TABLES.md` — canonical frozen result tables;
 - `paper/figures/arc_mechanism_effects.svg` — mechanism-effect visualization from retained paired effects;
-- any final comparison figure must show the adverse matched baseline and the shuffled-label control without selective omission.
+- any final comparison figure must show the adverse matched baseline and shuffled-label control without selective omission.
 
 Before public release, each figure/table must expose its generation command/source data in the release manifest.
 
 ## G. Metadata defects and corrections
 
 1. The frozen full-controls raw payload contains one stale prose sentence implying the final five-seed/20-epoch invocation had not occurred. Executed arguments and the independent verifier establish that the final budget did execute. The raw artifact remains preserved unchanged; this is a documented reporting-metadata defect.
-2. `experiments/reproducibility-wave-20260812.json` has historically carried a top-level `scientific_source_commit` pointing to the pre-fix seed-order source `2f59b429...` even though the canonical full-controls metrics are tied to `760aa7...`. This must be corrected transparently by preserving the old value as pre-fix lineage and recording a metadata-correction note. No scientific value may change.
+2. `experiments/reproducibility-wave-20260812.json` historically carried a top-level `scientific_source_commit` pointing to the pre-fix seed-order source `2f59b429...` even though the canonical full-controls metrics are tied to `760aa7...`. PR #76 corrected that metadata transparently: `760aa7...` is now the full-controls source, while `2f59b429...` is preserved explicitly as the pre-fix seed-order lineage. No raw artifact, result, protocol, seed, threshold, or scientific conclusion changed.
 
 ## H. Current paper provenance verdict
 
-### GREEN
+### GREEN — internal quantitative provenance
 
 - frozen full/no-planner/no-target/shuffled-control quantitative evidence;
 - independent full rerun artifact IDs/digests;
+- capacity-matched full-budget raw artifact/digest;
+- bounded adverse DeBERTa smoke raw artifact/digest and explicit development-only boundary;
 - exact ARC source/model/objective boundary;
 - locked-test non-access;
 - seed-order bug/fix lineage;
 - negative scientific conclusion.
 
-### NOT GREEN
+### NOT GREEN — release/external gates
 
-- exact raw matched-supervised artifact pointer/digest in the paper-facing chain;
-- exact raw pretrained-comparator artifact pointer/digest in the paper-facing chain;
 - final figure/table generation manifest;
 - owner-approved license/authorship/citation metadata;
 - independent outside reproduction/review.
 
-**Package state:** `EVIDENCE_STRONG / PROVENANCE_PARTIAL / EXTERNAL_VALIDATION_PENDING / NOT_SUBMISSION_READY`.
+**Package state:** `INTERNAL_QUANTITATIVE_PROVENANCE_GREEN / EXTERNAL_VALIDATION_PENDING / RELEASE_METADATA_PENDING / NOT_SUBMISSION_READY`.
