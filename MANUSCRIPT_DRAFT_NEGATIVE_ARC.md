@@ -1,7 +1,8 @@
 # LAM-JEPA on ARC-Challenge: A Reproducible Falsification-First Evaluation
 
-**Manuscript status:** evidence-backed working draft; not submission-ready.  
-**Scientific claim boundary:** the current ARC superiority and mechanism hypotheses are unsupported. This draft treats the negative/inconclusive result as the result rather than attempting to rescue it with the locked confirmatory test.
+**Manuscript status:** evidence-backed working draft; internally close to external-review packaging, but not publication-ready.  
+**Scientific claim boundary:** the current ARC superiority and mechanism hypotheses are unsupported. This draft treats the negative/inconclusive result as the result rather than attempting to rescue it with the locked confirmatory test.  
+**Provenance companion:** `MANUSCRIPT_PROVENANCE.md`.
 
 ## Abstract
 
@@ -26,26 +27,39 @@ No claim of ARC superiority, planner benefit, target-mechanism benefit, quantiza
 
 ## 2. Related Work
 
-**Citation gate:** references must be verified before insertion. Do not invent citations.
+### 2.1 Joint-embedding predictive architectures
 
-The final related-work section should cover four narrowly relevant areas:
+Joint-Embedding Predictive Architectures predict target representations from context representations instead of directly reconstructing the original input. I-JEPA provides a canonical image-domain instantiation with a learned target encoder updated by exponential moving average. LAM-JEPA shares the broad representation-space prediction and online/target asymmetry, so neither latent-space prediction nor EMA target networks are claimed as novel here.
 
-- joint-embedding predictive architectures and latent prediction;
-- representation learning on multiple-choice or reasoning benchmarks;
-- matched-capacity and ablation methodology for neural architectures;
-- reproducibility, preregistration, and negative-result reporting in machine learning.
+More recent JEPA work further narrows the novelty boundary. V-JEPA 2 extends self-supervised video representations to action-conditioned latent world modeling and planning. Current work also studies latent-action pretraining and latent-action world models. Consequently, the combination of predictive latent representations, latent actions, vector quantization, and planning cannot by itself support a mechanism-novelty claim for LAM-JEPA. The present manuscript instead evaluates a particular reasoning-oriented configuration and reports what its frozen controls do and do not support. `RELATED_WORK_AUDIT_20260814.md` maintains the conservative originality boundary and current source-verification state.
 
-This draft intentionally leaves bibliographic entries unresolved until each source is checked against the final claim wording.
+### 2.2 Discrete latent representations
+
+Vector-quantized latent learning predates this project; VQ-VAE is a foundational example. LAM-JEPA's quantizer therefore constitutes an implementation/design choice rather than a novel discrete-representation mechanism. This distinction matters because the later ARC-v5 engineering repair altered trainability around the quantized path but did not establish a quantization generalization benefit.
+
+### 2.3 ARC and pretrained language-model characterization
+
+The AI2 Reasoning Challenge (ARC) was introduced as a grade-school science question-answering benchmark with separate Challenge and Easy sets. This study uses the frozen ARC-Challenge train/validation path and deliberately keeps the confirmatory test unavailable after the validation hypothesis fails. A pinned DeBERTa-v3-xsmall checkpoint is retained as a bounded pretrained characterization comparator. Its adverse comparison is not promoted into a broad statement that LAM-JEPA is inferior to all pretrained language models.
+
+### 2.4 Ablation, falsification, and reproducibility
+
+The methodological emphasis in this paper is conservative rather than novel: match a competent baseline, freeze the protocol, preserve adverse controls, keep paired seed structure, distinguish engineering repairs from scientific validation, and stop rather than opening a locked test set after a failed validation hypothesis. Gradient-active parameter matching is used here to reduce one capacity confound; it is not claimed as a new experimental principle.
 
 ## 3. Method
 
-### 3.1 LAM-JEPA configuration
+### 3.1 Source-grounded architecture
 
-The manuscript must describe only architecture components that are verified against the implementation and frozen configuration. The current evidence package identifies planner and target-path mechanisms as required ablation targets, but this draft does not reconstruct additional architecture details from project naming alone.
+The current repository implementation receives token inputs and optional numeric features through a multi-view encoder. The token path embeds tokens with learned positional parameters, normalizes them, and mean-pools across the sequence; the numeric path projects a fixed-width numeric vector. The two representations are concatenated, fused by an MLP, normalized, and projected into the model's latent dimension.
 
-**TODO before submission:** extract the exact module graph, tensor shapes, objective terms, quantization path, optimizer configuration, and inference path directly from the source/config files and lock them to the manuscript commit.
+When enabled, an EMA-updated vector quantizer maps the online latent to a codebook vector with straight-through gradients and a commitment/codebook penalty. An optional sparse-memory module retrieves a memory vector and applies a gated correction. The planner is implemented by a latent-action module: a policy selects one of a finite set of latent actions and a residual transition network predicts a mean and log-variance for the next latent state. The frozen ARC full-controls experiment uses `model_steps=1`; disabling the planner removes this rollout path.
 
-### 3.2 Capacity matching
+The target path contains a separate encoder and projector initialized from the online networks and updated by exponential moving average using the configured momentum. When `use_target=False`, the target representation is replaced by a detached online representation. The model also exposes output-decoder, value, confidence, verifier, rubric, uncertainty, and latent-summary heads. The ARC paper makes claims only about components actually exercised and controlled by its frozen benchmark path.
+
+### 3.2 General repository objective and benchmark boundary
+
+The general source implementation defines a composite objective containing supervised cross-entropy plus weighted latent alignment, variance, covariance, uniformity, geodesic, confidence-calibration, verifier, trajectory-consistency, rubric, and quantization terms. The benchmark paper does not infer that every repository objective term is scientifically validated. Any ARC-specific simplification or override in the frozen benchmark runner takes precedence for describing the experiment, and the final method lock must remain traceable to the frozen runner/config rather than to project naming.
+
+### 3.3 Capacity matching
 
 The supervised comparator is matched using gradient-active parameter count under the ARC objective rather than nominal total parameter count. The frozen counts are:
 
@@ -56,13 +70,13 @@ The supervised comparator is matched using gradient-active parameter count under
 
 The ratio is `1.0031491687`.
 
-### 3.3 Mechanism controls
+### 3.4 Mechanism controls
 
 The required validation controls include the full model, `no_planner`, `no_target`, and a deterministic shuffled-label control. These are evaluated under the same frozen five-seed validation budget.
 
-### 3.4 Trainability repair
+### 3.5 Trainability repair
 
-A train-only investigation localized a failure to the quantized latent path. The opt-in repair `arc-v5-stable-ema-residual-0.03125` passed its bounded trainability gate and was independently reproduced before repaired validation. It must be treated as a new repaired configuration, not retroactive evidence for the original hard-VQ mechanism.
+A train-only investigation localized a failure to the quantized latent path. The opt-in repair `arc-v5-stable-ema-residual-0.03125` passed its bounded trainability gate and was independently reproduced before repaired validation. It is treated as a new repaired configuration, not retroactive evidence for the original hard-VQ mechanism.
 
 ## 4. Experimental Setup
 
@@ -73,27 +87,30 @@ The ARC-Challenge protocol preserves source order and uses a feature-only eligib
 - train: 1,117 / 1,119 rows;
 - validation: 295 / 299 rows.
 
-Excluded rows are retained as evidence. The locked ARC test was not used to adjudicate the failed superiority claim.
+Excluded rows are retained as evidence. The locked ARC test was not downloaded or used to adjudicate the failed superiority claim.
 
 ### 4.2 Frozen validation budget
 
 The full-controls validation uses:
 
-- five seeds;
+- seeds `1, 2, 3, 4, 5`;
 - 20 epochs;
 - batch size 32;
 - learning rate `0.0003`;
 - model steps 1;
 - all 1,117 eligible training rows;
-- all 295 eligible validation rows.
+- all 295 eligible validation rows;
+- CPU execution.
+
+The workflow independently verifies this budget and asserts that the locked test was not evaluated.
 
 ### 4.3 Pretrained comparator
 
 The pinned comparator path uses `microsoft/deberta-v3-xsmall` at immutable revision `14809e4f1fe1895fcba8b258271a940c6ca45ec4`.
 
-### 4.4 Hardware
+### 4.4 Execution environment
 
-**UNKNOWN IN THIS DRAFT.** Hardware must be copied from retained environment evidence or rerun metadata. Do not infer GPU/CPU type.
+The retained full-controls workflow executes on a GitHub-hosted `ubuntu-latest` runner, configures Python `3.11`, installs the CPU PyTorch wheel, and invokes the benchmark with `--device cpu`. The exact physical CPU model of the hosted runner is not retained in the current evidence and is therefore not claimed.
 
 ## 5. Results
 
@@ -141,39 +158,64 @@ The independent recomputation verdict for the repaired ARC-v5 validation is:
 
 The repair improved the declared trainability gate but did not establish the preregistered generalization or quantization-benefit claims.
 
-## 6. Ablations
+## 6. Ablations and robustness checks
 
-The current manuscript-ready ablations are `no_planner` and `no_target`. The final paper should not add post-hoc ablations and present them as preregistered. Any new architecture repair, benchmark, or mechanism variant must be versioned as a separate hypothesis with a new validation protocol.
+The manuscript-ready architecture ablations are `no_planner` and `no_target`; the shuffled-label control is retained as a diagnostic negative control. The final paper does not relabel post-hoc experiments as preregistered. Any new architecture repair, benchmark, mechanism variant, or causal diagnostic must be versioned as a separate hypothesis with a new protocol.
 
-The shuffled-label control should remain visible even though its numerical outcome is not favorable to an intuitive narrative. Its purpose is diagnostic, not rhetorical.
+Independent reruns reproduce the aggregate scientific conclusion and strict verifier output, but the raw probability-bearing payloads are not byte-identical across independent hosted runners. The retained comparison found low-order numerical drift while preserving non-numeric content and the declared conclusion. This is reported as the reproducibility boundary rather than hidden.
 
-## 7. Limitations
+## 7. Failure Analysis
+
+Three failure boundaries matter for interpretation.
+
+First, the full model does not outperform the capacity-matched supervised comparator under the frozen validation. Second, removing the planner does not produce a sufficiently adverse change to support a planner-benefit claim, while removing the target path has a numerically higher mean accuracy than the full model. Third, a trainability repair around the quantized path improves a bounded optimization gate but does not convert the later validation into positive generalization evidence.
+
+These outcomes are consistent with several possible explanations—optimization difficulty, prediction-support collapse, component non-use, confounding among objective terms, or a mismatch between the architecture and the benchmark—but the current experiment does not identify one of these as a proven causal explanation. Mechanism language is therefore deliberately weaker than outcome language.
+
+## 8. Limitations
 
 1. The current scientific conclusion is specific to the frozen ARC line and tested configurations.
 2. Failure to show superiority does not prove the architecture can never be useful on another task.
 3. The bounded DeBERTa comparison is not a full final comparator study.
 4. The repaired quantization path changes trainability but does not validate the original mechanism claim.
-5. Hardware/environment details still need to be tied explicitly to retained run metadata in this manuscript.
-6. Related-work references and publication metadata remain unresolved and must be verified rather than invented.
-7. The locked confirmatory test cannot ethically be used as a rescue set after the validation hypothesis failed.
+5. Hosted-runner OS/Python/CPU execution is recorded, but exact CPU model and full hardware microarchitecture are not retained.
+6. The related-work audit is substantially improved but still requires a final manuscript-specific sweep before submission.
+7. The locked confirmatory test cannot be used as a rescue set after the validation hypothesis failed.
+8. The current ablations establish lack of measured component benefit under this protocol; they do not prove why the components failed.
 
-## 8. Discussion
+## 9. Reproducibility
 
-The most useful result is methodological: the evidence pipeline prevented an executable research prototype from being mislabeled as a successful research result. Capacity matching removed one easy confound. Mechanism ablations prevented the full-model score from being attributed automatically to the planner or target path. The trainability repair demonstrated why engineering recovery and scientific validation must remain separate: a repair can make optimization behave better without producing the expected generalization advantage.
+The frozen full-controls workflow downloads only checksum-addressed ARC train and validation splits, asserts the absence of the test parquet, runs the fixed five-seed/20-epoch controls on CPU, and independently verifies the resulting budget and claim boundary. The evidence audit retains two independent full scientific reruns, artifact digests, the pre-fix deterministic seed-order defect, the minimal seed-before-model-construction repair, and the unchanged negative/inconclusive conclusion.
 
-This makes the project a stronger candidate for a falsification-first technical report or reproducibility/negative-results submission than for a superiority paper in its current form.
+`MANUSCRIPT_PROVENANCE.md` records the claim-to-artifact chain and the allowed figure/table sources. `REPRODUCE.md`, `RELEASE_PROVENANCE.md`, and the frozen protocol/workflow files define the executable package. A final public release still requires an immutable release revision plus owner-approved legal and citation metadata.
 
-## 9. Conclusion
+## 10. Broader Impact and Research Practice
 
-Under the frozen ARC-Challenge validation protocol, the current LAM-JEPA evidence does not support superiority over a capacity-matched supervised baseline and does not validate the planner or target mechanisms. A later trainability repair also failed to produce a positive repaired-validation verdict. These negative/inconclusive results are preserved as first-class artifacts, and the confirmatory test remains locked for the failed line. The next scientific step should be a genuinely new preregistered hypothesis, not post-hoc tuning against the same validation evidence.
+This work does not demonstrate an educationally effective or generally superior reasoning system. Its broader value, if any, is methodological: preserving failed hypotheses, strong controls, negative ablations, exact provenance, and stop rules can reduce false positive research narratives. Negative results are only useful when the tested question and its limitations remain narrow enough that others can tell what was actually falsified.
 
-## References
+## 11. Discussion
 
-**TO BE VERIFIED.** No references are inserted in this draft until each citation is checked.
+The evidence pipeline prevented an executable research prototype from being mislabeled as a successful research result. Capacity matching removed one easy confound. Mechanism ablations prevented the full-model score from being attributed automatically to the planner or target path. The trainability repair demonstrated why engineering recovery and scientific validation must remain separate: a repair can make optimization behave better without producing the expected generalization advantage.
+
+The literature boundary reinforces that framing. Representation-space prediction, EMA targets, vector quantization, latent-action modeling, and planning all have substantial prior art. The current package is therefore stronger as a falsification-first technical report or reproducibility/negative-results submission than as a claimed new JEPA mechanism.
+
+## 12. Conclusion
+
+Under the frozen ARC-Challenge validation protocol, the current LAM-JEPA evidence does not support superiority over a capacity-matched supervised baseline and does not validate the planner or target mechanisms. A later trainability repair also failed to produce a positive repaired-validation verdict. These negative/inconclusive results are preserved as first-class artifacts, and the confirmatory test remains locked for the failed line. The next scientific step, if any, should be a genuinely new preregistered hypothesis rather than post-hoc tuning against the same validation evidence.
+
+## References — verified core anchors
+
+1. Assran, M., Duval, Q., Misra, I., Bojanowski, P., Vincent, P., Rabbat, M., LeCun, Y., & Ballas, N. *Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture.* arXiv:2301.08243, 2023.
+2. Assran, M. et al. *V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning.* arXiv:2506.09985, 2025.
+3. van den Oord, A., Vinyals, O., & Kavukcuoglu, K. *Neural Discrete Representation Learning.* arXiv:1711.00937, 2017/2018.
+4. Clark, P., Cowhey, I., Etzioni, O., Khot, T., Sabharwal, A., Schoenick, C., & Tafjord, O. *Think you have Solved Question Answering? Try ARC, the AI2 Reasoning Challenge.* arXiv:1803.05457, 2018.
+5. He, P., Gao, J., & Chen, W. *DeBERTaV3: Improving DeBERTa using ELECTRA-Style Pre-Training with Gradient-Disentangled Embedding Sharing.* arXiv:2111.09543; ICLR 2023.
+
+**Related-work completion note:** `RELATED_WORK_AUDIT_20260814.md` records the fuller originality boundary and additional verified overlaps. The final submission bibliography must still be generated from fully verified metadata rather than extended from memory.
 
 ## Appendix A — Reproducibility package gate
 
-Before submission, the artifact package must pin:
+Before public release/submission, the artifact package must pin:
 
 - source commit;
 - environment and dependency versions;
@@ -186,10 +228,11 @@ Before submission, the artifact package must pin:
 - evaluation/recomputation command;
 - raw per-seed outputs;
 - aggregate tables and bootstrap calculation;
-- hardware metadata;
+- hardware boundary (`ubuntu-latest`, Python 3.11, CPU; exact CPU model unclaimed);
+- figure/table generation commands tied to retained machine-readable sources;
 - license and citation metadata approved by the owner.
 
-Current source-level publication packaging remains incomplete until license/citation/provenance work is closed.
+Current scientific reproduction is strong; public release packaging remains incomplete until legal/citation and external-review gates are closed.
 
 ## Appendix B — Claim table
 
@@ -203,4 +246,6 @@ Current source-level publication packaging remains incomplete until license/cita
 | Target mechanism improves ARC | Unsupported |
 | LAM-JEPA beats matched supervised baseline | Unsupported |
 | Repaired quantization improves generalization | Unsupported |
+| Locked ARC test used to rescue failed validation | False / prohibited |
 | LAM-JEPA is research-complete | False |
+| LAM-JEPA is publication-ready | Not yet; legal/bibliographic/external-review gates remain |
