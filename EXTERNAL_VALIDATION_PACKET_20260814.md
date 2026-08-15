@@ -165,6 +165,17 @@ Undocumented dependencies, environment sensitivity, missing artifacts, ambiguous
 ### ACCEPTANCE-THREATENING CRITICISM
 The single strongest remaining scientific/experimental/mechanism criticism.
 
+## Public-release metadata boundary — 2026-08-15
+
+These fields are intentionally unresolved rather than inferred from commit history:
+
+- **Current repository head observed for packet maintenance:** `bf8311e1a4d240e2891e51af38eaf7754944e300`.
+- **Reproduction checkout remains immutable:** `725ae2fb17de9c988938d4b03bd8a6be456b8e8b`; this metadata note does not change the frozen scientific package.
+- **License / redistribution:** `BLOCKED_OWNER`. No repository `LICENSE` file was present at the observed head. Owner must approve the license and third-party redistribution boundary before public release.
+- **Authorship / order:** `BLOCKED_OWNER`. Do not infer authorship or author order from Git history, issue authorship, or prior drafts.
+- **Citation metadata:** `BLOCKED_OWNER`. `CITATION.cff` was absent at the observed head; create it only after author order and license decisions are approved.
+- **External-validation state:** `NONE_RETURNED`. This packet is ready to send, but no genuinely independent reproduction/review report has been returned yet.
+
 ## External GREEN rule
 
-This project becomes **GREEN — EXTERNAL VALIDATION** only after a genuinely independent validator returns evidence from this immutable packet. A sent email, pending review, internal ChatGPT critique, or author rerun is **not** external validation.
+This project becomes **externally validated** only after a genuinely independent validator returns evidence from this immutable packet. A sent email, pending review, internal ChatGPT critique, or author rerun is **not** external validation.
