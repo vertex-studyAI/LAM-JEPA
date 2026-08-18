@@ -1,0 +1,44 @@
+name: ARC Download Transport CI
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lam-jepa-arc-download-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checksum-pinned-download:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Compile download code
+        run: python -m compileall -q scripts/data tests/test_arc_download_retry.py
+
+      - name: Verify bounded retry behavior
+        run: python -m unittest discover -s tests -p 'test_arc_download_retry.py' -v
+
+      - name: Download checksum-addressed ARC train and validation only
+        run: |
+          set -euo pipefail
+          python scripts/data/download_arc_challenge.py \
+            --splits train validation \
+            --out-dir ci-evidence/arc-data \
+            --download-attempts 4 \
+            --download-timeout 60 \
+            --download-backoff-seconds 2 \
+            | tee ci-evidence-arc-download.json
+          test ! -e ci-evidence/arc-data/arc-challenge-test.parquet
