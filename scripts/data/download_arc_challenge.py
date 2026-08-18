@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import time
+from http.client import HTTPException
 from pathlib import Path
 from urllib.request import Request, urlopen
 
@@ -19,15 +21,35 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def download(url: str, destination: Path) -> None:
+def download(url: str, destination: Path, *, attempts: int = 4, base_delay_seconds: float = 1.0) -> None:
+    """Download one immutable split with bounded retries and atomic replacement.
+
+    Network failures must not leave a partial file that can be mistaken for a
+    completed download. The manifest checksum remains the final integrity gate.
+    """
+    if attempts < 1:
+        raise ValueError("attempts must be >= 1")
+
     destination.parent.mkdir(parents=True, exist_ok=True)
-    request = Request(url, headers={"User-Agent": "lam-jepa-reproducibility/0.1"})
-    with urlopen(request, timeout=60) as response, destination.open("wb") as output:
-        while True:
-            chunk = response.read(1024 * 1024)
-            if not chunk:
-                break
-            output.write(chunk)
+    partial = destination.with_name(f"{destination.name}.part")
+
+    for attempt in range(1, attempts + 1):
+        partial.unlink(missing_ok=True)
+        request = Request(url, headers={"User-Agent": "lam-jepa-reproducibility/0.1"})
+        try:
+            with urlopen(request, timeout=60) as response, partial.open("wb") as output:
+                while True:
+                    chunk = response.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    output.write(chunk)
+            partial.replace(destination)
+            return
+        except (OSError, HTTPException):
+            partial.unlink(missing_ok=True)
+            if attempt == attempts:
+                raise
+            time.sleep(base_delay_seconds * (2 ** (attempt - 1)))
 
 
 def main() -> None:
