@@ -71,6 +71,16 @@ def test_contiguous_block_mask_forms_one_missing_interval_in_1d():
     assert np.all(np.diff(missing) == 1)
 
 
+def test_positive_missingness_rejects_zero_context_random_patch():
+    with pytest.raises(ValueError, match="no observed context"):
+        make_observation_mask((2, 2), missing_fraction=0.25, seed=0, patch_size=4)
+
+
+def test_positive_missingness_rejects_single_location_grid():
+    with pytest.raises(ValueError, match="at least two spatial locations"):
+        make_observation_mask((1,), missing_fraction=0.5, seed=0, mode="contiguous_block")
+
+
 def test_invalid_phase_zero_inputs_fail_closed():
     t = np.linspace(0.0, 1.0, 10)
     with pytest.raises(ValueError):
