@@ -1,0 +1,85 @@
+{
+  "protocol_id": "PHY-JEPA-v1",
+  "status": "PREDECLARED_NOT_RUN",
+  "declared_at": "2026-08-21",
+  "purpose": "Test whether latent predictive pretraining improves recovery of hidden physical parameters from partial dynamical observations without changing or reinterpreting any prior LAM-JEPA result.",
+  "claim_boundary": {
+    "independent_of_arc_protocols": true,
+    "do_not_modify_prior_results": true,
+    "negative_results_are_publishable": true,
+    "no_retrospective_threshold_changes": true
+  },
+  "research_question": "Does a JEPA-style latent predictor learn representations that make latent physical parameters more identifiable than reconstruction-first or randomly initialized representations under the same data and probe budget?",
+  "hypotheses": {
+    "primary": "A frozen JEPA encoder will reduce median normalized parameter-estimation error by at least 10% relative to a matched reconstruction autoencoder on the held-out parameter grid.",
+    "secondary": [
+      "The JEPA representation will retain its advantage when 25% and 50% of observations are masked.",
+      "A linear probe on frozen JEPA embeddings will outperform a linear probe on random features, showing that any gain is present in representation geometry rather than only end-to-end adaptation."
+    ]
+  },
+  "initial_systems": [
+    {
+      "name": "damped_harmonic_oscillator",
+      "hidden_parameters": ["damping_ratio", "natural_frequency"],
+      "observations": ["position", "velocity"]
+    },
+    {
+      "name": "coupled_pendulum",
+      "hidden_parameters": ["coupling_strength", "length_ratio"],
+      "observations": ["angle_1", "angle_2"]
+    }
+  ],
+  "data_contract": {
+    "generator": "deterministic numerical simulation with stored configuration and seed",
+    "train_parameter_fraction": 0.70,
+    "validation_parameter_fraction": 0.15,
+    "test_parameter_fraction": 0.15,
+    "split_rule": "Split by parameter combinations, not by trajectory frames, so test physics is genuinely unseen.",
+    "mask_rates": [0.0, 0.25, 0.5],
+    "noise_levels_snr_db": ["clean", 30, 20]
+  },
+  "methods": {
+    "candidate": "Context encoder + target encoder + latent predictor trained to predict masked future/held-out state embeddings; target encoder updated by EMA; no pixel/state reconstruction term in the primary candidate.",
+    "baselines": [
+      "matched-parameter autoencoder reconstruction pretraining",
+      "matched randomly initialized encoder",
+      "supervised end-to-end parameter regressor with the same encoder capacity"
+    ],
+    "probe": "Linear probe on frozen pooled embeddings for each hidden parameter; one fixed MLP probe is allowed only as a declared secondary analysis."
+  },
+  "metrics": {
+    "primary": "median normalized absolute parameter error averaged across hidden parameters",
+    "secondary": [
+      "R2 per parameter",
+      "Spearman correlation between latent distances and parameter distances",
+      "error under masking/noise",
+      "embedding effective rank",
+      "representation variance floor"
+    ]
+  },
+  "success_gate": {
+    "primary_pass": "At least 10% relative reduction in primary error versus the autoencoder baseline on the untouched test split and no collapse diagnostic failure.",
+    "strong_pass": "Primary pass plus positive effect in both physical systems and at least two of three observation regimes.",
+    "failure": "Anything else is recorded as negative/inconclusive without changing this gate."
+  },
+  "compute_gate": {
+    "phase_0": "CPU-only generator and 64-sample shape/sanity test.",
+    "phase_1": "Single-system small-width smoke run with one seed.",
+    "phase_2": "Only after phase_1 correctness: full declared systems and seed set.",
+    "seed_policy": "Choose and record seeds before phase_2; never discard completed seeds based on outcome."
+  },
+  "required_artifacts": [
+    "exact generator config and hashes",
+    "split manifest",
+    "training config",
+    "raw per-seed metrics",
+    "collapse diagnostics",
+    "aggregate table with confidence intervals",
+    "machine-readable verdict"
+  ],
+  "related_2026_motivation": [
+    "Physics-informed JEPA work has moved physical consistency into latent predictive states.",
+    "Recent latent-space parameter-calibration work reports that reconstruction accuracy alone is insufficient for inverse problems.",
+    "This protocol tests the narrower falsifiable question of parameter identifiability from JEPA embeddings."
+  ]
+}
