@@ -24,6 +24,16 @@ def _normalize_patch_size(patch_size: int | tuple[int, ...], ndim: int) -> tuple
     return patch
 
 
+def _require_non_degenerate_mask(mask: np.ndarray) -> np.ndarray:
+    """Fail closed unless positive missingness preserves both context and targets."""
+
+    if not mask.any():
+        raise ValueError("mask configuration leaves no observed context")
+    if not (~mask).any():
+        raise ValueError("mask configuration leaves no masked target region")
+    return mask
+
+
 def make_observation_mask(
     spatial_shape: tuple[int, ...],
     *,
@@ -38,6 +48,11 @@ def make_observation_mask(
     requested missing-cell target as closely as the patch tiling permits.
     ``contiguous_block`` masks one centered-on-a-seeded-anchor rectangular
     block with approximately the requested area.
+
+    For positive missingness, the function fails closed if the requested grid,
+    patch size, and missing fraction cannot preserve at least one observed
+    location and at least one masked target location. A zero-context sample is
+    not a valid partial-observation example for the predeclared protocol.
     """
 
     shape = _normalize_shape(spatial_shape)
@@ -45,6 +60,8 @@ def make_observation_mask(
         raise ValueError("missing_fraction must be in [0, 1)")
     if missing_fraction == 0.0:
         return np.ones(shape, dtype=bool)
+    if int(np.prod(shape)) < 2:
+        raise ValueError("positive missingness requires at least two spatial locations")
 
     rng = np.random.default_rng(seed)
     mask = np.ones(shape, dtype=bool)
@@ -70,14 +87,14 @@ def make_observation_mask(
             mask[slc] = False
             if new_missing >= target_missing:
                 break
-        return mask
+        return _require_non_degenerate_mask(mask)
 
     if mode == "contiguous_block":
         if len(shape) == 1:
             block = max(1, min(shape[0] - 1, target_missing))
             start = int(rng.integers(0, shape[0] - block + 1))
             mask[start : start + block] = False
-            return mask
+            return _require_non_degenerate_mask(mask)
 
         rows, cols = shape
         aspect = rows / cols
@@ -93,6 +110,6 @@ def make_observation_mask(
         row0 = int(rng.integers(0, rows - block_rows + 1))
         col0 = int(rng.integers(0, cols - block_cols + 1))
         mask[row0 : row0 + block_rows, col0 : col0 + block_cols] = False
-        return mask
+        return _require_non_degenerate_mask(mask)
 
     raise ValueError("mode must be 'random_patch' or 'contiguous_block'")
