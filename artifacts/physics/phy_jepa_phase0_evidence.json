@@ -1,0 +1,39 @@
+{
+  "protocol_id": "PHY-JEPA-v1",
+  "phase": 0,
+  "status": "PHASE_0_SANITY_COMPLETED_NO_OUTCOME_CLAIM",
+  "generated_at": "2026-08-21",
+  "scientific_boundary": "Generator/shape/provenance sanity evidence only. This is not a JEPA-vs-baseline research result and does not satisfy the phase-1 hypothesis gate.",
+  "dataset": {
+    "system": "damped_harmonic_oscillator",
+    "sample_count": 64,
+    "trajectory_shape": [121, 2],
+    "flattened_feature_shape": [64, 242],
+    "target_shape": [64, 2],
+    "split_counts": {
+      "train": 44,
+      "validation": 9,
+      "test": 11
+    },
+    "split_seed": 17,
+    "time_grid_sha256": "0394df3df741ee0d14037a3cc71d8a7b81d4da0486c1ff7fe2f683e68cd16218",
+    "generated_manifest_sha256": "af709d686e7a9b27a26afb209526dee4d40fd5494b715809062e7398623af72c",
+    "first_sample_state_sha256": "5c7b08813ddb25a401c80bde9fc9671da6210cd6c644f1acd96a4f30d312ea7e",
+    "last_sample_state_sha256": "1bbfa1e63d865d815e0168ba9da9426c64e5d493903c2800e42647056166db2e"
+  },
+  "source_identity": {
+    "protocol_blob_sha": "d0b8b77da299650c1111dd8e45129640a4d2d6c2",
+    "phase0_blob_sha": "dee338e23fbd267ff83cfa554cda88ecbcbf5693",
+    "simulator_blob_sha": "f8af4066df1897cd4b6e94d03ce263757a171c83"
+  },
+  "verification": {
+    "phase0_unit_slice_local": "5 passed before initial phase-0 commit",
+    "repository_workflows_at_pre-evidence-head_21f05aef8384808b60d214aae72e77cd8a663e37": {
+      "Reproducibility CI": "success",
+      "Container Smoke": "success",
+      "Research claim boundary": "success",
+      "ARC Download Transport CI": "success",
+      "ARC Protocol V2 QA": "success"
+    }
+  }
+}
