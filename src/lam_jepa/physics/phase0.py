@@ -195,7 +195,14 @@ def median_normalized_parameter_error(
     *,
     parameter_ranges: Sequence[float],
 ) -> float:
-    """Median absolute error normalized by predeclared parameter ranges."""
+    """Average per-parameter median normalized absolute error.
+
+    This matches the predeclared PHY-JEPA primary metric wording: compute the
+    normalized absolute error for each hidden parameter, take that parameter's
+    median across samples, then average those medians across hidden parameters.
+    It intentionally does not flatten samples and parameters into one pooled
+    median, which would define a different success metric.
+    """
 
     pred = np.asarray(predictions, dtype=np.float64)
     true = np.asarray(targets, dtype=np.float64)
@@ -207,4 +214,5 @@ def median_normalized_parameter_error(
     if not np.all(np.isfinite(pred)) or not np.all(np.isfinite(true)):
         raise ValueError("predictions and targets must contain only finite values")
     normalized = np.abs(pred - true) / ranges
-    return float(np.median(normalized))
+    per_parameter_medians = np.median(normalized, axis=0)
+    return float(np.mean(per_parameter_medians))
