@@ -4,6 +4,7 @@ import pytest
 from lam_jepa.physics import (
     DampedOscillatorParams,
     make_observation_mask,
+    median_normalized_parameter_error,
     simulate_damped_oscillator,
     split_parameter_grid,
 )
@@ -79,6 +80,28 @@ def test_positive_missingness_rejects_zero_context_random_patch():
 def test_positive_missingness_rejects_single_location_grid():
     with pytest.raises(ValueError, match="at least two spatial locations"):
         make_observation_mask((1,), missing_fraction=0.5, seed=0, mode="contiguous_block")
+
+
+def test_primary_parameter_metric_averages_per_parameter_medians():
+    targets = np.zeros((3, 2), dtype=np.float64)
+    predictions = np.asarray(
+        [
+            [0.0, 1.0],
+            [0.0, 1.0],
+            [100.0, 1.0],
+        ],
+        dtype=np.float64,
+    )
+
+    score = median_normalized_parameter_error(
+        predictions,
+        targets,
+        parameter_ranges=(1.0, 1.0),
+    )
+
+    # Per-parameter medians are 0 and 1, so the declared metric is 0.5.
+    # A pooled median across all six errors would incorrectly return 1.0.
+    assert score == pytest.approx(0.5)
 
 
 def test_invalid_phase_zero_inputs_fail_closed():
