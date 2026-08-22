@@ -1,0 +1,21 @@
+# Candidate manuscript insert — ARC prediction collapse
+
+**Status:** evidence-grounded candidate subsection; not canonical manuscript text until reviewed and reconciled with `MANUSCRIPT_DRAFT_NEGATIVE_ARC.md`.
+
+## Degenerate prediction collapse under the frozen ARC protocol
+
+Post-hoc analysis of the retained per-example predictions revealed that the negative ARC result is more structurally degenerate than aggregate accuracy alone indicates. We analyzed both independently retained full-controls rerun artifacts from the frozen scientific source (`760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb`). Each artifact contains five seeds for the full model, `no_planner`, `no_target`, and shuffled-label control, evaluated on all 295 eligible validation examples.
+
+For every one of the 20 seed-by-condition runs in each independent artifact, the model predicted a single positional answer class for all 295 examples. The full model selected class 1 for seeds 1 and 4 and class 2 for seeds 2, 3, and 5. The validation positional-label counts were 63, 71, 78, and 83 for classes 0–3 respectively. Consequently, each run's accuracy equals exactly the empirical validation frequency of the single class it predicts. Recomputing from integer correct counts gives full-model accuracies of 71/295, 78/295, 78/295, 71/295, and 78/295 across seeds. Their exact-count mean is 0.2549152542; the retained float32 aggregate differs only at low numerical precision.
+
+The collapse is visible at the probability level, not only in the argmax. Within each seed and condition, the four-class probability vectors vary across the 295 validation examples only at approximately 1e-7 scale. A choice-order intervention provides an additional falsification test. The frozen evaluation retained predictions after reversing the four answer choices and remapping the correct positional label. Across all 15 full/ablation seed runs in both rerun artifacts, reversing the choices preserves the predicted argmax for 100% of examples, while the probability vectors again change only at approximately 1e-7 scale. Thus, under the frozen evaluation, the classifier is effectively insensitive both to item identity and to the choice-reversal intervention at its output layer.
+
+This diagnostic also changes how the small planner and target-path accuracy differences should be interpreted. For `no_planner`, the only nonzero seed-level difference occurs at seed 3: the full model predicts class 2 for every example while the ablation predicts class 1. The accuracy difference is therefore exactly `(78 - 71)/295 = 0.0237288136`. For `no_target`, the two nonzero seed-level differences occur when the full model predicts class 2 and the ablation predicts class 3, yielding exactly `(78 - 83)/295 = -0.0169491525` per affected seed. Hence the retained mechanism deltas are completely explained by seed-dependent switches between constant positional classes; they do not provide evidence for item-level improvements attributable to either mechanism.
+
+The same constant-class signature is present in both independently retained frozen reruns, despite their previously documented low-order floating-point differences in raw probabilities. This replication strengthens the diagnostic conclusion while leaving the original scientific conclusion unchanged: the frozen ARC superiority and mechanism hypotheses remain unsupported.
+
+We do not infer the architectural cause of the collapse from these outputs alone. The retained artifacts do not expose intermediate encoder variance, quantizer-code occupancy, post-quantization variance, memory-corrected latent variance, or final latent variance. A subsequent diagnostic-only localization experiment should instrument these quantities on the frozen source and existing train/validation split, without hyperparameter retuning or access to the locked test, to identify the earliest stage at which example-dependent information disappears.
+
+### Claim boundary
+
+The retained evidence supports a replicated, near-input-invariant constant-class collapse under the frozen ARC protocol. It does not support LAM-JEPA superiority, planner benefit, target/EMA benefit, quantization benefit, item-level ARC reasoning, a specific module-level root cause, or use of the locked test to rescue the failed hypothesis.
