@@ -1,0 +1,73 @@
+{
+  "protocol_id": "PO-OP-JEPA-v1",
+  "status": "PREDECLARED_NOT_RUN",
+  "declared_at": "2026-08-21",
+  "purpose": "Test JEPA-style latent operator learning when the input physical field is only partially observed.",
+  "claim_boundary": {
+    "new_experiment_line": true,
+    "independent_of_existing_arc_results": true,
+    "no_relabeling_of_historical_evidence": true,
+    "negative_results_remain_negative": true
+  },
+  "research_question": "Can masked latent prediction learn an operator representation that is more robust to missing spatial observations than supervised field-to-field prediction with matched model capacity?",
+  "hypothesis": "At 50% patch-wise missingness, a mask-to-predict JEPA pretraining stage followed by a fixed supervised operator head will reduce relative L2 solution error by at least 8% versus the same architecture trained from scratch.",
+  "pde_suite": [
+    "1D viscous Burgers equation",
+    "2D Darcy flow"
+  ],
+  "data_contract": {
+    "source": "public/reproducible PDE datasets or deterministic local generation; exact source and hashes must be frozen before training",
+    "split": "train/validation/test by independent coefficient/initial-condition samples",
+    "missingness": {
+      "train_rates": [0.25, 0.5],
+      "test_rates": [0.0, 0.25, 0.5, 0.75],
+      "patterns": ["random_patch", "contiguous_block"]
+    },
+    "leakage_rule": "No target solution values from masked input regions may enter the candidate encoder during pretraining or evaluation."
+  },
+  "candidate": {
+    "encoder": "shared spatial encoder over observed values + coordinates + binary observation mask",
+    "objective": "predict target latent tokens for masked/unobserved regions from observed context tokens",
+    "predictor": "lightweight latent transformer or MLP-mixer chosen before main run",
+    "downstream": "freeze or partially freeze encoder according to a single predeclared policy; train matched operator head"
+  },
+  "baselines": [
+    "same operator architecture trained from scratch on the supervised PDE objective",
+    "masked-input reconstruction pretraining with matched encoder capacity",
+    "simple zero-fill + mask-channel supervised baseline"
+  ],
+  "metrics": {
+    "primary": "relative L2 field error at 50% random-patch missingness",
+    "secondary": [
+      "relative L2 across all missingness regimes",
+      "boundary-region error",
+      "spectral error by frequency band",
+      "latent effective rank",
+      "runtime and parameter count"
+    ]
+  },
+  "success_gate": {
+    "pass": "At least 8% relative improvement over from-scratch baseline on the primary metric, with equal-or-better result on both PDE tasks or a clearly predeclared pooled analysis.",
+    "strong_pass": "Pass plus robustness improvement at 75% missingness without more than 10% inference-time overhead.",
+    "fail": "If the pass condition is not met, preserve the result as negative/inconclusive; do not retune the gate."
+  },
+  "execution_order": [
+    "verify dataset provenance and split hashes",
+    "run tensor-shape and leakage tests",
+    "run 1D Burgers smoke experiment",
+    "freeze architecture/hyperparameter search outcome on validation only",
+    "run untouched test evaluation",
+    "repeat on 2D Darcy",
+    "emit raw records and machine-readable verdict"
+  ],
+  "required_artifacts": [
+    "dataset manifest and hashes",
+    "mask-generation seeds",
+    "configs for candidate and every baseline",
+    "per-seed raw metrics",
+    "spectral-error tables",
+    "compute accounting",
+    "final verdict JSON"
+  ],
+  "related_2026_motivation": "Recent latent-autoregressive neural-operator work reports substantial gains under partial observations; this protocol isolates whether JEPA-style masked latent pretraining itself contributes under a matched downstream operator budget."
+}
