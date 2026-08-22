@@ -2,18 +2,27 @@
 
 ## Scope
 
-This is a post-hoc diagnostic of the already-frozen negative/inconclusive ARC-v3 validation artifact. It does **not** alter the model, dataset, split, seed set, threshold, locked-test state, or scientific outcome. It strengthens the interpretation of the retained negative evidence and identifies the next falsification test.
+This is a post-hoc diagnostic of the already-frozen negative/inconclusive ARC-v3 validation artifacts. It does **not** alter the model, dataset, split, seed set, threshold, locked-test state, or scientific outcome. It strengthens the interpretation of the retained negative evidence and identifies the next falsification test.
 
-Evidence source:
+Evidence sources:
 
 - scientific source SHA: `760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb`;
-- workflow run: `31203337502`, attempt `3`;
-- retained artifact ID: `9162165932`;
-- retained artifact ZIP SHA-256: `caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b`;
-- raw full-results JSON SHA-256: `76aad8b1327e21470aeed137bac341b75b4fcf1f37e5394047642d395e8070f8`;
+- workflow run: `31203337502`;
+- attempt 2 retained artifact ID: `9149336081`;
+- attempt 2 artifact ZIP SHA-256: `c45710b5dae6a767ccb6bab7f6e3d8e9578752d8cf9b79fd82a65ae824dded1b`;
+- attempt 2 raw full-results JSON SHA-256: `be355b9cc59952b35f1a2e9c3c83d763b4672c8b75d8a74330a7b50e345c34b2`;
+- attempt 3 retained artifact ID: `9162165932`;
+- attempt 3 artifact ZIP SHA-256: `caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b`;
+- attempt 3 raw full-results JSON SHA-256: `76aad8b1327e21470aeed137bac341b75b4fcf1f37e5394047642d395e8070f8`;
 - diagnostic script: `scripts/analysis/analyze_arc_prediction_collapse.py`.
 
 The locked ARC test remains unused.
+
+## Independent-rerun replication
+
+The diagnostic was recomputed separately from both retained full-controls artifacts. Attempts 2 and 3 have different raw artifact digests and documented low-order probability drift, but they produce the **same prediction-class signature for every seed and variant**, the same constant-class accuracies, and the same mechanism-delta decomposition described below.
+
+Thus the collapse finding is not unique to one retained CI artifact. It replicates across the two independent frozen scientific reruns already retained by the project.
 
 ## Recomputed validation label distribution
 
@@ -30,9 +39,9 @@ These frequencies become important because the retained model outputs collapse t
 
 ## Primary finding: every retained run is a constant-class predictor
 
-Across all 20 retained validation runs (full, `no_planner`, `no_target`, and shuffled-label negative control; five seeds each), each run predicts exactly one answer class for **all 295 validation examples**.
+In **each independent attempt**, all 20 retained validation runs (full, `no_planner`, `no_target`, and shuffled-label negative control; five seeds each) predict exactly one answer class for **all 295 validation examples**.
 
-### Full LAM-JEPA
+### Full LAM-JEPA — identical in attempts 2 and 3
 
 | Seed | Chosen class for all 295 examples | Accuracy | Exact matching validation-label frequency |
 |---:|---:|---:|---:|
@@ -44,30 +53,30 @@ Across all 20 retained validation runs (full, `no_planner`, `no_target`, and shu
 
 The full-model mean `0.2549152542` is therefore the mean accuracy of seed-dependent constant-class choices, not item-dependent ARC decisions.
 
-The same collapse occurs in every `no_planner`, `no_target`, and shuffled-label-control seed.
+The same collapse occurs in every `no_planner`, `no_target`, and shuffled-label-control seed in both attempts.
 
 ## Probability-level input invariance
 
 The collapse is stronger than a shared argmax. Within each run, the four-class probability vector is nearly invariant across all 295 different validation examples.
 
-Across the 15 full/ablation runs, the maximum per-class probability range across examples is at most approximately `1.49e-7`. This is far below the diagnostic tolerance `1e-6`.
+Across both frozen attempts, the largest within-run per-class probability range is on the order of `1e-7`, far below the diagnostic tolerance `1e-6`. Attempts 2 and 3 can differ from each other by low-order floating-point probability drift while preserving this within-run near-invariance and every argmax.
 
 Thus the retained classifier is not merely making the same final choice frequently; its reported probability vector is effectively constant over the validation set at this numerical scale.
 
 ## Choice-reversal falsification
 
-The retained artifact also contains choice-reversal predictions for the three scientific variants. Reversing the order of the four answer choices changes the correct positional label, so an item-sensitive positional classifier should generally respond to that transformation.
+The retained artifacts also contain choice-reversal predictions for the three scientific variants. Reversing the order of the four answer choices changes the correct positional label, so an item-sensitive positional classifier should generally respond to that transformation.
 
-Instead, for all 15 full/ablation seed runs:
+Instead, in **both independent attempts**, for all 15 full/ablation seed runs:
 
 - the argmax class is preserved on **100% of examples** after choice reversal;
-- the maximum probability change between original and reversed-choice evaluation is at most approximately `8.94e-8`.
+- the maximum probability change between original and reversed-choice evaluation remains on the order of `1e-7`.
 
 This is direct retained-artifact evidence of near-complete insensitivity to the choice-order intervention.
 
 ## Mechanism-effect reinterpretation
 
-The reported seed-level planner and target ablation deltas are exactly explained by switches between constant positional classes and the validation-set class frequencies.
+The reported seed-level planner and target ablation deltas are exactly explained by switches between constant positional classes and the validation-set class frequencies. This decomposition is identical in attempts 2 and 3.
 
 ### Full minus `no_planner`
 
@@ -85,23 +94,24 @@ Seeds 3 and 5 differ: full predicts class 2 while `no_target` predicts class 3.
 
 This exactly equals each retained nonzero full-minus-`no_target` seed delta. The other three deltas are zero.
 
-Therefore the observed mechanism deltas do not demonstrate item-level changes in reasoning quality. In this artifact they are fully accounted for by seed-dependent constant-class selection.
+Therefore the observed mechanism deltas do not demonstrate item-level changes in reasoning quality. In the retained frozen artifacts they are fully accounted for by seed-dependent constant-class selection.
 
 ## Source-level clue, not yet a root-cause claim
 
-The frozen source uses a very weak token mixing path: `TokenEncoder.encoder` is `nn.Identity()`, followed by tokenwise `LayerNorm` and mean pooling. The ARC benchmark then passes this representation through the LAM-JEPA backbone and a four-choice head.
+The frozen source uses a weak token-mixing path: `TokenEncoder.encoder` is `nn.Identity()`, followed by tokenwise `LayerNorm` and mean pooling. The ARC benchmark then passes this representation through the LAM-JEPA backbone and a four-choice head.
 
-The retained artifact does **not** record intermediate encoder variance, quantizer code indices, post-quantization variance, or final latent variance. Therefore this audit must not claim whether collapse originates in token encoding, quantization/codebook occupancy, memory/planner dynamics, the choice head, or their interaction.
+The retained artifacts do **not** record intermediate encoder variance, quantizer code indices, post-quantization variance, or final latent variance. Therefore this audit must not claim whether collapse originates in token encoding, quantization/codebook occupancy, memory/planner dynamics, the choice head, or their interaction.
 
 ## Claim boundary
 
 ### Supported
 
 - The frozen ARC-v3 result remains negative/inconclusive.
-- Every retained scientific/control validation run in attempt 3 is a constant-class predictor over all 295 eligible validation examples.
+- Every retained scientific/control validation run in both independent frozen reruns is a constant-class predictor over all 295 eligible validation examples.
 - Within-run output probabilities are nearly input-invariant at `1e-6` tolerance.
 - Choice reversal preserves every scientific-variant argmax and changes probabilities only at ~`1e-7` scale.
 - The retained planner/target accuracy deltas are exactly explained by constant-class label-frequency shifts.
+- The constant-class collapse diagnostic itself replicates across the two independent retained reruns.
 
 ### Not supported
 
@@ -126,4 +136,4 @@ The test should identify the earliest stage at which example-dependent informati
 
 ## Paper implication
 
-If independently reviewed and reproduced from the retained artifact, the manuscript should describe the ARC failure more precisely as a **degenerate, near-input-invariant constant-class collapse under the frozen protocol**, rather than only reporting near-chance validation accuracy and unsupported mechanism effects.
+If independently reviewed, the manuscript should describe the ARC failure more precisely as a **replicated degenerate, near-input-invariant constant-class collapse under the frozen protocol**, rather than only reporting near-chance validation accuracy and unsupported mechanism effects.
