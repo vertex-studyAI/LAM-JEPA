@@ -1,7 +1,7 @@
 # LAM-JEPA Release Readiness Gate
 
-**Prepared:** 2026-08-17  
-**Source revision reviewed:** `cf988f3275a25419995df60ade5931bc0270f9c0`  
+**Prepared:** 2026-08-22  
+**Source revision reviewed:** `e1aea16e07d3e6fb53bfdf1e2c92b38b6e6e69f5`  
 **Scientific rule:** the frozen ARC result remains negative/inconclusive. This release gate must not be used to reopen tuning, access the locked test split, or convert the failed hypothesis into a positive claim.
 
 ## Current scientific state
@@ -24,7 +24,7 @@ Repository evidence currently supports a reproducible negative-result package on
 | `CITATION.cff` | BLOCKED_OWNER | Create only after author list/order, release title/version, and identifiers are approved. |
 | Immutable release revision/tag | BLOCKED_OWNER | After all owner-controlled metadata is approved, select the exact source revision, create the release tag, and bind all release artifacts to it. |
 | Independent external reproduction/review | BLOCKED_EXTERNAL | A genuinely independent reviewer must reproduce or review the frozen package. Internal checks do not satisfy this gate. |
-| Final related-work integration | BLOCKED_REVIEW | Reconcile the canonical manuscript against the verified related-work/originality audit before submission. This must not expand claims beyond evidence. |
+| Final related-work integration | PASS | `RELATED_WORK_FINAL_REVIEW_20260822.md` reconciles the canonical manuscript with the related-work/originality boundary and current primary literature without expanding claims. |
 | Public release/submission | BLOCKED | Release only when all preceding owner/external gates are closed and the immutable package is cross-linked. |
 
 ## Owner decision packet
