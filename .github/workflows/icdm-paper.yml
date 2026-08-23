@@ -37,7 +37,7 @@ jobs:
       - name: Preserve owner-metadata gate
         run: |
           grep -Fq 'Owner-controlled author metadata required before submission' paper/icdm2026_teen_negative_arc.tex
-          grep -Fq 'High School Student' paper/icdm2026_teen_negative_arc.tex
+          grep -Fqi 'high-school student' paper/icdm2026_teen_negative_arc.tex
       - name: Upload compiled draft
         uses: actions/upload-artifact@v4
         with:
