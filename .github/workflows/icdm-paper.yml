@@ -1,0 +1,45 @@
+name: ICDM Teen Paper
+
+on:
+  push:
+    branches:
+      - "paper/icdm-teen-ieee-draft-20260823"
+  pull_request:
+    paths:
+      - "paper/icdm2026_teen_negative_arc.tex"
+      - ".github/workflows/icdm-paper.yml"
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install bounded LaTeX toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            texlive-latex-base texlive-latex-recommended texlive-publishers poppler-utils
+      - name: Compile IEEE draft
+        working-directory: paper
+        run: |
+          pdflatex -interaction=nonstopmode -halt-on-error icdm2026_teen_negative_arc.tex
+          pdflatex -interaction=nonstopmode -halt-on-error icdm2026_teen_negative_arc.tex
+      - name: Enforce five-page venue gate
+        working-directory: paper
+        run: |
+          pages="$(pdfinfo icdm2026_teen_negative_arc.pdf | awk '/^Pages:/ {print $2}')"
+          test -n "$pages"
+          echo "Compiled pages: $pages"
+          test "$pages" -le 5
+      - name: Preserve owner-metadata gate
+        run: |
+          grep -Fq '[AUTHOR LIST REQUIRED BEFORE SUBMISSION]' paper/icdm2026_teen_negative_arc.tex
+          grep -Fq 'High School Student' paper/icdm2026_teen_negative_arc.tex
+      - name: Upload compiled draft
+        uses: actions/upload-artifact@v4
+        with:
+          name: icdm2026-teen-negative-arc-draft
+          path: paper/icdm2026_teen_negative_arc.pdf
+          if-no-files-found: error
