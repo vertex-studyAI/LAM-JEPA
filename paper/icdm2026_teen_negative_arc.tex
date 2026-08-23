@@ -3,6 +3,7 @@
 \usepackage{microtype}
 \usepackage{url}
 \usepackage{amsmath}
+\usepackage{balance}
 
 \title{LAM-JEPA on ARC-Challenge: A Reproducible Falsification-First Evaluation}
 
@@ -97,21 +98,22 @@ Source inspection supplies plausible limitations rather than rescue arguments. T
 A pre-fix seed-order defect was found: model initialization occurred before the requested seed was applied. PR \#61 / SHA \texttt{b72a97a99769b278eb8ec75bc5eab62dc9599f29} repaired the reproducibility plumbing without changing the frozen scientific protocol. Pre-fix and failed evidence remains retained.
 
 \section{Limitations and Stop Rule}
-The conclusion is specific to the frozen ARC line and tested small configurations. Five seeds quantify only a narrow protocol. The DeBERTa comparison is bounded rather than a complete pretrained-baseline study. Exact CPU model metadata was not retained. Independent outside expert reproduction/review remains absent, and authorship, affiliation, license, citation metadata, and repository-release choices remain owner-controlled gates.
+The conclusion is specific to the frozen ARC line and tested small configurations. Five seeds quantify only a narrow protocol. The DeBERTa comparison is bounded rather than a complete pretrained-baseline study. Exact CPU model metadata was not retained. Independent outside expert reproduction/review remains pending, and authorship, affiliation, license, and repository-release choices remain owner-controlled gates.
 
 The confirmatory ARC test must not be used as a rescue set after validation failure. New architectures, target constructions, or repair mechanisms must be versioned as new hypotheses with new validation protocols. A named architecture or improved trainability must not be marketed as validated reasoning progress when controlled results are negative.
 
 \section{Conclusion}
 Under the frozen ARC-Challenge validation protocol, the tested LAM-JEPA configuration did not outperform the capacity-matched supervised baseline and did not validate its planner or EMA-target contribution criteria. A later trainability repair also failed to produce a positive repaired-validation verdict. The result is deliberately narrow: it falsifies the current frozen ARC claims, not JEPA, vector quantization, latent planning, or representation learning in general. Adverse results are retained as first-class artifacts, and the confirmatory test remains locked for this failed line.
 
+\balance
 \begin{thebibliography}{7}
-\bibitem{ijepa} M. Assran et al., ``Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture,'' arXiv:2301.08243, 2023.
-\bibitem{vqvae} A. van den Oord, O. Vinyals, and K. Kavukcuoglu, ``Neural Discrete Representation Learning,'' arXiv:1711.00937, 2017.
-\bibitem{lapa} S. Ye et al., ``Latent Action Pretraining from Videos,'' arXiv:2410.11758, 2024.
-\bibitem{ffjepa} S. Masip et al., ``FF-JEPA: Long-Horizon Planning in World Models with Latent Planners,'' arXiv:2606.09311, 2026.
-\bibitem{arc} P. Clark et al., ``Think you have Solved Question Answering? Try ARC, the AI2 Reasoning Challenge,'' arXiv:1803.05457, 2018.
+\bibitem{ijepa} M. Assran et al., ``Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture,'' in \emph{Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR)}, 2023, pp. 15619--15629, doi: 10.1109/CVPR52729.2023.01499.
+\bibitem{vqvae} A. van den Oord, O. Vinyals, and K. Kavukcuoglu, ``Neural Discrete Representation Learning,'' in \emph{Advances in Neural Information Processing Systems}, 2017, pp. 6306--6315.
+\bibitem{lapa} S. Ye et al., ``Latent Action Pretraining from Videos,'' in \emph{International Conference on Learning Representations (ICLR)}, 2025.
+\bibitem{ffjepa} S. Masip, J. Swinnen, Y. Hu, R. Detry, and T. Tuytelaars, ``FF-JEPA: Long-Horizon Planning in World Models with Latent Planners,'' arXiv:2606.09311, 2026.
+\bibitem{arc} P. Clark, I. Cowhey, O. Etzioni, T. Khot, A. Sabharwal, C. Schoenick, and O. Tafjord, ``Think you have Solved Question Answering? Try ARC, the AI2 Reasoning Challenge,'' arXiv:1803.05457, 2018.
 \bibitem{deberta} P. He, J. Gao, and W. Chen, ``DeBERTaV3: Improving DeBERTa using ELECTRA-Style Pre-Training with Gradient-Disentangled Embedding Sharing,'' arXiv:2111.09543, 2021.
-\bibitem{repro} J. Pineau et al., ``Improving Reproducibility in Machine Learning Research,'' JMLR, vol. 22, no. 164, pp. 1--20, 2021.
+\bibitem{repro} J. Pineau et al., ``Improving Reproducibility in Machine Learning Research (A Report from the NeurIPS 2019 Reproducibility Program),'' \emph{J. Mach. Learn. Res.}, vol. 22, no. 164, pp. 1--20, 2021.
 \end{thebibliography}
 
 \end{document}
