@@ -1,0 +1,140 @@
+\documentclass[conference]{IEEEtran}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{cite}
+
+\title{A Reproducible Falsification-First Evaluation of LAM-JEPA on ARC-Challenge}
+
+% OWNER-CONTROLLED RELEASE GATE:
+% Replace the placeholder below only after final author order, affiliation,
+% contribution, and contact metadata are explicitly approved. The ICDM 2026
+% Teen Research Track requires the first author to be an enrolled high-school
+% student, the primary contributor, and to include ``High School Student'' in
+% the first-author affiliation.
+\author{\IEEEauthorblockN{AUTHOR METADATA PENDING OWNER APPROVAL}
+\IEEEauthorblockA{High School Student affiliation must be inserted before submission}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We evaluate the project-named LAM-JEPA system on ARC-Challenge using a frozen external-benchmark pipeline, a gradient-active-parameter-matched supervised comparator, mechanism ablations, a shuffled-label control, and a pinned pretrained comparator. Source inspection materially constrains the architecture claim: the frozen ARC path is a small hashed-token, mean-pooled embedding model with vector quantization, learned sparse memory, a one-step latent-action rollout, and same-input exponential-moving-average (EMA) target alignment; it is not a Transformer encoder and it does not instantiate the canonical I-JEPA context-to-distinct-target prediction task. Across five frozen validation seeds, the full model achieved accuracy $0.2549152542\pm0.0129968064$, while the matched supervised model achieved $0.2664406780\pm0.0154600058$. Planner and target-path ablations failed their preregistered contribution criteria. A later trainability repair passed a train-only gate but repaired validation remained negative/inconclusive. We preserve the adverse outcome, keep the confirmatory ARC test locked, and report the experiment as a reproducible falsification case study rather than an architecture-superiority result.
+\end{abstract}
+
+\begin{IEEEkeywords}
+ARC-Challenge, reproducibility, negative results, representation learning, latent planning, JEPA
+\end{IEEEkeywords}
+
+\section{Introduction}
+Representation-learning projects are vulnerable to a common failure mode: an interesting mechanism is treated as validated because the code runs, a favorable development slice exists, or a later repair improves trainability. We ask a narrower question: under a frozen ARC-Challenge validation protocol, does the tested LAM-JEPA configuration outperform an appropriate capacity-matched supervised baseline, and do its planner and target-path mechanisms contribute measurably under preregistered criteria?
+
+The current evidence answers both questions negatively. Our contribution is therefore not a superiority claim. Instead, we document a falsification-first evaluation with retained protocols, adverse results, source-level architecture inspection, matched controls, reproducibility evidence, and an explicit stop rule that prevents the locked ARC confirmatory test from becoming a rescue set after validation failure.
+
+The package contributes: (i) a retained ARC-Challenge evaluation path with eligibility and exclusion evidence; (ii) a gradient-active-parameter-matched supervised comparison; (iii) five-seed planner and target-path ablations plus a shuffled-label validity control; (iv) a bounded pinned pretrained comparison; (v) a documented trainability repair whose later validation does not rescue the original claim; and (vi) explicit claim boundaries tied to source and artifacts. No claim of ARC superiority, planner benefit, EMA-target benefit, quantization benefit, Transformer reasoning capability, broad educational effectiveness, general JEPA failure, or use of the locked test is made.
+
+\section{Related Work and Novelty Boundary}
+I-JEPA predicts representations of distinct target image blocks from a context block and updates a target encoder by exponential moving average~\cite{ijepa}. The frozen ARC path evaluated here differs materially: its online and target encoders receive the same serialized ARC input, and the ARC loss aligns the quantized online latent to that same-input EMA target. We therefore use the conservative term \emph{target-encoder alignment} rather than claiming a canonical I-JEPA prediction task.
+
+Discrete latent learning predates this project, including VQ-VAE~\cite{vqvae}. Latent Action Pretraining learns discrete latent actions from video~\cite{lapa}, while more recent latent-action world-model work studies planning with learned actions~\cite{lawms}. Explicit latent planners in JEPA/world-model settings are also public prior art~\cite{ffjepa}. These results rule out generic novelty claims for vector quantization, latent actions, or adding a planner to a JEPA-labelled system.
+
+ARC was introduced as a multiple-choice science-question benchmark designed to stress reasoning beyond earlier QA benchmarks~\cite{arc}. The bounded pretrained comparator here uses a pinned DeBERTa-v3-xsmall checkpoint from the DeBERTaV3 family~\cite{debertav3}. Reproducibility checklists and programmes are established practice~\cite{repro}. The project-specific contribution is the auditable combination of frozen protocol, adverse-result retention, artifact lineage, and explicit stopping rules.
+
+\section{Frozen System and Hypotheses}
+Each ARC example is serialized as a question followed by indexed answer choices. The frozen preprocessing lowercases, splits on whitespace, hashes each token deterministically with BLAKE2b, maps hashes modulo a vocabulary of 256 IDs, and pads or truncates the sequence to 96 positions. A numeric branch receives an all-zero vector for ARC, so it supplies no example-varying information.
+
+The token encoder is not a Transformer. It uses a learned token embedding, learned positional vectors, an identity encoder layer, normalization, and mean pooling. Token and numeric representations are fused and projected to a 32-dimensional latent. A 32-code vector quantizer selects nearest codes with EMA codebook statistics. A learned sparse memory retrieves top-$k$ learned values by a gated correction. The planner uses an eight-action policy and a one-step latent-action rollout before a four-choice answer head.
+
+The target encoder/projector is initialized from the online path and updated by EMA with momentum $0.996$. In the frozen ARC forward pass, the target path sees the same tokens and numeric input as the online path. The ARC-specific objective is
+\begin{equation}
+L=L_{CE}+0.5L_{align}+0.25L_{quant}+0.25L_{traj},
+\end{equation}
+where $L_{align}$ is cosine alignment between the quantized online latent and detached EMA target, and $L_{traj}$ is planner-state mean-squared error to the detached quantized latent. This is a hybrid supervised classification/alignment objective, not pure self-supervised JEPA training.
+
+Let $A_{full}$ denote frozen validation accuracy of the full configuration, $A_{match}$ the matched supervised comparator, $A_{np}$ the no-planner ablation, and $A_{nt}$ the no-target ablation. The frozen line evaluates three primary hypotheses: H1, $A_{full}$ should outperform $A_{match}$; H2, removing the planner should produce a sufficiently adverse paired effect under the preregistered mechanism criterion; and H3, replacing the EMA target path with the frozen no-target control should produce a sufficiently adverse paired effect. A shuffled-label control must remain below a frozen accuracy ceiling of $0.35$; it is a validity control, not evidence for H1--H3.
+
+\section{Experimental Protocol}
+The retained eligibility rule yields 1,117 of 1,119 training rows and 295 of 299 validation rows. Excluded rows remain retained as evidence. The locked ARC test was not downloaded or evaluated for this failed hypothesis line.
+
+Full-controls validation uses seeds 1--5, 20 epochs, batch size 32, learning rate $3\times10^{-4}$, one model step, all 1,117 eligible training rows, and all 295 eligible validation rows. The retained workflow establishes GitHub-hosted Ubuntu, Python 3.11, and CPU execution, but we do not claim a physical CPU model that was not retained.
+
+The supervised comparator uses the same encoder/projector family and a four-choice classifier without the target, quantizer, memory, or planner machinery. Gradient-active parameter counts are 86,372 for LAM-JEPA and 86,644 for the matched supervised comparator, a ratio of 1.0031491687. The bounded pretrained comparison pins \texttt{microsoft/deberta-v3-xsmall} to immutable revision \texttt{14809e4f1fe1895fcba8b258271a940c6ca45ec4}.
+
+Primary five-seed summaries report means and sample standard deviations. Mechanism effects are paired by seed and use retained bootstrap 95\% intervals. No p-value or significance claim is added beyond the frozen criteria.
+
+\section{Results}
+\begin{table}[t]
+\caption{Frozen five-seed ARC validation accuracy.}
+\label{tab:main}
+\centering
+\small
+\begin{tabular}{lc}
+\toprule
+System & Validation accuracy \\
+\midrule
+Full LAM-JEPA & $0.2549152542\pm0.0129968064$ \\
+Matched supervised & $0.2664406780\pm0.0154600058$ \\
+Paired full $-$ matched & $-0.0115254237\pm0.0140994131$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:main} does not support superiority over the capacity-matched baseline.
+
+\begin{table}[t]
+\caption{Frozen mechanism/control results.}
+\label{tab:abl}
+\centering
+\small
+\begin{tabular}{lc}
+\toprule
+Configuration & Validation accuracy \\
+\midrule
+Full LAM-JEPA & $0.2549152542\pm0.0129968064$ \\
+No planner & $0.2501694915\pm0.0129968064$ \\
+No target & $0.2616949153\pm0.0203954020$ \\
+Shuffled labels & $0.2630508475\pm0.0145011862$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The paired full-minus-no-planner effect is $+0.0047457627$ with 95\% bootstrap interval $[0.0,0.0142372881]$. Full-minus-no-target is $-0.0067796610$ with interval $[-0.0135593220,0.0]$. Neither mechanism criterion is supported. The shuffled-label mean remains below the frozen 0.35 ceiling, but it is not treated as favorable architecture evidence.
+
+On the bounded development comparison, LAM-JEPA achieved 0.15625 versus 0.21875 for the pinned DeBERTa-v3-xsmall comparator, a paired difference of $-0.0625$. This is characterization evidence, not a broad inferiority claim.
+
+A later trainability repair passed its bounded train-only gate, but repaired validation retained the verdict \texttt{VALID\_NEGATIVE\_OR\_INCONCLUSIVE\_VALIDATION}. Repaired-minus-legacy paired mean was $+0.0040678024$ with bootstrap 95\% interval $[-0.0135593116,0.0216949165]$; repaired-minus-no-quantizer was $+0.0033898324$ with interval $[-0.0027118593,0.0094915211]$. Engineering recovery therefore did not establish the expected validation advantage.
+
+\section{Reproducibility and Failure Analysis}
+The full frozen controls were independently rerun from scientific source SHA \texttt{760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb} in workflow 31203337502. Retained successful artifacts include attempt 2, job 94178988063, artifact 9149336081, digest \texttt{sha256:c45710b5dae6a767ccb6bab7f6e3d8e9578752d8cf9b79fd82a65ae824dded1b}, and attempt 3, job 94291056903, artifact 9162165932, digest \texttt{sha256:caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b}. Eight of ten retained files were byte-identical. Low-order floating-point drift occurred in raw result/input JSON, with maximum observed numeric difference about $5.9186\times10^{-4}$, while aggregate accuracies, paired mechanism effects, verifier reports, and the scientific conclusion were unchanged.
+
+The source audit identifies important limitations rather than rescue arguments. The hashed 256-ID token representation creates collisions and discards substantial lexical structure. The encoder is mean-pooled and shallow. The same-input EMA target is weaker than distinct context/target prediction. Five seeds characterize only this narrow protocol. The pretrained comparison is bounded rather than a full matched pretrained study. Exact CPU model metadata was not retained. Independent outside expert reproduction remains pending.
+
+Every quantitative paper statement is required to trace through the chain
+\begin{center}
+claim $\rightarrow$ table $\rightarrow$ processed metric $\rightarrow$ raw artifact $\rightarrow$ frozen config $\rightarrow$ source commit.
+\end{center}
+The defensible reproducibility statement is that independent project-controlled reruns reproduce aggregate scientific conclusions and verifier outputs; we do not claim bitwise identity of all probabilities or checkpoint bytes.
+
+\section{Discussion and Ethics}
+The most useful outcome is that the evidence pipeline prevented an executable research prototype from being mislabeled as a successful research result. Capacity matching removes one simple confound. Mechanism ablations prevent the full-model score from being attributed automatically to the planner or EMA target path. The trainability repair illustrates why engineering recovery and scientific validation must remain separate: optimization can improve without producing the hypothesized validation advantage.
+
+The source audit also changes how the project should be described. In the frozen ARC path, ``LAM-JEPA'' is a project identifier, not proof that a canonical JEPA prediction problem or Transformer reasoning model was evaluated. The immediate ethical risk is evidence inflation: presenting a named architecture or repaired training path as validated reasoning progress when the controlled result is adverse. We therefore keep the test set locked after validation failure and forbid post-hoc tuning of this frozen scientific line.
+
+\section{Conclusion}
+Under the frozen ARC-Challenge validation protocol, the tested LAM-JEPA configuration did not outperform the capacity-matched supervised baseline and did not validate its planner or EMA-target contribution criteria. A later trainability repair also failed to produce a positive repaired-validation verdict. This conclusion is intentionally narrow: it falsifies the current frozen ARC claims, not JEPA, vector quantization, latent planning, or representation learning generally. The adverse results remain first-class artifacts, and the confirmatory test remains locked.
+
+\section*{Release Gate}
+This source is a venue-format working draft, not a submission receipt or publication-clearance claim. Before upload, the owner must approve the final author list/order, first-author high-school and primary-contributor status, affiliation/contact metadata, contribution statement where used, and license/citation metadata. The compiled PDF must be verified at no more than five total pages including references. Final external skeptical review/reproduction status and submission metadata must also be recorded. The legacy root \texttt{paper.tex} and \texttt{paper.pdf} remain pre-falsification artifacts and are not authorized submission sources.
+
+\begin{thebibliography}{8}
+\bibitem{ijepa} M. Assran, Q. Duval, I. Misra, P. Bojanowski, P. Vincent, M. Rabbat, Y. LeCun, and N. Ballas, ``Self-Supervised Learning from Images with a Joint-Embedding Predictive Architecture,'' arXiv:2301.08243, 2023.
+\bibitem{vqvae} A. van den Oord, O. Vinyals, and K. Kavukcuoglu, ``Neural Discrete Representation Learning,'' arXiv:1711.00937, 2017.
+\bibitem{lapa} S. Ye et al., ``Latent Action Pretraining from Videos,'' arXiv:2410.11758, 2024.
+\bibitem{lawms} Q. Garrido, T. Nagarajan, B. Terver, N. Ballas, Y. LeCun, and M. Rabbat, ``Learning Latent Action World Models In The Wild,'' arXiv:2601.05230, 2026.
+\bibitem{ffjepa} S. Masip, J. Swinnen, Y. Hu, R. Detry, and T. Tuytelaars, ``FF-JEPA: Long-Horizon Planning in World Models with Latent Planners,'' arXiv:2606.09311, 2026.
+\bibitem{arc} P. Clark, I. Cowhey, O. Etzioni, T. Khot, A. Sabharwal, C. Schoenick, and O. Tafjord, ``Think you have Solved Question Answering? Try ARC, the AI2 Reasoning Challenge,'' arXiv:1803.05457, 2018.
+\bibitem{debertav3} P. He, J. Gao, and W. Chen, ``DeBERTaV3: Improving DeBERTa using ELECTRA-Style Pre-Training with Gradient-Disentangled Embedding Sharing,'' arXiv:2111.09543, 2021.
+\bibitem{repro} J. Pineau et al., ``Improving Reproducibility in Machine Learning Research,'' J. Mach. Learn. Res., vol. 22, no. 164, pp. 1--20, 2021.
+\end{thebibliography}
+
+\end{document}
