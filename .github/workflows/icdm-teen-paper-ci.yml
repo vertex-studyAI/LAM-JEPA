@@ -1,0 +1,61 @@
+name: ICDM Teen Paper CI
+
+on:
+  pull_request:
+    paths:
+      - 'submissions/icdm2026_teen/**'
+      - '.github/workflows/icdm-teen-paper-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile-and-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install LaTeX and PDF tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-latex-base texlive-latex-recommended texlive-latex-extra \
+            texlive-publishers poppler-utils
+
+      - name: Verify evidence-bounded source guardrails
+        run: |
+          set -euo pipefail
+          SRC=submissions/icdm2026_teen/lam_jepa_negative.tex
+          test -f "$SRC"
+          grep -Fq 'AUTHOR METADATA PENDING OWNER APPROVAL' "$SRC"
+          grep -Fq 'did not outperform the capacity-matched supervised baseline' "$SRC"
+          grep -Fq 'confirmatory test remains locked' "$SRC"
+          ! grep -Fqi 'LAM-JEPA superiority on ARC' "$SRC"
+          ! grep -Fqi 'planner improves ARC' "$SRC"
+          ! grep -Fqi 'quantization improves generalization' "$SRC"
+
+      - name: Compile twice with IEEEtran
+        working-directory: submissions/icdm2026_teen
+        run: |
+          set -euo pipefail
+          pdflatex -halt-on-error -interaction=nonstopmode lam_jepa_negative.tex
+          pdflatex -halt-on-error -interaction=nonstopmode lam_jepa_negative.tex
+
+      - name: Enforce Teen Track five-page ceiling
+        working-directory: submissions/icdm2026_teen
+        run: |
+          set -euo pipefail
+          pages=$(pdfinfo lam_jepa_negative.pdf | awk '/^Pages:/ {print $2}')
+          test -n "$pages"
+          echo "Compiled pages: $pages"
+          if [ "$pages" -gt 5 ]; then
+            echo "ICDM Teen Track limit exceeded: $pages pages > 5" >&2
+            exit 1
+          fi
+
+      - name: Reject unresolved LaTeX errors
+        working-directory: submissions/icdm2026_teen
+        run: |
+          set -euo pipefail
+          ! grep -E '(^! |LaTeX Error:|Undefined control sequence)' lam_jepa_negative.log
