@@ -1,0 +1,64 @@
+{
+  "protocol_id": "lam-arc-contextual-successor-v1-draft",
+  "status": "DRAFT_NOT_FROZEN",
+  "created_date": "2026-08-27",
+  "relationship_to_arc_v5": "separate_versioned_study_no_rescue",
+  "old_locked_test_access": "PROHIBITED",
+  "execution_authorized": false,
+  "hard_blockers": [
+    "DATA_FRESHNESS_AUDIT",
+    "CONFIRMATORY_DATASET",
+    "ENCODER_FAMILY_AND_REVISION",
+    "CONTEXT_TARGET_CONSTRUCTION",
+    "DELTA_PRIMARY",
+    "SEED_WIN_FRACTION",
+    "UNCERTAINTY_RULE",
+    "COLLAPSE_THRESHOLDS",
+    "PARAMETER_MATCH_TOLERANCE",
+    "MAX_COMPUTE_RATIO",
+    "EXACT_REPRODUCE_COMMAND"
+  ],
+  "systems": {
+    "B0": "contextual_supervised",
+    "B1": "contextual_supervised_plus_reconstruction_control",
+    "T1": "contextual_supervised_plus_distinct_target_jepa",
+    "T2": "T1_plus_variance_covariance_regularization",
+    "VQ": "deferred_secondary_ablation_only"
+  },
+  "proposed_seeds": [11, 23, 37, 53, 71],
+  "primary_metric": "held_out_multiple_choice_accuracy",
+  "secondary_metrics": [
+    "negative_log_likelihood",
+    "calibration",
+    "sample_efficiency",
+    "paired_seed_effect",
+    "compute_normalized_performance"
+  ],
+  "mandatory_representation_diagnostics": [
+    "latent_dimension_variance",
+    "covariance_eigenvalue_spectrum",
+    "effective_rank",
+    "mean_pairwise_cosine_similarity",
+    "online_target_norms",
+    "prediction_error",
+    "gradient_norms"
+  ],
+  "mandatory_vq_diagnostics": [
+    "active_code_count",
+    "assignment_entropy_perplexity",
+    "dead_code_count",
+    "quantization_error",
+    "nearest_code_margin",
+    "code_switch_trajectory",
+    "encoder_codebook_drift"
+  ],
+  "integrity_rules": {
+    "retain_failed_seeds": true,
+    "posthoc_seed_exclusion": false,
+    "heldout_threshold_tuning": false,
+    "architecture_shopping_after_failure": false,
+    "secondary_metric_rescue": false,
+    "vq_rescue": false
+  },
+  "freeze_gate": "all hard_blockers resolved in evidence-backed commit before held-out treatment evaluation"
+}
