@@ -116,12 +116,13 @@ if not errors:
         if token.lower() not in provenance.lower():
             errors.append(f'missing provenance boundary: {token}')
 
-    # These placeholders are deliberately required until owner-controlled metadata
-    # is truthfully supplied. Their presence means the source is NOT upload-ready.
+    # These TeX-safe placeholders are deliberately required until owner-controlled
+    # metadata is truthfully supplied. Their presence means the source is NOT upload-ready.
+    # Keep them bracket-free inside IEEEtran author blocks to avoid parser ambiguity.
     owner_placeholders = [
-        '[FIRST AUTHOR -- OWNER APPROVAL REQUIRED]',
-        '[School / city / country -- OWNER APPROVAL REQUIRED]',
-        '[Email -- OWNER APPROVAL REQUIRED]',
+        r'\textit{FIRST AUTHOR -- OWNER APPROVAL REQUIRED}',
+        r'\textit{School / city / country -- OWNER APPROVAL REQUIRED}',
+        r'\textit{Email -- OWNER APPROVAL REQUIRED}',
     ]
     if not all(p in tex for p in owner_placeholders):
         errors.append('owner-controlled metadata placeholders were altered before approval')
