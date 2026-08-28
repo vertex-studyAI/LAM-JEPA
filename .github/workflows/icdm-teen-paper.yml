@@ -1,0 +1,67 @@
+name: ICDM Teen Paper Gate
+
+on:
+  pull_request:
+    paths:
+      - 'icdm_teen_2026_submission.tex'
+      - '.github/workflows/icdm-teen-paper.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install minimal TeX and PDF tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-latex-base \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            poppler-utils
+
+      - name: Compile IEEE submission draft
+        run: |
+          set -euo pipefail
+          pdflatex -interaction=nonstopmode -halt-on-error icdm_teen_2026_submission.tex
+          pdflatex -interaction=nonstopmode -halt-on-error icdm_teen_2026_submission.tex
+
+      - name: Enforce five-page venue limit
+        run: |
+          set -euo pipefail
+          pages="$(pdfinfo icdm_teen_2026_submission.pdf | awk '/^Pages:/ {print $2}')"
+          echo "Compiled pages: ${pages}"
+          test -n "${pages}"
+          if [ "${pages}" -gt 5 ]; then
+            echo "ICDM Teen submission exceeds the 5-page total limit: ${pages} pages" >&2
+            exit 1
+          fi
+
+      - name: Guard stale positive-claim phrases
+        run: |
+          set -euo pipefail
+          forbidden='(state-of-the-art|research complete|Transformer reasoning capability|establishes? (model )?superiority|planner benefit is demonstrated|target-path benefit is demonstrated|quantization benefit is demonstrated)'
+          if grep -Ein "${forbidden}" icdm_teen_2026_submission.tex; then
+            echo "Found wording that may violate the frozen negative-result claim boundary." >&2
+            exit 1
+          fi
+
+      - name: Require high-school affiliation marker
+        run: |
+          grep -Fq 'High School Student' icdm_teen_2026_submission.tex
+
+      - name: Upload compiled paper evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: icdm-teen-paper
+          path: |
+            icdm_teen_2026_submission.pdf
+            icdm_teen_2026_submission.log
+          retention-days: 7
