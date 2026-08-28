@@ -1,0 +1,91 @@
+\documentclass[10pt,conference]{IEEEtran}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{url}
+
+\title{LAM-JEPA on ARC-Challenge: A Reproducible Falsification-First Evaluation}
+\author{\IEEEauthorblockN{[FIRST AUTHOR -- OWNER APPROVAL REQUIRED]}
+\IEEEauthorblockA{High School Student\\
+[School / city / country -- OWNER APPROVAL REQUIRED]\\
+[Email -- OWNER APPROVAL REQUIRED]}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We evaluate the project-named LAM-JEPA system on ARC-Challenge under a frozen protocol with a gradient-active-parameter-matched supervised comparator, mechanism ablations, a shuffled-label validity control, and a pinned pretrained comparator. Source inspection constrains the architecture claim: the frozen ARC path is a small hashed-token, mean-pooled embedding model with vector quantization, sparse memory, a one-step latent-action rollout, and same-input exponential-moving-average target alignment; it is not a Transformer and does not instantiate canonical I-JEPA context-to-distinct-target prediction. Across five frozen validation seeds, LAM-JEPA achieved $0.2549\pm0.0130$ accuracy versus $0.2664\pm0.0155$ for the matched supervised model, with paired difference $-0.0115\pm0.0141$. Planner and target-path ablations failed their preregistered contribution criteria. A later bounded trainability repair did not produce a positive validation verdict. We retain these adverse outcomes, keep the confirmatory ARC test locked, and report a reproducible falsification case study rather than an architecture-superiority result.
+\end{abstract}
+
+\section{Introduction}
+Research prototypes are vulnerable to being treated as validated because code runs, a favorable development slice appears, or a later repair improves trainability. We ask a narrower falsifiable question: under a frozen ARC-Challenge validation protocol, does the tested LAM-JEPA configuration outperform a capacity-matched supervised baseline, and do its planner and target paths contribute under preregistered criteria? On the retained evidence, the answer is no.
+
+Our contribution is therefore methodological and evidentiary: (1) a frozen ARC evaluation with retained exclusions; (2) a gradient-active-parameter-matched supervised comparison; (3) five-seed planner/target ablations plus a shuffled-label control; (4) a bounded pinned pretrained comparison; (5) a documented trainability repair kept separate from the original hypothesis; and (6) an explicit stop rule that forbids opening the locked confirmatory test to rescue a failed validation claim. We make no claim of ARC superiority, planner benefit, target-path benefit, quantization benefit, Transformer reasoning capability, or general JEPA failure.
+
+\section{Related Work and Claim Boundary}
+I-JEPA predicts representations of distinct image targets from context and updates a target encoder by exponential moving average \cite{assran2023ijepa}. The frozen ARC path here instead feeds the same serialized ARC input to online and target encoders; we therefore use conservative \emph{target-alignment} wording. Vector-quantized latent learning predates this project \cite{vandenOord2017vqvae}, as do modern latent-action approaches \cite{ye2024lapa}. ARC is the AI2 multiple-choice science reasoning benchmark \cite{clark2018arc}. The pretrained comparator is a pinned DeBERTa-v3-xsmall checkpoint from the DeBERTaV3 family \cite{he2023debertav3}. Reproducibility programs are established in machine learning \cite{pineau2021reproducibility}; the novelty claimed here is only the falsification-first evidence discipline applied to this negative result.
+
+\section{Frozen Method}
+Each ARC example is serialized as a question followed by indexed choices. Text is lowercased, whitespace-tokenized, hashed deterministically with BLAKE2b into a vocabulary of 256 IDs, and padded/truncated to 96 positions. The encoder uses learned token embeddings (dimension 32), positional vectors, layer normalization and mean pooling; there is no contextual Transformer block. The numeric ARC branch is constant zero and therefore carries no example-varying information.
+
+The latent is quantized with a 32-code vector quantizer, augmented by learned sparse memory, and passed through a one-step latent-action planner with eight action embeddings. An EMA target encoder/projector uses momentum $0.996$ and receives the same serialized input as the online encoder. The ARC objective is
+\begin{equation}
+L=L_{\mathrm{CE}}+0.5L_{\mathrm{align}}+0.25L_{\mathrm{quant}}+0.25L_{\mathrm{traj}}.
+\end{equation}
+The matched supervised comparator uses the same encoder/projector family and a four-choice head without target, quantizer, memory, or planner. Gradient-active parameter counts are 86,372 and 86,644 respectively (ratio 1.00315).
+
+The frozen protocol retains 1,117/1,119 ARC-Challenge training rows and 295/299 validation rows, with exclusions preserved. Seeds are $\{1,2,3,4,5\}$, 20 epochs, batch size 32, learning rate $3\times10^{-4}$, one model step, and CPU execution. The ARC confirmatory test was not downloaded or evaluated for this failed line. Means and sample standard deviations are reported across seeds; mechanism effects are paired by seed with retained bootstrap 95\% intervals.
+
+\section{Results}
+\begin{table}[t]
+\centering
+\caption{Frozen ARC-Challenge validation accuracy.}
+\label{tab:main}
+\begin{tabular}{lr}
+\toprule
+System & Accuracy \\
+\midrule
+LAM-JEPA & $0.2549\pm0.0130$ \\
+Matched supervised & $0.2664\pm0.0155$ \\
+Paired LAM$-$matched & $-0.0115\pm0.0141$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+Table~\ref{tab:main} does not support superiority over the capacity-matched supervised comparator.
+
+\begin{table}[t]
+\centering
+\caption{Frozen mechanism and validity controls.}
+\label{tab:abl}
+\begin{tabular}{lr}
+\toprule
+Configuration & Accuracy \\
+\midrule
+Full LAM-JEPA & $0.2549\pm0.0130$ \\
+No planner & $0.2502\pm0.0130$ \\
+No target & $0.2617\pm0.0204$ \\
+Shuffled labels & $0.2631\pm0.0145$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+Full minus no-planner was $+0.00475$ with retained bootstrap 95\% CI $[0,0.01424]$; full minus no-target was $-0.00678$ with CI $[-0.01356,0]$. Neither mechanism criterion is supported. The shuffled-label control remained below its frozen 0.35 ceiling but is only a validity control.
+
+A bounded development comparison recorded LAM-JEPA at 0.15625 and pinned DeBERTa-v3-xsmall at 0.21875; this is characterization evidence, not a broad inferiority claim. A later train-only quantization-path repair passed its bounded trainability gate, but repaired validation remained negative/inconclusive: repaired-minus-legacy paired mean $+0.00407$, bootstrap 95\% CI $[-0.01356,0.02169]$; repaired-minus-no-quantizer $+0.00339$, CI $[-0.00271,0.00949]$.
+
+\section{Reproducibility and Failure Analysis}
+The frozen controls were independently rerun within the project from scientific source SHA \texttt{760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb}. Retained successful GitHub Actions attempts reproduced aggregate accuracies, mechanism effects, verifier outputs, and the scientific conclusion; some low-order floating-point values drifted, so bitwise equality is not claimed across runners. The repository provenance requirement is
+\begin{equation}
+\text{claim}\rightarrow\text{metric}\rightarrow\text{raw artifact}\rightarrow\text{protocol}\rightarrow\text{source SHA}.
+\end{equation}
+Exact commands and artifact identifiers are retained in \texttt{REPRODUCE.md} and \texttt{MANUSCRIPT\_PROVENANCE.md}.
+
+The adverse result has plausible architectural explanations that are limitations, not rescue arguments: a 256-ID hashed vocabulary, mean pooling without contextual attention, a constant numeric branch, and same-input EMA alignment rather than prediction of a distinct target. A pre-fix seed-order defect was repaired in reproducibility plumbing without altering the frozen scientific protocol; subsequent bounded trainability repair did not reverse the validation verdict.
+
+\section{Limitations and Conclusion}
+This conclusion applies only to the frozen ARC line and tested small configurations. Five seeds provide limited uncertainty characterization. The pretrained comparison is bounded rather than a full matched study. The target path differs from canonical I-JEPA. Independent external reproduction and expert review remain pending. Most importantly, the locked confirmatory test cannot ethically be used as a rescue set after validation failure.
+
+Under the frozen protocol, the tested LAM-JEPA configuration did not outperform its capacity-matched supervised comparator and did not validate planner or EMA-target contribution criteria. The result falsifies the present ARC claims, not JEPA, vector quantization, latent planning, or representation learning generally. Preserving that boundary is the central scientific outcome.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+\end{document}
