@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - chatgpt/source-bundle-20260829
+  pull_request:
+    branches:
+      - main
 
 jobs:
   bundle:
