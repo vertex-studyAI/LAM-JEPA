@@ -1,0 +1,100 @@
+name: Paper Build
+
+on:
+  pull_request:
+    paths:
+      - 'paper/**'
+      - 'scripts/ci/verify_icdm_teen_submission_source.py'
+      - '.github/workflows/paper-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install TeX and PDF inspection dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-latex-base \
+            texlive-latex-recommended \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            texlive-bibtex-extra \
+            texlive-publishers \
+            poppler-utils
+
+      - name: Verify ICDM submission source boundaries
+        run: python scripts/ci/verify_icdm_teen_submission_source.py
+
+      - name: Build venue-neutral manuscript
+        working-directory: paper
+        run: |
+          pdflatex -interaction=nonstopmode -halt-on-error main.tex
+          bibtex main
+          pdflatex -interaction=nonstopmode -halt-on-error main.tex
+          pdflatex -interaction=nonstopmode -halt-on-error main.tex
+          test -s main.pdf
+
+      - name: Build ICDM Teen submission manuscript
+        working-directory: paper
+        run: |
+          pdflatex -interaction=nonstopmode -halt-on-error icdm_teen_2026.tex
+          bibtex icdm_teen_2026
+          pdflatex -interaction=nonstopmode -halt-on-error icdm_teen_2026.tex
+          pdflatex -interaction=nonstopmode -halt-on-error icdm_teen_2026.tex
+          test -s icdm_teen_2026.pdf
+
+      - name: Enforce submission PDF gates
+        working-directory: paper
+        shell: bash
+        run: |
+          set -euo pipefail
+          pages="$(pdfinfo icdm_teen_2026.pdf | awk '/^Pages:/ {print $2}')"
+          test -n "$pages"
+          if [ "$pages" -gt 5 ]; then
+            echo "ICDM Teen submission exceeds 5-page inclusive limit: $pages pages" >&2
+            exit 1
+          fi
+
+          if grep -Eq 'LaTeX Warning: (Citation|Reference).*undefined|There were undefined references|There were undefined citations' icdm_teen_2026.log; then
+            echo 'Unresolved citation/reference warning found in ICDM submission log.' >&2
+            exit 1
+          fi
+
+          if pdffonts icdm_teen_2026.pdf | tail -n +3 | awk 'NF && $6 != "yes" {bad=1} END {exit bad}'; then
+            :
+          else
+            echo 'At least one PDF font is not embedded.' >&2
+            pdffonts icdm_teen_2026.pdf >&2
+            exit 1
+          fi
+
+          {
+            echo "submission_source=paper/icdm_teen_2026.tex"
+            echo "git_head=${GITHUB_SHA}"
+            echo "pages=${pages}"
+            echo "pdf_sha256=$(sha256sum icdm_teen_2026.pdf | awk '{print $1}')"
+            echo "tex_sha256=$(sha256sum icdm_teen_2026.tex | awk '{print $1}')"
+            echo "references_sha256=$(sha256sum references.bib | awk '{print $1}')"
+            echo "owner_metadata_placeholders=$(grep -c 'OWNER APPROVAL REQUIRED' icdm_teen_2026.tex || true)"
+            echo "scientific_verdict=negative/inconclusive"
+            echo "confirmatory_test=locked/unopened"
+          } | tee submission-build-manifest.txt
+
+      - name: Upload ICDM submission evidence artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: icdm-teen-submission-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            paper/icdm_teen_2026.pdf
+            paper/icdm_teen_2026.log
+            paper/submission-build-manifest.txt
