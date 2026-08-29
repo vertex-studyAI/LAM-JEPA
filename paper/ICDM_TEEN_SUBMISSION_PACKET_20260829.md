@@ -2,14 +2,14 @@
 
 Status: **SCIENCE/BUILD GO; FINAL UPLOAD BLOCKED ONLY ON OWNER-CONTROLLED METADATA + FINAL REBUILD**
 
-This packet is a copy/paste + verification surface for the final submission. It must not be used to bypass the scientific or authorship gates in `ICDM_TEEN_SUBMISSION_GATE_20260828.md`.
+This packet is the canonical copy/paste + verification surface for the final submission. It must not be used to bypass the scientific or authorship gates in `ICDM_TEEN_SUBMISSION_GATE_20260828.md`.
 
 ## Official venue facts (reverified 2026-08-29)
 
 - Venue: IEEE ICDM 2026 Teen Research Track / High School Student Research Symposium
 - Deadline: **2026-08-30 AoE**
 - Format: IEEE Computer Society Proceedings
-- Length: **up to 5 pages total, including figures, tables, references**
+- Length: **up to 5 pages total, including figures, tables, and references**
 - Review: single-blind (authors visible)
 - Eligibility: first author must be a currently enrolled high-school student
 - Contribution: high-school student must be the primary contributor
@@ -17,6 +17,7 @@ This packet is a copy/paste + verification surface for the final submission. It 
 - Submission: ICDM 2026 submission system, Teen Research Track
 - If accepted: at least one author must present in person; high-school presenters must be accompanied by a guardian
 - Primary source: https://icdm2026.neu.edu.cn/CallforTeen_en/
+- Official Teen submission portal: https://wi-lab.com/cyberchair/2026/icdm26/scripts/submit.php?subarea=S30&undisplay_detail=1&wh=/cyberchair/2026/icdm26/scripts/ws_submit.php
 
 ## Canonical submission source
 
@@ -59,9 +60,9 @@ LAM-JEPA on ARC-Challenge: A Reproducible Falsification-First Evaluation
 
 We evaluate the project-named LAM-JEPA system on ARC-Challenge under a frozen protocol with a gradient-active-parameter-matched supervised comparator, mechanism ablations, a shuffled-label validity control, and a pinned pretrained comparator. Source inspection constrains the architecture claim: the frozen ARC path is a small hashed-token, mean-pooled embedding model with vector quantization, sparse memory, a one-step latent-action rollout, and same-input exponential-moving-average target alignment; it is not a Transformer and does not instantiate canonical I-JEPA context-to-distinct-target prediction. Across five frozen validation seeds, LAM-JEPA achieved 0.2549±0.0130 accuracy versus 0.2664±0.0155 for the matched supervised model, with paired difference −0.0115±0.0141. Planner and target-path ablations failed their preregistered contribution criteria. A later bounded trainability repair did not produce a positive validation verdict. We retain these adverse outcomes, keep the confirmatory ARC test locked, and report a reproducible falsification case study rather than an architecture-superiority result.
 
-### Recommended keywords (if the portal requests them)
+### Recommended keywords
 
-Use up to five, in this order unless the portal imposes a different taxonomy:
+Use 1–5 keywords, one per line, in this order unless the portal imposes a different taxonomy:
 
 1. ARC-Challenge
 2. reproducibility
@@ -92,9 +93,27 @@ Before the final build, confirm explicitly that:
 - all listed authors approved authorship/order;
 - no author or affiliation is fabricated or inferred.
 
+## Current certified pre-metadata head
+
+Current certified PR source head before owner metadata insertion:
+
+- source head: `db18d5dc3c42defb7ed4aad13f4674c8392b785f`
+- Research claim boundary: **SUCCESS**
+- ARC Download Transport CI: **SUCCESS**
+- ARC Protocol V2 QA: **SUCCESS**
+- Reproducibility CI: **SUCCESS**
+- Paper Build #13: **SUCCESS**
+- Paper Build workflow run: `33220960841`
+- retained artifact id: `9705153766`
+- retained artifact name: `icdm-teen-submission-b4d7c2aa7273e4d4fbfeae045cd08b4787e20cc7`
+- archive digest: `sha256:da63e1b33db300b24182d3b5aaafc51848b55ad54fcf69a4ccdf99194952d910`
+- artifact expiration: `2026-09-27`
+
+The certified pre-metadata pipeline built the actual `paper/icdm_teen_2026.tex`, enforced the inclusive five-page gate, rejected unresolved citations/references, required embedded fonts, and retained the venue PDF/log/build manifest. Prior direct artifact inspection established a 2-page venue PDF with no obvious clipping, overlap, or table overflow. This remains a **pre-metadata baseline only**, not the final upload artifact.
+
 ## Final rebuild gate after owner metadata is inserted
 
-Do not upload the current placeholder PDF. After truthful metadata replaces the three placeholders, rerun the exact existing paper-build pipeline and require all of the following on the metadata-bearing head:
+Do not upload the current placeholder PDF. After truthful metadata replaces the three placeholders, rerun the exact existing paper-build pipeline on that metadata-bearing head and require all of the following:
 
 - Research claim boundary: SUCCESS
 - ARC Download Transport CI: SUCCESS
@@ -106,7 +125,7 @@ Do not upload the current placeholder PDF. After truthful metadata replaces the 
 - no unresolved citations/references
 - all fonts embedded
 - no clipped/overlapping/broken text on visual inspection
-- final source SHA recorded
+- final source/head SHA recorded
 - final PDF SHA-256 recorded
 - final bibliography SHA-256 recorded
 - confirmatory-test state remains locked/unopened
@@ -128,6 +147,19 @@ Verify each statement below before submission:
 - [ ] Trainability repair is clearly separated from the frozen original hypothesis
 - [ ] All numerical results trace to retained artifacts/provenance
 
+## Live portal fields to prepare
+
+The current Teen Research Track submission form expects the following surfaces; copy only truthful information:
+
+- each author: first name, last name, organization, country, student designation, and email where applicable;
+- contact person selection plus contact first/last name, organization, country, email, and retyped email;
+- paper title;
+- English abstract;
+- 1–5 keywords, one per line;
+- the final certified PDF.
+
+The portal supports later revision using the assigned Paper ID and Paper Password. Treat those credentials as private and do not commit them to this public repository.
+
 ## Portal sequence — user-only
 
 1. Open the official ICDM 2026 submission system and choose **Teen Research Track**.
@@ -135,27 +167,27 @@ Verify each statement below before submission:
 3. Ensure the first-author affiliation visibly includes **High School Student**.
 4. Paste the title above exactly unless a final source edit intentionally changes it.
 5. Paste the abstract above exactly unless a final source edit intentionally changes it.
-6. Enter the recommended keywords if the portal requests keywords.
+6. Enter 1–5 keywords, one per line.
 7. Upload only the **final metadata-bearing, exact-head certified PDF**.
-8. Before confirming, compare title, author order, affiliation, abstract, and PDF against the certified source.
+8. Before confirming, compare title, author order, affiliation, abstract, keywords, and PDF against the certified source.
 9. Submit before **2026-08-30 AoE**.
-10. Preserve the assigned paper/submission ID, any password or revision credential, confirmation page/email, timestamp, and exact submitted PDF.
+10. Preserve the assigned paper/submission ID, Paper Password or revision credential, confirmation page/email, timestamp, and exact submitted PDF.
 
 ## Post-submit evidence record
 
-Immediately record in the repository or private submission log:
+Immediately record in the repository or a private submission log:
 
-- submission ID
-- submitted-at timestamp
-- final PR/source-head SHA
-- final PDF SHA-256
-- final bibliography SHA-256
-- exact submitted filename
-- receipt/confirmation location
-- whether revisions remain possible before deadline
+- submission ID;
+- submitted-at timestamp;
+- final PR/source-head SHA;
+- final PDF SHA-256;
+- final bibliography SHA-256;
+- exact submitted filename;
+- receipt/confirmation location;
+- whether revisions remain possible before deadline.
 
 Do not commit private portal passwords or credentials to the public repository.
 
-## Current certified pre-metadata baseline
+## Hard stop
 
-The previous placeholder build on PR source head `216981125d17262b6fc65874b51009993a6654c5` had all five workflows green and produced a 2-page PDF with embedded fonts, no unresolved references, and no obvious visual layout defect. That artifact is a **pre-metadata baseline only**, not the final upload artifact. The final metadata-bearing rebuild must be certified again.
+The repository-side submission package is complete as far as evidence permits **until truthful owner metadata is supplied**. Do not spend the remaining pre-deadline window inventing new experiments, opening the locked confirmatory test, retuning frozen negative/mixed results, or widening claims. The next legitimate transition is owner metadata → exact-head rebuild → final PDF inspection → portal submission.
