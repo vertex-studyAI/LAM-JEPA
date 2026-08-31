@@ -14,6 +14,8 @@ It is the only manuscript in this repository that is authorized to represent the
 
 Do not submit, release, cite, or convert `paper.tex` into a current paper without first reconciling every scientific claim to the canonical negative-result evidence.
 
+The tracked root `paper.pdf` is the rendered legacy artifact, not the current negative-result paper. Its exact SHA-256 is `213e36e5065544757d4a3e4d8da7aab4ee9018280e7617e994671db3199d85ef`. It is seven US-letter pages, dated May 16, 2026, and visibly carries the pre-falsification architecture title and positive/prospective claims. It is **FORBIDDEN FOR SUBMISSION OR CURRENT SCIENTIFIC CITATION**. Retaining it preserves provenance; its presence must never be interpreted as release authorization.
+
 In particular, the current evidence does **not** support:
 
 - LAM-JEPA superiority on ARC;
