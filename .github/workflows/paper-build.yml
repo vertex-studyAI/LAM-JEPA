@@ -59,6 +59,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          if grep -Eq 'Overfull \\[hv]box' main.log; then
+            echo 'Venue-neutral manuscript contains an overfull box.' >&2
+            grep -E 'Overfull \\[hv]box' main.log >&2
+            exit 1
+          fi
+
           pages="$(pdfinfo icdm_teen_2026.pdf | awk '/^Pages:/ {print $2}')"
           test -n "$pages"
           if [ "$pages" -gt 5 ]; then
