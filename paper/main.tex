@@ -69,7 +69,7 @@ The matched supervised comparator uses the same encoder/projector family and a f
 \section{Experimental Setup}
 The frozen eligibility rule retained 1,117 of 1,119 ARC-Challenge training rows and 295 of 299 validation rows. Excluded rows are retained as evidence. The locked ARC test was not downloaded or evaluated for this failed hypothesis line.
 
-The full-controls validation uses seeds $\{1,2,3,4,5\}$, 20 epochs, batch size 32, learning rate $3\times10^{-4}$, one model step, all eligible train and validation rows, and CPU execution. The pinned pretrained comparator uses \texttt{microsoft/deberta-v3-xsmall} at immutable revision \texttt{14809e4f1fe1895fcba8b258271a940c6ca45ec4}. Means and sample standard deviations are reported across seeds; mechanism effects are paired by seed and summarized with retained bootstrap 95\% intervals.
+The full-controls validation uses seeds $\{1,2,3,4,5\}$, 20 epochs, batch size 32, learning rate $3\times10^{-4}$, one model step, all eligible train and validation rows, and CPU execution. The pinned pretrained comparator uses \path{microsoft/deberta-v3-xsmall} at immutable revision \path{14809e4f1fe1895fcba8b258271a940c6ca45ec4}. Means and sample standard deviations are reported across seeds; mechanism effects are paired by seed and summarized with retained bootstrap 95\% intervals.
 
 \section{Results}
 \subsection{Capacity-matched comparison}
@@ -108,10 +108,10 @@ Full minus \texttt{no\_planner} was $+0.0047457627$ with retained bootstrap 95\%
 \subsection{Bounded pretrained comparison and repaired validation}
 On the recorded bounded development comparison, LAM-JEPA achieved 0.15625 and DeBERTa-v3-xsmall achieved 0.21875, a paired difference of $-0.0625$. This is characterization evidence rather than a broad inferiority claim.
 
-The independent recomputation verdict for repaired ARC-v5 validation is \texttt{VALID\_NEGATIVE\_OR\_INCONCLUSIVE\_VALIDATION}. The trainability repair passed its bounded train-only gate, but repaired validation did not establish generalization or quantization benefit. Repaired-minus-legacy paired mean was $+0.0040678024$ with bootstrap 95\% CI $[-0.0135593116,0.0216949165]$; repaired-minus-no-quantizer was $+0.0033898324$ with bootstrap 95\% CI $[-0.0027118593,0.0094915211]$.
+The independent recomputation verdict for repaired ARC-v5 validation is \path{VALID_NEGATIVE_OR_INCONCLUSIVE_VALIDATION}. The trainability repair passed its bounded train-only gate, but repaired validation did not establish generalization or quantization benefit. Repaired-minus-legacy paired mean was $+0.0040678024$ with bootstrap 95\% CI $[-0.0135593116,0.0216949165]$; repaired-minus-no-quantizer was $+0.0033898324$ with bootstrap 95\% CI $[-0.0027118593,0.0094915211]$.
 
 \section{Robustness and Failure Analysis}
-The frozen controls were independently rerun from scientific source SHA \texttt{760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb}. Retained successful attempts include GitHub Actions run 31203337502 attempt 2 (artifact 9149336081; SHA-256 \texttt{c45710b5dae6a767ccb6bab7f6e3d8e9578752d8cf9b79fd82a65ae824dded1b}) and attempt 3 (artifact 9162165932; SHA-256 \texttt{caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b}). Eight of ten retained files were byte-identical. Raw result/input JSON showed low-order floating-point drift, with maximum observed numeric difference approximately $5.9186\times10^{-4}$, while aggregate accuracies, mechanism effects, verifier reports, and the scientific conclusion were unchanged.
+The frozen controls were independently rerun from scientific source SHA \path{760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb}. Retained successful attempts include GitHub Actions run 31203337502 attempt 2 (artifact 9149336081; SHA-256 \path{c45710b5dae6a767ccb6bab7f6e3d8e9578752d8cf9b79fd82a65ae824dded1b}) and attempt 3 (artifact 9162165932; SHA-256 \path{caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b}). Eight of ten retained files were byte-identical. Raw result/input JSON showed low-order floating-point drift, with maximum observed numeric difference approximately $5.9186\times10^{-4}$, while aggregate accuracies, mechanism effects, verifier reports, and the scientific conclusion were unchanged.
 
 A source audit identifies limitations that plausibly contribute to the adverse result but must not be used as rescue arguments: ARC text is represented by deterministic whitespace-token hashes into only 256 token IDs; the encoder mean-pools embeddings without attention or contextual sequence processing; and the numeric branch is constant across ARC examples. The EMA target also receives the same serialized input as the online encoder, so the alignment objective does not directly train prediction of a held-out future or masked target.
 
@@ -123,7 +123,11 @@ The conclusion is specific to the frozen ARC line and tested small configuration
 \section{Reproducibility and Provenance}
 Every quantitative manuscript statement is required to trace through the chain
 \[
-\text{claim} \rightarrow \text{table/figure} \rightarrow \text{processed metric} \rightarrow \text{raw retained artifact} \rightarrow \text{frozen config/protocol} \rightarrow \text{source commit}.
+\begin{aligned}
+\text{claim} &\rightarrow \text{table/figure} \rightarrow \text{processed metric} \\
+             &\rightarrow \text{raw retained artifact} \rightarrow \text{frozen config/protocol} \\
+             &\rightarrow \text{source commit}.
+\end{aligned}
 \]
 The repository's \texttt{MANUSCRIPT\_PROVENANCE.md} and \texttt{REPRODUCE.md} contain the current provenance edges, exact commands, artifact identifiers, and frozen stop rules. The defensible reproducibility statement is that independent project-controlled reruns reproduce the aggregate scientific conclusion and verifier outputs; low-level probabilities and checkpoint bytes are not claimed bitwise identical across all runners. Independent external reproduction remains pending.
 
