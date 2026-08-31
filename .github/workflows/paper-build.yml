@@ -14,7 +14,10 @@ permissions:
 jobs:
   build-paper:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # A cold GitHub runner can spend more than 15 minutes installing the TeX
+    # distribution. Keep the scientific/build gates unchanged while allowing
+    # dependency provisioning to complete.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
