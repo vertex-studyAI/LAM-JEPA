@@ -119,5 +119,6 @@ jobs:
             paper/main.pdf
             paper/icdm_teen_2026.pdf
             paper/icdm_teen_2026.log
+            paper/BIBLIOGRAPHY_AUDIT.md
             paper/RELEASE_MANIFEST.json
             paper/submission-build-manifest.txt
