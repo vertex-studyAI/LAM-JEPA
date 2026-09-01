@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import subprocess
 from pathlib import Path
 
@@ -86,6 +87,48 @@ def verify() -> None:
         "cited_methods_executed_as_comparators",
     ):
         require(bibliography[key] is False, f"inflated bibliography claim: {key}")
+
+    audit = manifest["sentence_claim_audit"]
+    require(audit["complete"] is True, "sentence claim audit incomplete")
+    require(audit["claim_classes"] == 16, "sentence claim class count drifted")
+    require(audit["quantitative_claims_reconciled"] is True, "quantitative claims unreconciled")
+    for key in (
+        "superiority_claim_supported",
+        "significance_claim_supported",
+        "mechanism_benefit_claim_supported",
+        "external_reproduction_claim_supported",
+        "novelty_claim_supported",
+        "preprint_ready",
+    ):
+        require(audit[key] is False, f"inflated sentence-audit claim: {key}")
+
+    summary = json.loads((ROOT / "experiments" / "reproducibility-wave-20260812.json").read_text())
+    metrics = summary["canonical_metrics"]
+    recomputed = {
+        "full_minus_matched": metrics["full_lam_jepa_accuracy"]["mean"]
+        - metrics["matched_supervised_accuracy"]["mean"],
+        "full_minus_no_planner": metrics["full_lam_jepa_accuracy"]["mean"]
+        - metrics["no_planner_accuracy"]["mean"],
+        "full_minus_no_target": metrics["full_lam_jepa_accuracy"]["mean"]
+        - metrics["no_target_accuracy"]["mean"],
+        "bounded_pretrained_delta": metrics["bounded_pretrained_characterization"]["lam_jepa_accuracy"]
+        - metrics["bounded_pretrained_characterization"]["deberta_accuracy"],
+    }
+    expected = audit["independent_recomputation"]
+    for key, value in recomputed.items():
+        require(math.isclose(value, expected[key], abs_tol=1e-12), f"metric recomputation drift: {key}")
+
+    manuscript = (ROOT / "paper" / "main.tex").read_text()
+    audit_text = (ROOT / "paper" / "SENTENCE_CLAIM_AUDIT.md").read_text()
+    for required in (
+        "did not outperform",
+        "confirmatory test remains locked",
+        "Independent external reproduction remains pending",
+    ):
+        require(required in manuscript, f"required manuscript boundary missing: {required}")
+    for prohibited in ("preprint_ready=true", "test was evaluated", "statistically significant superiority"):
+        require(prohibited not in manuscript.lower(), f"prohibited manuscript claim: {prohibited}")
+    require("PASS — evidence-bounded negative/inconclusive manuscript" in audit_text, "audit verdict drifted")
 
     for document in manifest["pdfs"].values():
         path = ROOT / document["path"]
