@@ -73,6 +73,20 @@ def verify() -> None:
     require(evidence["permanent_archive"] is False, "temporary artifact mislabeled")
     require(evidence["artifact_id"] == 9783283835, "workflow artifact identity drifted")
 
+    bibliography = manifest["bibliography_audit"]
+    require(bibliography["entries"] == 8, "bibliography entry count drifted")
+    require(
+        bibliography["primary_records_verified"] == bibliography["entries"],
+        "bibliography verification incomplete",
+    )
+    require(bibliography["complete"] is True, "bibliography audit not complete")
+    for key in (
+        "cited_methods_reproduced",
+        "cited_methods_budget_matched",
+        "cited_methods_executed_as_comparators",
+    ):
+        require(bibliography[key] is False, f"inflated bibliography claim: {key}")
+
     for document in manifest["pdfs"].values():
         path = ROOT / document["path"]
         if not path.exists():
