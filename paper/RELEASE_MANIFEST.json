@@ -46,6 +46,10 @@
     "paper/BIBLIOGRAPHY_AUDIT.md": {
       "sha256": "72a35439755a5dd2790a4184cb0d472d23ae29a36bae4cf8560055c411833abc",
       "bytes": 3990
+    },
+    "paper/SENTENCE_CLAIM_AUDIT.md": {
+      "sha256": "9d5ba9671cca3fefbf2452eb47006f621aab2b592840163de35a296c797b9cef",
+      "bytes": 5171
     }
   },
   "bibliography_audit": {
@@ -55,6 +59,23 @@
     "cited_methods_reproduced": false,
     "cited_methods_budget_matched": false,
     "cited_methods_executed_as_comparators": false
+  },
+  "sentence_claim_audit": {
+    "complete": true,
+    "claim_classes": 16,
+    "quantitative_claims_reconciled": true,
+    "independent_recomputation": {
+      "full_minus_matched": -0.0115254238,
+      "full_minus_no_planner": 0.0047457627,
+      "full_minus_no_target": -0.0067796611,
+      "bounded_pretrained_delta": -0.0625
+    },
+    "superiority_claim_supported": false,
+    "significance_claim_supported": false,
+    "mechanism_benefit_claim_supported": false,
+    "external_reproduction_claim_supported": false,
+    "novelty_claim_supported": false,
+    "preprint_ready": false
   },
   "workflow_evidence": {
     "run_id": 33461357350,
