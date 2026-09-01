@@ -50,3 +50,29 @@ def test_bibliography_audit_is_complete_but_not_reproduction_evidence():
         assert f"`{key}`" in ledger
     assert "not reproduced or run as a comparator" in ledger
     assert "confirmatory ARC test remains locked and unopened" in ledger
+
+
+def test_sentence_claim_audit_recomputes_metrics_and_fails_closed():
+    manifest = json.loads((ROOT / "paper/RELEASE_MANIFEST.json").read_text())
+    audit = manifest["sentence_claim_audit"]
+    assert audit["complete"] is True
+    assert audit["claim_classes"] == 16
+    assert audit["quantitative_claims_reconciled"] is True
+    assert audit["superiority_claim_supported"] is False
+    assert audit["significance_claim_supported"] is False
+    assert audit["mechanism_benefit_claim_supported"] is False
+    assert audit["external_reproduction_claim_supported"] is False
+    assert audit["novelty_claim_supported"] is False
+    assert audit["preprint_ready"] is False
+
+    metrics = json.loads((ROOT / "experiments/reproducibility-wave-20260812.json").read_text())["canonical_metrics"]
+    recomputed = audit["independent_recomputation"]
+    assert abs((metrics["full_lam_jepa_accuracy"]["mean"] - metrics["matched_supervised_accuracy"]["mean"]) - recomputed["full_minus_matched"]) < 1e-12
+    assert abs((metrics["full_lam_jepa_accuracy"]["mean"] - metrics["no_planner_accuracy"]["mean"]) - recomputed["full_minus_no_planner"]) < 1e-12
+    assert abs((metrics["full_lam_jepa_accuracy"]["mean"] - metrics["no_target_accuracy"]["mean"]) - recomputed["full_minus_no_target"]) < 1e-12
+    bounded = metrics["bounded_pretrained_characterization"]
+    assert abs((bounded["lam_jepa_accuracy"] - bounded["deberta_accuracy"]) - recomputed["bounded_pretrained_delta"]) < 1e-12
+
+    ledger = (ROOT / "paper/SENTENCE_CLAIM_AUDIT.md").read_text()
+    assert "PASS — evidence-bounded negative/inconclusive manuscript" in ledger
+    assert "No manuscript sentence, scientific value, protocol field, seed, threshold, or conclusion was" in ledger
