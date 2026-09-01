@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "project": "LAM-JEPA",
+  "scientific_source_head": "4349d0c04bd18426f79ac61f400e3d0950fc6bf9",
+  "verified_workflow_merge_head": "c037cfbc117b97012174051b3d6520716205ce97",
+  "scientific_status": "VALID_NEGATIVE_OR_INCONCLUSIVE_VALIDATION",
+  "submission_status": "NO_GO_NEW_SUBMISSION_DEADLINE_PASSED",
+  "pdfs": {
+    "venue_neutral": {
+      "path": "paper/main.pdf",
+      "sha256": "11a44d3be5364542efa26093207c9d25c05f244e5613d4c794c8df0105c2c071",
+      "bytes": 191046,
+      "pages": 6,
+      "page_size": "letter",
+      "encrypted": false,
+      "javascript": false,
+      "all_fonts_embedded": true,
+      "normalized_pdf_epoch": 946684800
+    },
+    "historical_icdm": {
+      "path": "paper/icdm_teen_2026.pdf",
+      "sha256": "571dffcb571a352219ecebe19929ae81d7e8e31f5382bc0e1b0af256cb29ed5f",
+      "bytes": 179576,
+      "pages": 2,
+      "page_size": "letter",
+      "encrypted": false,
+      "javascript": false,
+      "all_fonts_embedded": true,
+      "normalized_pdf_epoch": 946684800,
+      "new_submission_authorized": false
+    }
+  },
+  "source_files": {
+    "paper/main.tex": {
+      "sha256": "41e53169efb9bab1d3f096bed75f644eba749577ceeb1aaabe15d1d00596f4e2",
+      "bytes": 17319
+    },
+    "paper/icdm_teen_2026.tex": {
+      "sha256": "0db2cedafd3cff634eaefdc29c6afbada7add83e34002cca03793690e8e8f77f",
+      "bytes": 8953
+    },
+    "paper/references.bib": {
+      "sha256": "9bc6669d0c29b82ca889d32fb03596c2ecdc9d878dcebf04701219ec101613eb",
+      "bytes": 2756
+    }
+  },
+  "workflow_evidence": {
+    "run_id": 33461357350,
+    "artifact_id": 9783283835,
+    "artifact_sha256": "4e3988355f03a97d7dd5bbbfb15f392ddb8321dd66ccfe0b544b3d552d6c056b",
+    "artifact_bytes": 179502,
+    "expires_at": "2026-10-01T02:08:56Z",
+    "permanent_archive": false
+  },
+  "claim_boundaries": {
+    "matched_supervised_comparator_outperformed": false,
+    "planner_benefit_supported": false,
+    "ema_target_benefit_supported": false,
+    "repaired_quantization_benefit_supported": false,
+    "confirmatory_arc_test": "locked/unopened",
+    "rescue_tuning_authorized": false,
+    "research_complete": false,
+    "preprint_ready": false
+  },
+  "unresolved_human_authority": [
+    "authorship_and_contributions",
+    "repository_and_code_licensing",
+    "permanent_archival_release"
+  ]
+}
