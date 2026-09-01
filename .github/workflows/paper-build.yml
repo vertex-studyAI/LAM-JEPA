@@ -5,6 +5,8 @@ on:
     paths:
       - 'paper/**'
       - 'scripts/ci/verify_icdm_teen_submission_source.py'
+      - 'scripts/ci/verify_pdf_release_manifest.py'
+      - 'scripts/ci/verify_reproducible_pdfs.sh'
       - '.github/workflows/paper-build.yml'
   workflow_dispatch:
 
@@ -104,6 +106,9 @@ jobs:
             echo "confirmatory_test=locked/unopened"
           } | tee submission-build-manifest.txt
 
+      - name: Verify digest-bound PDF release manifest
+        run: python scripts/ci/verify_pdf_release_manifest.py
+
       - name: Upload ICDM submission evidence artifact
         uses: actions/upload-artifact@v4
         with:
@@ -111,6 +116,8 @@ jobs:
           if-no-files-found: error
           retention-days: 30
           path: |
+            paper/main.pdf
             paper/icdm_teen_2026.pdf
             paper/icdm_teen_2026.log
+            paper/RELEASE_MANIFEST.json
             paper/submission-build-manifest.txt
