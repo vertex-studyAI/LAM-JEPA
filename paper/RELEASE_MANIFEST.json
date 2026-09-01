@@ -42,7 +42,19 @@
     "paper/references.bib": {
       "sha256": "9bc6669d0c29b82ca889d32fb03596c2ecdc9d878dcebf04701219ec101613eb",
       "bytes": 2756
+    },
+    "paper/BIBLIOGRAPHY_AUDIT.md": {
+      "sha256": "72a35439755a5dd2790a4184cb0d472d23ae29a36bae4cf8560055c411833abc",
+      "bytes": 3990
     }
+  },
+  "bibliography_audit": {
+    "entries": 8,
+    "primary_records_verified": 8,
+    "complete": true,
+    "cited_methods_reproduced": false,
+    "cited_methods_budget_matched": false,
+    "cited_methods_executed_as_comparators": false
   },
   "workflow_evidence": {
     "run_id": 33461357350,
