@@ -51,7 +51,7 @@ An external reviewer subsequently reran the frozen protocol, reproduced the reta
 
 ## Current retained external evidence
 
-The repository records one external rerun/review in `paper/EXTERNAL_REVIEW_VQ_COLLAPSE_CORRECTION_20260831.md`.
+The repository records one external rerun/review in `paper/EXTERNAL_REVIEW_VQ_COLLAPSE_CORRECTION_20260831.md`. The structured campaign index and discrepancy ledger are now `VALIDATION/REPORT_INDEX.md` and `VALIDATION/DISCREPANCY_LEDGER.csv` on this reconciliation branch.
 
 The retained summary states that the reviewer:
 
@@ -82,7 +82,7 @@ Stronger wording such as **multiple independent reproductions**, **broad externa
 - [x] Freeze an exact public scientific revision for reproducibility work.
 - [x] Produce validator report template.
 - [x] Retain one external rerun/review summary with reproduced metrics and material methodological critique.
-- [ ] Add `VALIDATION/REPORT_INDEX.md` and a discrepancy ledger so external evidence cannot be lost in manuscript prose.
+- [x] Add `VALIDATION/REPORT_INDEX.md` and `VALIDATION/DISCREPANCY_LEDGER.csv` so external evidence cannot be lost in manuscript prose.
 - [ ] Recover/archive the complete first external report metadata where permission and source availability allow; do not invent missing environment fields.
 - [ ] Obtain a **second** independent frozen-protocol rerun/review.
 - [ ] Obtain a **third** independent frozen-protocol rerun/review.
