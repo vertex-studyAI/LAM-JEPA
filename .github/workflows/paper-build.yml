@@ -11,13 +11,18 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: paper-build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-paper:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Install TeX and PDF inspection dependencies
@@ -80,7 +85,12 @@ jobs:
 
           {
             echo "submission_source=paper/icdm_teen_2026.tex"
-            echo "git_head=${GITHUB_SHA}"
+            echo "source_commit=${{ github.event.pull_request.head.sha || github.sha }}"
+            echo "workflow_commit=${GITHUB_SHA}"
+            echo "runner_image=ubuntu-24.04"
+            echo "pdflatex_version=$(pdflatex --version | sed -n '1p')"
+            echo "bibtex_version=$(bibtex --version | sed -n '1p')"
+            echo "pdfinfo_version=$(pdfinfo -v 2>&1 | sed -n '1p')"
             echo "pages=${pages}"
             echo "pdf_sha256=$(sha256sum icdm_teen_2026.pdf | awk '{print $1}')"
             echo "tex_sha256=$(sha256sum icdm_teen_2026.tex | awk '{print $1}')"
@@ -91,9 +101,9 @@ jobs:
           } | tee submission-build-manifest.txt
 
       - name: Upload ICDM submission evidence artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: icdm-teen-submission-${{ github.sha }}
+          name: icdm-teen-submission-${{ github.event.pull_request.head.sha || github.sha }}
           if-no-files-found: error
           retention-days: 30
           path: |
