@@ -76,7 +76,7 @@ jobs:
       - name: Independently verify frozen full controls validation
         run: |
           set -euo pipefail
-          python scripts/ci/verify_arc_protocol_v3_full-controls.py \
+          python scripts/ci/verify_arc_protocol_v3_full_controls.py \
             --results ci-evidence/arc-protocol-v3-full-controls-validation.json \
             --protocol protocols/arc_challenge_v3.json \
             --train ci-evidence/arc-data/arc-challenge-train.parquet \
