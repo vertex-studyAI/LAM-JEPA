@@ -5,6 +5,8 @@ on:
     paths:
       - 'paper/**'
       - 'scripts/ci/verify_icdm_teen_submission_source.py'
+      - 'scripts/ci/verify_pdf_release_manifest.py'
+      - 'scripts/ci/verify_reproducible_pdfs.sh'
       - '.github/workflows/paper-build.yml'
   workflow_dispatch:
 
@@ -14,7 +16,14 @@ permissions:
 jobs:
   build-paper:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # A cold GitHub runner can spend more than 15 minutes installing the TeX
+    # distribution. Keep the scientific/build gates unchanged while allowing
+    # dependency provisioning to complete.
+    timeout-minutes: 30
+    env:
+      SOURCE_DATE_EPOCH: 946684800
+      FORCE_SOURCE_DATE: 1
+      TZ: UTC
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -53,11 +62,20 @@ jobs:
           pdflatex -interaction=nonstopmode -halt-on-error icdm_teen_2026.tex
           test -s icdm_teen_2026.pdf
 
+      - name: Verify byte-identical clean PDF rerenders
+        run: bash scripts/ci/verify_reproducible_pdfs.sh
+
       - name: Enforce submission PDF gates
         working-directory: paper
         shell: bash
         run: |
           set -euo pipefail
+          if grep -Eq 'Overfull \\[hv]box' main.log; then
+            echo 'Venue-neutral manuscript contains an overfull box.' >&2
+            grep -E 'Overfull \\[hv]box' main.log >&2
+            exit 1
+          fi
+
           pages="$(pdfinfo icdm_teen_2026.pdf | awk '/^Pages:/ {print $2}')"
           test -n "$pages"
           if [ "$pages" -gt 5 ]; then
@@ -90,6 +108,9 @@ jobs:
             echo "confirmatory_test=locked/unopened"
           } | tee submission-build-manifest.txt
 
+      - name: Verify digest-bound PDF release manifest
+        run: python scripts/ci/verify_pdf_release_manifest.py
+
       - name: Upload ICDM submission evidence artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -97,6 +118,10 @@ jobs:
           if-no-files-found: error
           retention-days: 30
           path: |
+            paper/main.pdf
             paper/icdm_teen_2026.pdf
             paper/icdm_teen_2026.log
+            paper/BIBLIOGRAPHY_AUDIT.md
+            paper/SENTENCE_CLAIM_AUDIT.md
+            paper/RELEASE_MANIFEST.json
             paper/submission-build-manifest.txt
