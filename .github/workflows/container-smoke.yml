@@ -23,32 +23,80 @@ permissions:
   contents: read
 
 concurrency:
-  group: lam-jepa-container-${{ github.ref }}
+  group: lam-jepa-container-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
 
 jobs:
   build-and-smoke:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Checkout exact source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          ref: ${{ env.SOURCE_SHA }}
           persist-credentials: false
+
+      - name: Verify exact source binding
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${SOURCE_SHA}"
 
       - name: Build research image
         run: |
           set -euo pipefail
-          docker build --pull --tag "lam-jepa-ci:${GITHUB_SHA}" .
+          docker build --pull --tag "lam-jepa-ci:${SOURCE_SHA}" .
+
+      - name: Verify installed dependency consistency
+        run: |
+          set -euo pipefail
+          docker run --rm "lam-jepa-ci:${SOURCE_SHA}" python -m pip check
 
       - name: Verify CLI entry point in container
         run: |
           set -euo pipefail
-          docker run --rm "lam-jepa-ci:${GITHUB_SHA}" lam-jepa --help
+          docker run --rm "lam-jepa-ci:${SOURCE_SHA}" lam-jepa --help
 
       - name: Verify installed package and CPU-safe import
         run: |
           set -euo pipefail
-          docker run --rm "lam-jepa-ci:${GITHUB_SHA}" \
+          docker run --rm "lam-jepa-ci:${SOURCE_SHA}" \
             python -c 'import lam_jepa, torch; print({"package": lam_jepa.__name__, "torch": torch.__version__, "cuda_available": torch.cuda.is_available()})'
+
+      - name: Verify non-root runtime import
+        run: |
+          set -euo pipefail
+          docker run --rm --user 65532:65532 "lam-jepa-ci:${SOURCE_SHA}" \
+            python -c 'import lam_jepa, torch; assert torch.cuda.is_available() is False; print(lam_jepa.__name__)'
+
+      - name: Record container provenance
+        run: |
+          set -euo pipefail
+          image="lam-jepa-ci:${SOURCE_SHA}"
+          mkdir -p evidence/container-smoke
+          {
+            printf 'source_commit=%s\n' "${SOURCE_SHA}"
+            printf 'workflow_commit=%s\n' "${GITHUB_SHA}"
+            printf 'workflow_ref=%s\n' "${GITHUB_REF}"
+            printf 'runner_image=%s\n' "${ImageOS:-ubuntu24}"
+            printf 'docker_server=%s\n' "$(docker version --format '{{.Server.Version}}')"
+            printf 'image_id=%s\n' "$(docker image inspect --format '{{.Id}}' "${image}")"
+          } > evidence/container-smoke/provenance.txt
+          docker run --rm "${image}" python --version > evidence/container-smoke/python-version.txt 2>&1
+          docker run --rm "${image}" python -m pip --version > evidence/container-smoke/pip-version.txt 2>&1
+          docker run --rm "${image}" python -m pip freeze --all > evidence/container-smoke/pip-freeze.txt
+          find evidence/container-smoke -maxdepth 1 -type f ! -name SHA256SUMS -print0 \
+            | sort -z \
+            | xargs -0 sha256sum > evidence/container-smoke/SHA256SUMS
+
+      - name: Upload container smoke evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: container-smoke-${{ env.SOURCE_SHA }}
+          path: evidence/container-smoke
+          if-no-files-found: error
+          retention-days: 30
