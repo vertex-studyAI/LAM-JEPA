@@ -14,15 +14,20 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: arc-input-visibility-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   audit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: "3.11"
       - name: Install CPU environment
@@ -31,6 +36,18 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -e '.[external-benchmarks]'
+          python -m pip check
+      - name: Record exact environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          printf 'source_commit=%s\n' '${{ github.event.pull_request.head.sha || github.sha }}' > ci-evidence/environment.txt
+          printf 'workflow_commit=%s\n' "$GITHUB_SHA" >> ci-evidence/environment.txt
+          printf 'runner_image=ubuntu-24.04\n' >> ci-evidence/environment.txt
+          python --version >> ci-evidence/environment.txt
+          python -m pip --version >> ci-evidence/environment.txt
+          python -m pip freeze --all >> ci-evidence/environment.txt
       - name: Compile audit
         run: |
           python -m py_compile scripts/data/audit_arc_input_serialization.py scripts/ci/verify_arc_input_serialization_audit.py
@@ -57,7 +74,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: arc-canonical-input-visibility-audit
+          name: arc-canonical-input-visibility-audit-${{ github.event.pull_request.head.sha || github.sha }}
           path: ci-evidence
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 30
