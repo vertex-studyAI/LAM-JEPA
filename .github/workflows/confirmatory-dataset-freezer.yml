@@ -1,0 +1,40 @@
+name: Confirmatory Dataset Freezer
+
+on:
+  pull_request:
+    paths:
+      - 'tools/confirmatory_dataset_freezer.py'
+      - 'tests/test_confirmatory_dataset_freezer.py'
+      - 'protocols/confirmatory_dataset_manifest_template.json'
+      - '.github/workflows/confirmatory-dataset-freezer.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/confirmatory_dataset_freezer.py'
+      - 'tests/test_confirmatory_dataset_freezer.py'
+      - 'protocols/confirmatory_dataset_manifest_template.json'
+      - '.github/workflows/confirmatory-dataset-freezer.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run confirmatory dataset freezer regression tests
+        run: python -m unittest tests.test_confirmatory_dataset_freezer -v
+      - name: Prove repository template is deliberately non-freezable
+        shell: bash
+        run: |
+          set -euo pipefail
+          if python tools/confirmatory_dataset_freezer.py \
+              --manifest protocols/confirmatory_dataset_manifest_template.json; then
+            echo 'Draft template unexpectedly passed the freeze gate.' >&2
+            exit 1
+          fi

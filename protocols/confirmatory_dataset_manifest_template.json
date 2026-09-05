@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "status": "DRAFT_NOT_FROZEN",
+  "execution_authorized": false,
+  "outcomes_observed": false,
+  "dataset": {
+    "name": "TBD",
+    "source": "TBD",
+    "revision": "TBD",
+    "license": "TBD",
+    "task_type": "four_choice_science_multiple_choice",
+    "answer_choice_count": 4,
+    "content_sha256": "TBD",
+    "provenance_sha256": "TBD"
+  },
+  "adapter": {
+    "path": "TBD",
+    "sha256": "TBD",
+    "label_blind": true,
+    "deterministic": true
+  },
+  "selection": {
+    "item_count": 0,
+    "selected_item_ids_sha256": "TBD",
+    "selection_rationale_sha256": "TBD",
+    "labels_hidden_from_development": true,
+    "selection_completed_before_treatment_outcomes": true
+  },
+  "freshness": {
+    "project_treatment_family_tuned_on_dataset": false,
+    "project_outcomes_previously_observed": false,
+    "prior_access_audit_completed": false,
+    "prior_access_audit_sha256": "TBD"
+  },
+  "overlap": {
+    "development_overlap_count": null,
+    "historical_arc_overlap_count": null,
+    "audit_sha256": "TBD",
+    "semantic_overlap_reviewed": false
+  },
+  "one_shot_policy": {
+    "maximum_confirmatory_runs": 1,
+    "hyperparameter_updates_after_access": false,
+    "architecture_changes_after_access": false,
+    "retain_all_outputs": true,
+    "retain_negative_or_inconclusive_result": true
+  },
+  "independent_review": {
+    "approved": false,
+    "reviewer": "TBD",
+    "reviewed_at": "TBD",
+    "artifact_sha256": "TBD",
+    "outcomes_available_to_reviewer": false
+  }
+}
