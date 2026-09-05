@@ -1,0 +1,31 @@
+name: ARC Successor Authorization CI
+
+on:
+  pull_request:
+    paths:
+      - "tools/arc_successor_authorization.py"
+      - "tests/test_arc_successor_authorization.py"
+      - "protocols/arc_successor_v1_draft.json"
+      - ".github/workflows/arc-successor-authorization-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tools/arc_successor_authorization.py"
+      - "tests/test_arc_successor_authorization.py"
+      - "protocols/arc_successor_v1_draft.json"
+      - ".github/workflows/arc-successor-authorization-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  fail-closed-authorization-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run authorization regression suite
+        run: python -m unittest discover -s tests -p 'test_arc_successor_authorization.py' -v
