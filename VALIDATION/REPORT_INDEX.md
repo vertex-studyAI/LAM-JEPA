@@ -1,6 +1,6 @@
 # LAM-JEPA external validation report index
 
-**Updated:** 2026-09-03  
+**Updated:** 2026-09-05  
 **Scientific boundary:** frozen negative/inconclusive ARC result; locked confirmatory test unchanged.
 
 This index counts **people/reports**, not CI reruns. Internal GitHub Actions reproductions remain reproducibility evidence but are not external validators.
@@ -50,17 +50,27 @@ Still prohibited:
 - quantizer removal solves ARC;
 - one report equals broad or multi-site external replication.
 
-## Evidence completeness
+## Recovered original-report metadata
 
-The repository summary states that the full external notes were received as `REVIEW_FOR_ISSUE_102.md`. The following fields must remain `NOT_RETAINED_IN_THIS_INDEX` unless recovered from the original report with permission:
+The original `REVIEW_FOR_ISSUE_102.md` notes were recovered from the retained email handoff on 2026-09-05. The report itself explicitly records:
 
-- reviewer identity if not already permissioned for public retention;
-- exact OS / accelerator / Python version;
-- exact command transcript;
-- full deviation log;
-- raw returned artifacts beyond the summarized evidence.
+- review target: PR #101 at head `beb58c7`;
+- execution environment: Windows with `torch 2.12.1+cpu`;
+- retained comparison artifact: `9149336081` from run `31203337502` at source SHA `760aa7f9`;
+- data boundary: train and validation only; the test split remained untouched;
+- protocol rerun: `run_arc_protocol_v3_controls.py` with seeds 1--5, 20 epochs, batch size 32, learning rate `0.0003`, one model step, full train/validation limits, CPU device;
+- matched-baseline rerun: `run_arc_matched_baseline_v3.py` with the same seeds/epochs/batch size/learning rate/model steps, `match-tolerance 0.01`, full train/validation limits, CPU device;
+- detailed per-seed constant-prediction counts, VQ-collapse measurements, bounded quantizer-off/alignment-off causal checks, truncation/collision observations, and manuscript wording critiques.
 
-Missing fields are not fabricated. The report remains useful as the first auditable external rerun/review, but a second and third independently retained reproduction are still required by the campaign target.
+This recovers the previously missing technical environment and command-level provenance without changing any scientific result or authorization boundary.
+
+### Fields intentionally not published or still unavailable
+
+- reviewer identity/contact details are **not** published here: the retained handoff permits use of the review notes for the review gate, but does not explicitly authorize public attribution of personal contact information;
+- exact Python version and physical CPU model are not stated in the recovered report;
+- raw rerun result files/checkpoints beyond the report's measurements and the already retained repository artifacts were not attached to the recovered handoff.
+
+No missing field is inferred or fabricated. The report remains the first auditable external rerun/review, while a second and third independently retained reproduction are still required by the campaign target.
 
 ## Internal reproducibility evidence — not counted as external reports
 
