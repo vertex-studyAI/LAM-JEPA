@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "status": "DRAFT_NOT_FROZEN",
+  "execution_authorized": false,
+  "outcomes_observed": false,
+  "source": {
+    "dataset": "AI2 ARC-Challenge",
+    "split": "train",
+    "source_sha256": "e488c1587ffdcfc8443f916c53488a95cd471c5790e0746c6bfe4cecf20962cb",
+    "source_rows": 1119,
+    "eligible_rows": 1117,
+    "eligibility_rule": "exactly_four_answer_choices",
+    "eligibility_artifact_sha256": "TBD"
+  },
+  "construction": {
+    "method": "sha256_rank_v1",
+    "seed": "TBD",
+    "dev_count": 0,
+    "label_blind": true,
+    "preserve_source_order_in_outputs": true
+  },
+  "boundary": {
+    "development_only": true,
+    "arc_validation_used": false,
+    "arc_test_used": false,
+    "same_partition_for_B0_B1_T1_T2": true,
+    "partition_selection_informed_by_treatment_outcomes": false,
+    "metric_selection_policy_sha256": "TBD"
+  }
+}
