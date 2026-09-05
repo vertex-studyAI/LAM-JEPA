@@ -1,0 +1,41 @@
+name: ARC Successor Freshness Audit
+
+on:
+  pull_request:
+    paths:
+      - 'DATA_FRESHNESS_AUDIT.md'
+      - 'protocols/data_freshness_audit_v1.json'
+      - 'protocols/arc_successor_v1_draft.json'
+      - 'data/manifests/arc_challenge.json'
+      - 'CLAIM_LEDGER.md'
+      - 'scripts/ci/verify_arc_successor_freshness_audit.py'
+      - 'tests/test_arc_successor_freshness_audit.py'
+      - '.github/workflows/arc-successor-freshness-audit.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'DATA_FRESHNESS_AUDIT.md'
+      - 'protocols/data_freshness_audit_v1.json'
+      - 'protocols/arc_successor_v1_draft.json'
+      - 'data/manifests/arc_challenge.json'
+      - 'CLAIM_LEDGER.md'
+      - 'scripts/ci/verify_arc_successor_freshness_audit.py'
+      - 'tests/test_arc_successor_freshness_audit.py'
+      - '.github/workflows/arc-successor-freshness-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify machine-readable freshness audit
+        run: python scripts/ci/verify_arc_successor_freshness_audit.py
+      - name: Run freshness boundary regression tests
+        run: python -m unittest tests.test_arc_successor_freshness_audit -v

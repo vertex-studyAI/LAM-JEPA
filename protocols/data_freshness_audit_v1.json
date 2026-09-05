@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "audit_id": "lam-arc-successor-data-freshness-v1",
+  "status": "COMPLETE_PENDING_INDEPENDENT_REVIEW",
+  "audit_date": "2026-09-06",
+  "repository_evidence_cutoff": "dc1db5c0309705c3054687be7924e3255eba6240",
+  "successor_protocol": "protocols/arc_successor_v1_draft.json",
+  "execution_authorized": false,
+  "whole_split_conservative_rule": true,
+  "arc_challenge": {
+    "manifest": "data/manifests/arc_challenge.json",
+    "dataset": "AI2 ARC-Challenge",
+    "splits": {
+      "train": {
+        "sha256": "e488c1587ffdcfc8443f916c53488a95cd471c5790e0746c6bfe4cecf20962cb",
+        "source_rows": 1119,
+        "historical_access": "ACCESSED",
+        "labels_or_outcomes_inspected": true,
+        "confirmatory_fresh": false,
+        "successor_use": "DEVELOPMENT_ONLY"
+      },
+      "validation": {
+        "sha256": "395a5c88d1580d69855fbaee9450270578df1ad5af6259771cd0a42c20e99f05",
+        "source_rows": 299,
+        "historical_access": "ACCESSED",
+        "labels_or_outcomes_inspected": true,
+        "confirmatory_fresh": false,
+        "successor_use": "HISTORICAL_OR_EXPLICIT_DEVELOPMENT_ONLY"
+      },
+      "test": {
+        "sha256": "62f03257e737aed263f55c6abf87c7bb0028a44a6bdd2a26eb1279eb42c1d1e9",
+        "source_rows": 1172,
+        "historical_access": "NO_RETAINED_PROJECT_EVIDENCE_OF_DOWNLOAD_OR_EVALUATION",
+        "labels_or_outcomes_inspected": false,
+        "confirmatory_fresh": null,
+        "successor_use": "PROHIBITED_OLD_LOCKED_TEST"
+      }
+    }
+  },
+  "successor_development_surface": {
+    "dataset": "AI2 ARC-Challenge",
+    "source_split": "train",
+    "allowed": true,
+    "confirmatory": false,
+    "requires_new_internal_split_manifest": true
+  },
+  "successor_confirmatory_surface": {
+    "status": "UNRESOLVED_HARD_BLOCKER",
+    "dataset": null,
+    "old_arc_test_allowed": false,
+    "one_shot_rule_required": true,
+    "independent_preoutcome_review_required": true
+  },
+  "evidence": [
+    "data/manifests/arc_challenge.json",
+    "protocols/arc_challenge_v1.json",
+    "protocols/arc_challenge_v2.json",
+    "protocols/arc_challenge_v3.json",
+    "protocols/arc_challenge_v5_repaired_validation.json",
+    "CLAIM_LEDGER.md",
+    "DATA_FRESHNESS_AUDIT.md"
+  ],
+  "blocker_disposition": {
+    "DATA_FRESHNESS_AUDIT": "READY_FOR_INDEPENDENT_REVIEW",
+    "CONFIRMATORY_DATASET": "UNRESOLVED"
+  }
+}
