@@ -1,0 +1,46 @@
+name: ARC Successor Development Split Freezer
+
+on:
+  pull_request:
+    paths:
+      - 'tools/successor_development_split_freezer.py'
+      - 'tests/test_successor_development_split_freezer.py'
+      - 'protocols/arc_successor_development_split_template.json'
+      - '.github/workflows/arc-successor-development-split-freezer.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/successor_development_split_freezer.py'
+      - 'tests/test_successor_development_split_freezer.py'
+      - 'protocols/arc_successor_development_split_template.json'
+      - '.github/workflows/arc-successor-development-split-freezer.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run development split freezer regression tests
+        run: python -m unittest tests.test_successor_development_split_freezer -v
+      - name: Prove draft template is deliberately non-freezable
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from tools.successor_development_split_freezer import validate_config
+
+          config = json.loads(Path('protocols/arc_successor_development_split_template.json').read_text())
+          errors = validate_config(config)
+          if not errors:
+              raise SystemExit('draft development split template unexpectedly passed validation')
+          print('\n'.join(errors))
+          PY
