@@ -88,15 +88,20 @@
     "posthoc_threshold_movement": false,
     "posthoc_seed_exclusion": false
   },
-  "blocker_resolution": {
-    "resolved_by_this_artifact": [
+  "stacked_resolution_boundary": {
+    "candidate_control_definitions_closed_here": [
       "COLLAPSE_THRESHOLDS",
       "PARAMETER_MATCH_TOLERANCE",
       "MAX_COMPUTE_RATIO"
     ],
-    "remaining_hard_blockers": [
+    "canonical_parent_protocol_blocker_ledger_intentionally_unchanged": true,
+    "reason": "This branch is stacked on active PR 167 and does not rewrite the parent branch concurrently. Canonical blocker-ledger reconciliation is a later integration step after this artifact receives review.",
+    "parent_current_hard_blockers_must_still_include": [
       "DATA_FRESHNESS_AUDIT",
       "CONFIRMATORY_DATASET",
+      "COLLAPSE_THRESHOLDS",
+      "PARAMETER_MATCH_TOLERANCE",
+      "MAX_COMPUTE_RATIO",
       "EXACT_REPRODUCE_COMMAND"
     ],
     "execution_remains_blocked": true
