@@ -1,10 +1,9 @@
 {
   "contract_id": "lam-arc-contextual-successor-v1-execution-lock",
-  "contract_version": 2,
+  "contract_version": 1,
   "status": "PREOUTCOME_EXECUTION_LOCK_ONLY",
   "protocol_id": "lam-arc-contextual-successor-v1-draft",
   "stack_base_sha": "f74b8ea99778fc7e8199d9f3df7379e20f51f584",
-  "evolution_parent_head": "c62d4bda78380ae9fd76276589b265ced8f48011",
   "scientific_execution_authorized": false,
   "outcome_access_authorized": false,
   "old_locked_test_access": "PROHIBITED",
@@ -24,11 +23,6 @@
     "encoder": {
       "artifact": "protocols/arc_successor_v1_encoder.json",
       "sha256": "8d9ea79aa7ee9777d3aad9044b63f1db5813b6e214d2bc7d559539700f09b516"
-    },
-    "budget_collapse_gates": {
-      "artifact": "protocols/arc_successor_v1_budget_collapse_gates.json",
-      "sha256": "f4cd76c85b92f4a769ad295cbb9316bf88321ec6f71382ce3dcff88ab304323e",
-      "required_status": "FROZEN_PRE_OUTCOME_NOT_AUTHORIZED"
     }
   },
   "frozen_primary_systems": [
@@ -62,7 +56,6 @@
     "context_target_sha256",
     "encoder_sha256",
     "evidence_schema_sha256",
-    "budget_collapse_gates_sha256",
     "execution_contract_sha256"
   ],
   "required_environment_binding_fields": [
@@ -97,12 +90,10 @@
   "current_required_hard_blockers": [
     "DATA_FRESHNESS_AUDIT",
     "CONFIRMATORY_DATASET",
-    "EXACT_REPRODUCE_COMMAND"
-  ],
-  "resolved_preoutcome_control_gates": [
     "COLLAPSE_THRESHOLDS",
     "PARAMETER_MATCH_TOLERANCE",
-    "MAX_COMPUTE_RATIO"
+    "MAX_COMPUTE_RATIO",
+    "EXACT_REPRODUCE_COMMAND"
   ],
   "fail_closed_rules": {
     "execute_mode_must_refuse_while_scientific_runner_unbound": true,
@@ -111,21 +102,17 @@
     "execute_mode_must_refuse_without_exact_dataset_bytes": true,
     "execute_mode_must_refuse_without_exact_environment_lock": true,
     "execute_mode_must_refuse_without_exact_source_binding": true,
-    "execute_mode_must_refuse_without_budget_contract_binding": true,
     "old_arc_v5_locked_test_never_permitted": true,
     "failed_seeds_must_be_retained": true,
     "secondary_metric_rescue_prohibited": true,
-    "secondary_system_rescue_prohibited": true,
-    "posthoc_seed_exclusion_prohibited": true,
-    "posthoc_threshold_movement_prohibited": true
+    "posthoc_seed_exclusion_prohibited": true
   },
   "publication_boundary": {
-    "allowed_statement": "Primary effect/uncertainty, seed consistency, catastrophic-collapse falsifiers, parameter tolerance, and compute ceiling were frozen before successor held-out outcome access; execution remains unauthorized.",
+    "allowed_statement": "A fail-closed source/runtime/authorization execution contract was frozen before successor outcome access.",
     "prohibited_claims": [
       "successor_improves_reasoning",
       "jepa_beats_supervised_learning",
       "mechanism_confirmed",
-      "representation_health_confirmed",
       "externally_validated",
       "execution_authorized"
     ]
