@@ -7,6 +7,7 @@ import importlib.util
 import inspect
 import json
 import math
+import sys
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -45,6 +46,10 @@ def load_construction_module(path: Path):
     spec = importlib.util.spec_from_file_location("arc_successor_context_target", path)
     require(spec is not None and spec.loader is not None, "cannot load context-target implementation")
     module = importlib.util.module_from_spec(spec)
+    # Dataclasses inspect sys.modules while class decorators execute. Register the
+    # synthetic module before exec_module so exact-head CI exercises the same
+    # import semantics as a normal Python import.
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
 
