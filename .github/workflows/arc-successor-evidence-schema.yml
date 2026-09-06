@@ -2,7 +2,7 @@ name: ARC Successor Evidence Schema
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, research/successor-encoder-freeze-v1]
     paths:
       - "protocols/arc_successor_v1_evidence_schema.json"
       - "protocols/arc_successor_v1_run_receipt_template.json"
