@@ -65,7 +65,7 @@ if not errors:
     required_sections = [
         'Introduction',
         'Related Work and Claim Boundary',
-        'Frozen Method',
+        'Frozen Method and Decision Gates',
         'Results',
         'Reproducibility and Failure Analysis',
         'Limitations and Conclusion',
