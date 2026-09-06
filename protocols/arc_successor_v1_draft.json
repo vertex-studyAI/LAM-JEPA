@@ -9,7 +9,6 @@
     "DATA_FRESHNESS_AUDIT",
     "CONFIRMATORY_DATASET",
     "ENCODER_FAMILY_AND_REVISION",
-    "CONTEXT_TARGET_CONSTRUCTION",
     "COLLAPSE_THRESHOLDS",
     "PARAMETER_MATCH_TOLERANCE",
     "MAX_COMPUTE_RATIO",
@@ -27,6 +26,10 @@
     "UNCERTAINTY_RULE": {
       "artifact": "protocols/arc_successor_v1_decision_rules.json",
       "sha256": "28d7158589091c2326154a30a4a14b1dac50c5d3049fae2b70298ac1a14dc625"
+    },
+    "CONTEXT_TARGET_CONSTRUCTION": {
+      "artifact": "protocols/arc_successor_v1_context_target.json",
+      "sha256": "6d828536b9983f84beb85e29c1db56dfd01a23aa22f3840a88272867bd3f5d6b"
     }
   },
   "systems": {
