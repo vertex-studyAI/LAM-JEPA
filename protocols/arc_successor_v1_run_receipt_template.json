@@ -1,0 +1,55 @@
+{
+  "template_id": "lam-arc-contextual-successor-v1-run-receipt-template",
+  "template_status": "PREOUTCOME_ONLY",
+  "schema_artifact": "protocols/arc_successor_v1_evidence_schema.json",
+  "identity": {
+    "protocol_id": "lam-arc-contextual-successor-v1-draft",
+    "system_id": null,
+    "seed": null,
+    "source_sha": null,
+    "decision_rules_sha256": "28d7158589091c2326154a30a4a14b1dac50c5d3049fae2b70298ac1a14dc625",
+    "context_target_sha256": "6d828536b9983f84beb85e29c1db56dfd01a23aa22f3840a88272867bd3f5d6b",
+    "encoder_sha256": "8d9ea79aa7ee9777d3aad9044b63f1db5813b6e214d2bc7d559539700f09b516"
+  },
+  "authorization": {
+    "execution_authorized": false,
+    "outcome_access_authorized": false,
+    "confirmatory_dataset_approved": false,
+    "independent_freshness_review_complete": false
+  },
+  "environment": {
+    "environment_lock_sha256": null,
+    "python_version": null,
+    "torch_version": null,
+    "device_class": null,
+    "precision": null,
+    "host_metadata_sha256": null
+  },
+  "data": {
+    "dataset_id": null,
+    "dataset_bytes_sha256": null,
+    "split_manifest_sha256": null,
+    "tokenizer_repo_id": "distilbert/distilroberta-base",
+    "tokenizer_revision": "fb53ab8802853c8e4fbdbcd0529f21fc6f459b2b",
+    "checkpoint_sha256": "2b11ca9cf3d2cbb44cc1a93ad96aedc2894231ae6e33e2d2268c3d7b1ff97663"
+  },
+  "training": {
+    "trainable_parameter_count": null,
+    "optimizer_steps": null,
+    "label_exposures": null,
+    "batch_size": null,
+    "gradient_accumulation": null,
+    "optimizer_config_sha256": null,
+    "runtime_seconds": null,
+    "device_seconds": null
+  },
+  "artifacts": [],
+  "claim_ledger": [],
+  "completion": {
+    "status": "PREOUTCOME_ONLY",
+    "receipt_sha256": null,
+    "all_required_artifacts_present": false,
+    "all_frozen_seeds_retained": false,
+    "claim_ledger_complete": false
+  }
+}
