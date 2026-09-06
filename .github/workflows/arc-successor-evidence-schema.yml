@@ -1,0 +1,94 @@
+name: ARC Successor Evidence Schema
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "protocols/arc_successor_v1_evidence_schema.json"
+      - "protocols/arc_successor_v1_run_receipt_template.json"
+      - "protocols/arc_successor_v1_evidence_schema_resolution.md"
+      - "protocols/arc_successor_v1_decision_rules.json"
+      - "protocols/arc_successor_v1_context_target.json"
+      - "protocols/arc_successor_v1_encoder.json"
+      - "tools/verify_arc_successor_evidence_schema.py"
+      - "tests/test_arc_successor_evidence_schema.py"
+      - ".github/workflows/arc-successor-evidence-schema.yml"
+  push:
+    branches: [main]
+    paths:
+      - "protocols/arc_successor_v1_evidence_schema.json"
+      - "protocols/arc_successor_v1_run_receipt_template.json"
+      - "protocols/arc_successor_v1_evidence_schema_resolution.md"
+      - "protocols/arc_successor_v1_decision_rules.json"
+      - "protocols/arc_successor_v1_context_target.json"
+      - "protocols/arc_successor_v1_encoder.json"
+      - "tools/verify_arc_successor_evidence_schema.py"
+      - "tests/test_arc_successor_evidence_schema.py"
+      - ".github/workflows/arc-successor-evidence-schema.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lam-jepa-successor-evidence-schema-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-preoutcome-evidence-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact source head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Assert exact source identity
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Setup Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+
+      - name: Compile verifier
+        run: python -m py_compile tools/verify_arc_successor_evidence_schema.py tests/test_arc_successor_evidence_schema.py
+
+      - name: Verify pre-outcome retained-evidence contract
+        env:
+          GITHUB_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python tools/verify_arc_successor_evidence_schema.py --report ci-evidence/evidence-schema-verification.json
+
+      - name: Run fail-closed evidence regressions
+        run: python tests/test_arc_successor_evidence_schema.py
+
+      - name: Record exact source and contract identities
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD | tee ci-evidence/source-head.txt
+          test "$(cat ci-evidence/source-head.txt)" = "$EXPECTED_HEAD"
+          sha256sum protocols/arc_successor_v1_evidence_schema.json | tee ci-evidence/evidence-schema.sha256
+          sha256sum protocols/arc_successor_v1_run_receipt_template.json | tee ci-evidence/run-receipt-template.sha256
+          sha256sum protocols/arc_successor_v1_decision_rules.json | tee ci-evidence/decision-rules.sha256
+          sha256sum protocols/arc_successor_v1_context_target.json | tee ci-evidence/context-target.sha256
+          sha256sum protocols/arc_successor_v1_encoder.json | tee ci-evidence/encoder.sha256
+
+      - name: Upload pre-outcome schema evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: lam-jepa-successor-evidence-schema-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 14
