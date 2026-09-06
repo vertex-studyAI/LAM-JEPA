@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "artifact_id": "lam-arc-successor-v1-budget-collapse-gates",
+  "status": "FROZEN_PRE_OUTCOME_NOT_AUTHORIZED",
+  "frozen_date": "2026-09-06",
+  "stacked_parent_head": "c62d4bda78380ae9fd76276589b265ced8f48011",
+  "relationship_to_arc_v5": "separate_successor_no_rescue_no_reinterpretation",
+  "old_locked_test_access": "PROHIBITED",
+  "scientific_execution_authorized": false,
+  "outcome_access_authorized": false,
+  "purpose": "Prospectively freeze catastrophic-collapse, parameter-match, and compute-budget gates before successor held-out treatment outcomes are available.",
+  "claim_boundary": "Passing these gates establishes only that the preregistered control-plane constraints were met. It does not establish representation quality, mechanism validity, accuracy benefit, significance, external validation, or scientific success.",
+  "design_rationale": {
+    "collapse_thresholds": "Operational catastrophic-collapse guards chosen prospectively and conservatively. They are not represented as literature-derived universal representation-quality thresholds.",
+    "parameter_tolerance": "Gradient-active parameter matching is the primary comparability quantity. Stop-gradient EMA target parameters are reported separately rather than hidden from accounting.",
+    "compute_ratio": "The treatment may incur bounded auxiliary-objective overhead, but label exposure, optimizer steps, search budget, device class, and precision must remain matched. Accelerator-time overhead is capped prospectively."
+  },
+  "measurement_contract": {
+    "probe_surface": "development_only_fixed_probe_batch",
+    "heldout_confirmatory_examples_permitted": false,
+    "probe_identity_must_be_frozen_before_training": true,
+    "checkpoint_trajectory_retained": true,
+    "primary_collapse_gate_checkpoint": "final_training_checkpoint",
+    "rounding_for_decisions": "none_unrounded_values_only",
+    "nonfinite_value_policy": "FAIL_CLOSED",
+    "missing_value_policy": "FAIL_CLOSED",
+    "failed_or_divergent_seed_policy": "RETAIN_AND_FAIL_RELEVANT_GATE"
+  },
+  "collapse_thresholds": {
+    "applies_to_primary_system": "T1",
+    "seed_scope": [11, 23, 37, 53, 71],
+    "aggregation": "every_primary_seed_must_clear_every_gate_at_final_checkpoint",
+    "normalized_effective_rank": {
+      "definition": "effective_rank_divided_by_hidden_dimension",
+      "minimum_inclusive": 0.05
+    },
+    "active_latent_dimension_fraction": {
+      "per_dimension_variance_epsilon": 1e-8,
+      "minimum_fraction_inclusive": 0.10
+    },
+    "mean_absolute_pairwise_cosine_similarity": {
+      "maximum_exclusive": 0.995
+    },
+    "representation_norms": {
+      "must_be_finite": true,
+      "must_be_strictly_positive": true
+    },
+    "interpretation": "These are catastrophic-collapse falsifiers only. Clearing them must not be described as proving healthy, useful, disentangled, or non-collapsed representations in a stronger sense.",
+    "secondary_system_boundary": "T2 and VQ variants cannot rescue a T1 collapse-gate failure. Their diagnostics are reported separately if those secondary systems are ever authorized."
+  },
+  "parameter_match_tolerance": {
+    "primary_pair": ["B0", "T1"],
+    "count_definition": "all_gradient_active_parameters_used_by_the_primary_training_objective",
+    "must_include_t1_predictor": true,
+    "ema_target_parameters": "REPORT_SEPARATELY_EXCLUDED_FROM_GRADIENT_ACTIVE_RATIO_ONLY_BECAUSE_STOP_GRADIENT",
+    "online_encoder_identity_must_match": true,
+    "classifier_head_shape_must_match": true,
+    "maximum_t1_to_b0_gradient_active_parameter_ratio_inclusive": 1.10,
+    "missing_parameter_count_policy": "FAIL_CLOSED",
+    "post_outcome_architecture_resize_to_meet_ratio": "PROHIBITED"
+  },
+  "compute_budget": {
+    "primary_pair": ["B0", "T1"],
+    "optimizer_steps_ratio": 1.0,
+    "supervised_label_exposure_ratio": 1.0,
+    "hyperparameter_trial_count_ratio": 1.0,
+    "maximum_sequence_length_must_match": true,
+    "device_class_must_match": true,
+    "precision_must_match": true,
+    "per_seed_maximum_t1_to_b0_accelerator_seconds_ratio_inclusive": 2.0,
+    "accelerator_seconds_definition": "measured_training_wall_seconds_on_the_same_declared_accelerator_class_excluding_preprocessing_and_evaluation",
+    "must_report_total_training_wall_seconds": true,
+    "must_report_forward_token_or_example_accounting": true,
+    "missing_runtime_measurement_policy": "FAIL_CLOSED",
+    "exceeded_ratio_policy": "PRIMARY_MECHANISM_CLAIM_FAILS_NO_SECONDARY_RESCUE"
+  },
+  "decision_integration": {
+    "h3_noncollapse_requires": "all collapse_thresholds pass for every retained T1 primary seed",
+    "primary_positive_result_requires": [
+      "frozen_H1_accuracy_and_uncertainty_gate",
+      "frozen_H2_seed_consistency_gate",
+      "this_artifact_H3_noncollapse_gate",
+      "this_artifact_parameter_match_gate",
+      "this_artifact_compute_budget_gate"
+    ],
+    "secondary_metric_rescue": false,
+    "secondary_system_rescue": false,
+    "posthoc_threshold_movement": false,
+    "posthoc_seed_exclusion": false
+  },
+  "stacked_resolution_boundary": {
+    "candidate_control_definitions_closed_here": [
+      "COLLAPSE_THRESHOLDS",
+      "PARAMETER_MATCH_TOLERANCE",
+      "MAX_COMPUTE_RATIO"
+    ],
+    "canonical_parent_protocol_blocker_ledger_intentionally_unchanged": true,
+    "reason": "This branch is stacked on active PR 167 and does not rewrite the parent branch concurrently. Canonical blocker-ledger reconciliation is a later integration step after this artifact receives review.",
+    "parent_current_hard_blockers_must_still_include": [
+      "DATA_FRESHNESS_AUDIT",
+      "CONFIRMATORY_DATASET",
+      "COLLAPSE_THRESHOLDS",
+      "PARAMETER_MATCH_TOLERANCE",
+      "MAX_COMPUTE_RATIO",
+      "EXACT_REPRODUCE_COMMAND"
+    ],
+    "execution_remains_blocked": true
+  }
+}

@@ -1,0 +1,110 @@
+name: ARC Successor Budget Collapse Gates
+
+on:
+  pull_request:
+    branches: [research/successor-execution-lock-v1, main]
+    paths:
+      - "protocols/arc_successor_v1_budget_collapse_gates.json"
+      - "protocols/arc_successor_v1_draft.json"
+      - "protocols/arc_successor_v1_execution_contract.json"
+      - "tools/verify_arc_successor_budget_collapse_gates.py"
+      - "tools/verify_arc_successor_execution_contract.py"
+      - "tests/test_arc_successor_budget_collapse_gates.py"
+      - ".github/workflows/arc-successor-budget-collapse-gates.yml"
+  push:
+    branches: [main]
+    paths:
+      - "protocols/arc_successor_v1_budget_collapse_gates.json"
+      - "tools/verify_arc_successor_budget_collapse_gates.py"
+      - "tests/test_arc_successor_budget_collapse_gates.py"
+      - ".github/workflows/arc-successor-budget-collapse-gates.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lam-jepa-successor-budget-collapse-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-preoutcome-budget-collapse-gates:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact source head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Assert exact source identity
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Setup Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+
+      - name: Compile outcome-blind control-plane code
+        run: |
+          python -m py_compile \
+            tools/verify_arc_successor_budget_collapse_gates.py \
+            tests/test_arc_successor_budget_collapse_gates.py
+
+      - name: Prove parent execution-lock contract is unchanged and still fail-closed
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python tools/verify_arc_successor_execution_contract.py \
+            --report ci-evidence/parent-execution-lock-verification.json
+
+      - name: Verify frozen budget and collapse gates
+        run: |
+          set -euo pipefail
+          python tools/verify_arc_successor_budget_collapse_gates.py \
+            --report ci-evidence/budget-collapse-verification.json
+
+      - name: Run fail-closed regressions
+        run: python tests/test_arc_successor_budget_collapse_gates.py
+
+      - name: Prove control-plane lane has no model or dataset imports
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          paths = [
+              Path("tools/verify_arc_successor_budget_collapse_gates.py"),
+              Path("tests/test_arc_successor_budget_collapse_gates.py"),
+          ]
+          forbidden = ("import torch", "from torch", "import transformers", "from transformers", "import datasets", "from datasets")
+          for path in paths:
+              text = path.read_text(encoding="utf-8").lower()
+              for token in forbidden:
+                  assert token not in text, f"forbidden scientific dependency in {path}: {token}"
+          PY
+
+      - name: Record exact source and gate identities
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD | tee ci-evidence/source-head.txt
+          test "$(cat ci-evidence/source-head.txt)" = "$EXPECTED_HEAD"
+          sha256sum protocols/arc_successor_v1_budget_collapse_gates.json | tee ci-evidence/budget-collapse-gates.sha256
+          sha256sum protocols/arc_successor_v1_draft.json | tee ci-evidence/parent-protocol.sha256
+          sha256sum protocols/arc_successor_v1_execution_contract.json | tee ci-evidence/parent-execution-contract.sha256
+          sha256sum tools/verify_arc_successor_budget_collapse_gates.py | tee ci-evidence/verifier.sha256
+
+      - name: Upload pre-outcome gate evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: lam-jepa-successor-budget-collapse-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 14
