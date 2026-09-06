@@ -1,7 +1,7 @@
 # LAM successor study — ARC-contextual predictive representation protocol v1 (DRAFT)
 
 **Status:** DRAFT / NOT FROZEN / NOT AUTHORIZED FOR HELD-OUT CLAIMS  
-**Date:** 2026-08-27  
+**Date:** 2026-08-27; primary decision rules frozen pre-outcome 2026-09-06  
 **Scientific relationship to ARC-v5:** separate versioned study. This protocol does not modify, rescue, or reinterpret the frozen ARC-v5 negative/inconclusive result. The old locked confirmatory test remains untouched.
 
 ## 1. Why a successor study is justified
@@ -16,19 +16,23 @@ A successor is therefore permitted only as a **new hypothesis** that fixes the q
 
 This protocol intentionally does **not** ask whether the old ARC-v5 architecture can be tuned until it wins.
 
-## 3. Primary hypotheses
+## 3. Primary hypotheses and frozen decision rules
 
-- **H1 — contextual predictive auxiliary value:** treatment T1 outperforms baseline B0 on the frozen primary metric by at least the preregistered material margin `DELTA_PRIMARY`.
-- **H2 — seed consistency:** the paired T1−B0 effect is positive for at least `SEED_WIN_FRACTION` of frozen seeds and its uncertainty interval satisfies the preregistered directional criterion.
-- **H3 — non-collapse:** T1 clears every frozen representation-health gate. A numerically favorable classifier result accompanied by representation collapse does not count as mechanism success.
+The primary statistical decision rules are now frozen pre-outcome in `protocols/arc_successor_v1_decision_rules.json` (SHA-256 `28d7158589091c2326154a30a4a14b1dac50c5d3049fae2b70298ac1a14dc625`). Freezing these fields resolves only `DELTA_PRIMARY`, `SEED_WIN_FRACTION`, and `UNCERTAINTY_RULE`; it does not authorize execution or resolve the remaining scientific blockers.
 
-Secondary hypotheses may be added before freeze, but no secondary result can rescue failed H1–H3.
+- **H1 — contextual predictive auxiliary value:** T1 must exceed B0 by a mean paired held-out accuracy difference of at least **0.02 absolute accuracy**, and the lower endpoint of the frozen 95% paired hierarchical bootstrap interval must be strictly greater than zero. The 0.02 practical margin deliberately carries forward the predecessor study's already-established threshold rather than selecting a more permissive successor-specific effect after prior negative evidence.
+- **H2 — seed consistency:** at least **4 of the 5** frozen seeds (`11, 23, 37, 53, 71`) must have a strictly positive T1−B0 paired accuracy effect. Ties do not count as wins. Failed, divergent, or collapsed seeds may not be removed post hoc.
+- **H3 — non-collapse:** T1 must clear every separately frozen representation-health gate. A numerically favorable classifier result accompanied by representation collapse does not count as mechanism success.
+
+The uncertainty estimator is a **10,000-replicate paired hierarchical percentile bootstrap** with bootstrap seed `20260906`. Each replicate resamples frozen seeds with replacement and, within each selected seed, resamples confirmatory examples while preserving the paired T1/B0 correctness difference on each example. The reported statistic is the mean paired accuracy difference across the resampled seeds. Decision gates are evaluated on unrounded values; rounding is display-only.
+
+H1–H3 must all pass for a positive primary mechanism result. Secondary metrics cannot rescue primary failure.
 
 ## 4. Freshness / leakage gate before any scientific run
 
 Historical ARC-Challenge validation outcomes have already been observed in the project. Therefore the previous ARC validation split must **not** be relabeled as a clean confirmatory set for this successor.
 
-Before freezing v1, create `DATA_FRESHNESS_AUDIT.md` that records:
+Before freezing v1, maintain `DATA_FRESHNESS_AUDIT.md` recording:
 
 1. every ARC split previously accessed by this project;
 2. whether labels or aggregate outcomes were inspected;
@@ -36,7 +40,7 @@ Before freezing v1, create `DATA_FRESHNESS_AUDIT.md` that records:
 4. the candidate development and confirmatory datasets for v1;
 5. why the confirmatory set is genuinely unobserved by the treatment-development process.
 
-If a genuinely unobserved confirmatory set cannot be established, v1 may run only as a **development study**. It must not be described as confirmatory validation.
+The audit exists, but its independent review remains a hard blocker. If a genuinely unobserved confirmatory set cannot be established, v1 may run only as a **development study**. It must not be described as confirmatory validation.
 
 The old ARC-v5 locked test is never opened as part of this successor.
 
@@ -48,14 +52,16 @@ Use only data explicitly marked development-safe by the freshness audit. The def
 
 ### Confirmatory surface
 
-`CONFIRMATORY_DATASET` is unresolved at draft time and is a **hard blocker**. It must satisfy all of the following before protocol freeze:
+`CONFIRMATORY_DATASET` remains unresolved and is a **hard blocker**. OpenBookQA is retained only as a separately sourced candidate dossier; it is not approved merely because its provenance metadata are pinned. A confirmatory dataset must satisfy all of the following before protocol freeze:
 
 - not previously used to tune this treatment family;
 - task-compatible with the frozen input/output contract;
-- licensing and redistribution status recorded;
-- immutable dataset version/hash retained;
+- licensing and redistribution/use status recorded;
+- immutable dataset version and exact local-byte hash retained;
 - labels hidden from model/hyperparameter development;
-- one-shot evaluation rule documented.
+- overlap/contamination review completed to the extent mechanically and manually reviewable;
+- exact development/confirmatory split policy frozen;
+- one-shot evaluation rule documented and independently approved pre-outcome.
 
 No scientific treatment run is authorized while `CONFIRMATORY_DATASET` is unresolved.
 
@@ -102,7 +108,7 @@ The context and target must encode genuinely different information. Accepted v1 
 
 The target encoder may not receive the same full serialized input as the context encoder and then be described as predictive target learning.
 
-The exact mask rate/distribution, span construction, randomization, and visibility rules are freeze-time fields.
+The exact mask rate/distribution, span construction, randomization, and visibility rules remain a hard blocker and must be frozen before scientific execution.
 
 ## 8. Matched-budget contract
 
@@ -121,19 +127,21 @@ For B0/B1/T1/T2 record and match, within a preregistered tolerance:
 - device class and precision;
 - wall-clock and accelerator time.
 
-If exact parameter equality is impossible, freeze an allowed parameter-count ratio and report it. Treatment-specific predictor/target components must never be hidden from the count.
+If exact parameter equality is impossible, freeze an allowed parameter-count ratio and report it. Treatment-specific predictor/target components must never be hidden from the count. `PARAMETER_MATCH_TOLERANCE` and `MAX_COMPUTE_RATIO` remain unresolved hard blockers.
 
 ## 9. Seeds
 
-Default frozen seed proposal: `11, 23, 37, 53, 71`.
+Frozen primary seed set: `11, 23, 37, 53, 71`.
 
-These seed values may be changed only before protocol freeze. Once frozen, failed, divergent, or collapsed seeds are retained in the aggregate unless a preregistered mechanical exclusion rule applies equally to all systems.
+Failed, divergent, or collapsed seeds are retained in the aggregate unless a preregistered mechanical exclusion rule applies equally to all systems. Under the frozen primary rule, at least four seeds must have a strictly positive T1−B0 accuracy difference; zero-difference ties are not wins.
 
 ## 10. Primary and secondary metrics
 
 ### Primary
 
-- multiple-choice held-out accuracy on the declared evaluation surface.
+- multiple-choice held-out accuracy on the declared confirmatory evaluation surface.
+
+The frozen primary material-effect gate is mean paired T1−B0 accuracy `>= 0.02`, with the paired hierarchical-bootstrap 95% lower endpoint `> 0` and at least four of five strictly positive seed effects.
 
 ### Secondary
 
@@ -170,23 +178,26 @@ For any VQ variant also record:
 - per-seed code-switch/utilization trajectory;
 - encoder-distribution drift relative to codebook movement.
 
-Exact collapse thresholds are `COLLAPSE_THRESHOLDS_TBD` at draft time and must be fixed from train-only diagnostics or literature-supported values **before** treatment held-out outcomes are inspected.
+Exact collapse thresholds remain `COLLAPSE_THRESHOLDS_TBD` and must be fixed from train-only diagnostics or literature-supported values **before** treatment held-out outcomes are inspected.
 
 ## 12. Success, null, and kill criteria
 
-This draft is intentionally non-executable until the numerical fields below are frozen:
+Three primary decision fields are already frozen: `DELTA_PRIMARY=0.02`, `SEED_WIN_FRACTION=0.8` (4/5 strictly positive seeds), and the 10,000-replicate paired hierarchical `UNCERTAINTY_RULE` described above.
 
-- `DELTA_PRIMARY` — minimum material paired accuracy gain;
-- `SEED_WIN_FRACTION` — minimum fraction of seeds with positive paired effect;
-- `UNCERTAINTY_RULE` — e.g. bootstrap interval condition;
+The study remains intentionally non-executable until these remaining blockers are resolved in evidence-backed artifacts:
+
+- `DATA_FRESHNESS_AUDIT` independent review;
+- `CONFIRMATORY_DATASET` independent approval and exact byte receipt;
+- `ENCODER_FAMILY_AND_REVISION`;
+- `CONTEXT_TARGET_CONSTRUCTION`;
 - `COLLAPSE_THRESHOLDS`;
 - `PARAMETER_MATCH_TOLERANCE`;
 - `MAX_COMPUTE_RATIO`;
-- `CONFIRMATORY_DATASET`.
+- `EXACT_REPRODUCE_COMMAND` and environment/source bindings.
 
 ### Success
 
-H1–H3 must all pass. A favorable mean with failed seed consistency or a collapse gate is not a positive mechanism result.
+H1–H3 must all pass. A favorable mean with failed seed consistency, a bootstrap lower bound at or below zero, or a collapse gate is not a positive mechanism result.
 
 ### Null / negative
 
@@ -217,13 +228,13 @@ For every seed and system retain raw predictions and loss curves. Report:
 1. per-seed metric table;
 2. mean and sample standard deviation;
 3. paired T1−B0 effects;
-4. a preregistered paired bootstrap interval or other frozen uncertainty estimator;
+4. the frozen 10,000-replicate paired hierarchical percentile-bootstrap 95% interval;
 5. all failed/divergent/collapsed runs;
 6. representation-health curves;
 7. parameter, label-exposure, step, runtime, and search-budget tables;
 8. exact data and source hashes.
 
-No p-hacking across multiple metrics. The primary metric and uncertainty rule are frozen first.
+The bootstrap resamples seeds with replacement and then paired confirmatory examples within each sampled seed, preserving each example's T1/B0 correctness difference. The primary gate uses unrounded values. No p-hacking across multiple metrics is permitted.
 
 ## 15. Ablation order
 
@@ -263,24 +274,25 @@ A scientifically admissible run must produce:
 
 Do **not** run held-out treatment evaluation until all are true:
 
-- [ ] `DATA_FRESHNESS_AUDIT.md` complete.
+- [ ] `DATA_FRESHNESS_AUDIT.md` independently reviewed.
 - [ ] confirmatory dataset/split proven unobserved and frozen, or study explicitly downgraded to development-only.
 - [ ] encoder/checkpoint/tokenizer frozen.
 - [ ] context/target visibility rules frozen.
-- [ ] B0/B1/T1/T2 definitions frozen.
+- [ ] B0/B1/T1/T2 definitions and implementation identities frozen.
 - [ ] parameter/search/compute tolerances frozen.
-- [ ] seeds frozen.
-- [ ] primary metric and uncertainty estimator frozen.
-- [ ] numerical success/kill thresholds frozen.
+- [x] seeds frozen (`11, 23, 37, 53, 71`).
+- [x] primary metric, 0.02 practical-effect threshold, 4/5 seed-consistency gate, and hierarchical-bootstrap estimator frozen pre-outcome.
 - [ ] collapse thresholds frozen without held-out treatment inspection.
-- [ ] exact commands/environment frozen.
-- [ ] raw artifact schema and claim ledger paths frozen.
+- [ ] exact commands/environment/source identities frozen.
+- [ ] raw artifact schema and claim-ledger paths frozen.
+
+The checked boxes above are necessary but not sufficient for execution authorization.
 
 ## 18. Publication boundary
 
 Allowed before results:
 
-> We preregister a successor study testing whether genuinely distinct-target predictive representation learning adds value over a matched contextual supervised baseline.
+> We preregister a successor study testing whether genuinely distinct-target predictive representation learning adds value over a matched contextual supervised baseline, with a pre-outcome 2 percentage-point practical-effect gate, four-of-five seed consistency requirement, and paired hierarchical bootstrap uncertainty rule.
 
 Not allowed before evidence:
 
@@ -292,11 +304,12 @@ Not allowed before evidence:
 
 ## 19. Next implementation tasks
 
-1. produce the data-freshness audit;
-2. select and pin the contextual encoder/checkpoint;
-3. implement B0 first and verify deterministic data plumbing;
-4. implement context/target visibility tests that fail on leakage;
-5. add the representation-health logger;
-6. implement T1 only after B0 and leakage tests are green;
-7. fill every `TBD` field and convert this file to a frozen protocol in a new commit;
-8. only then run the development/confirmatory plan permitted by the freshness audit.
+1. obtain independent review of the data-freshness audit and OpenBookQA candidate provenance/licensing/overlap/split policy; retain `CONFIRMATORY_DATASET` as unresolved until that review and exact-byte receipt exist;
+2. select and pin the contextual encoder/checkpoint/tokenizer;
+3. freeze the exact context/target construction and add visibility/leakage tests;
+4. freeze collapse thresholds from literature/train-only diagnostics plus parameter-match and compute-ratio tolerances;
+5. implement B0 first and verify deterministic data plumbing;
+6. add the representation-health logger;
+7. implement T1 only after B0 and leakage tests are green;
+8. freeze the exact environment/source/reproduce command in a new evidence-backed commit;
+9. only then authorize the development/confirmatory plan permitted by the independently reviewed freshness boundary.

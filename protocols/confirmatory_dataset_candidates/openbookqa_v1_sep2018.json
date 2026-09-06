@@ -37,6 +37,16 @@
     },
     "role": "Independent metadata cross-check only. The official archive remains the proposed canonical source unless independent review chooses otherwise."
   },
+  "preoutcome_decision_rules": {
+    "artifact": "protocols/arc_successor_v1_decision_rules.json",
+    "sha256": "28d7158589091c2326154a30a4a14b1dac50c5d3049fae2b70298ac1a14dc625",
+    "resolved_blockers": [
+      "DELTA_PRIMARY",
+      "SEED_WIN_FRACTION",
+      "UNCERTAINTY_RULE"
+    ],
+    "note": "These rules were frozen without opening OpenBookQA task rows or model outcomes and do not approve this candidate or authorize execution."
+  },
   "preoutcome_access_policy": {
     "test_rows_or_answer_keys_opened_for_this_candidate_review": false,
     "model_outcomes_generated": false,
@@ -50,7 +60,7 @@
       "inspect test questions, choices, labels, or answer keys",
       "run any successor system on the candidate test split",
       "choose the dataset because of observed model performance",
-      "change the primary metric, seeds, effect threshold, or uncertainty rule after candidate outcomes are observed"
+      "change the primary metric, seeds, effect threshold, seed-consistency threshold, or uncertainty rule after candidate outcomes are observed"
     ]
   },
   "required_independent_review_before_freeze": [
@@ -66,9 +76,6 @@
     "CONFIRMATORY_DATASET independent approval and byte receipt",
     "ENCODER_FAMILY_AND_REVISION",
     "CONTEXT_TARGET_CONSTRUCTION",
-    "DELTA_PRIMARY",
-    "SEED_WIN_FRACTION",
-    "UNCERTAINTY_RULE",
     "COLLAPSE_THRESHOLDS",
     "PARAMETER_MATCH_TOLERANCE",
     "MAX_COMPUTE_RATIO",
