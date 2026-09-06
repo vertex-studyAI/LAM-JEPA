@@ -8,9 +8,21 @@ BIB = Path('paper/references.bib')
 GATE = Path('paper/ICDM_TEEN_SUBMISSION_GATE_20260828.md')
 CITATION_AUDIT = Path('paper/ICDM_TEEN_CITATION_AUDIT_20260828.md')
 PROVENANCE = Path('MANUSCRIPT_PROVENANCE.md')
+PAPER_README = Path('paper/README.md')
+EXTERNAL_REVIEW = Path('paper/EXTERNAL_REVIEW_VQ_COLLAPSE_CORRECTION_20260831.md')
+CLAIM_LEDGER = Path('CLAIM_LEDGER.md')
 
 errors = []
-for path in (TEX, BIB, GATE, CITATION_AUDIT, PROVENANCE):
+for path in (
+    TEX,
+    BIB,
+    GATE,
+    CITATION_AUDIT,
+    PROVENANCE,
+    PAPER_README,
+    EXTERNAL_REVIEW,
+    CLAIM_LEDGER,
+):
     if not path.exists():
         errors.append(f'missing {path}')
 
@@ -20,6 +32,9 @@ if not errors:
     gate = GATE.read_text(encoding='utf-8')
     citation_audit = CITATION_AUDIT.read_text(encoding='utf-8')
     provenance = PROVENANCE.read_text(encoding='utf-8')
+    paper_readme = PAPER_README.read_text(encoding='utf-8')
+    external_review = EXTERNAL_REVIEW.read_text(encoding='utf-8')
+    claim_ledger = CLAIM_LEDGER.read_text(encoding='utf-8')
 
     required_tex = {
         'IEEE conference class': r'\documentclass[10pt,conference]{IEEEtran}',
@@ -35,7 +50,8 @@ if not errors:
         'frozen learning rate': r'3\times10^{-4}',
         'locked test boundary': 'locked confirmatory test',
         'no superiority boundary': 'no claim of ARC superiority',
-        'external reproduction pending': 'Independent external reproduction',
+        'bounded external reproduction': 'One independent frozen-protocol external rerun/review',
+        'external collapse diagnosis': 'single-code vector-quantizer collapse',
         'scientific source SHA': '760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb',
         'active parameter count LAM': '86,372',
         'active parameter count matched': '86,644',
@@ -63,7 +79,8 @@ if not errors:
         'false transformer claim': 'LAM-JEPA is a Transformer',
         'false planner benefit': 'planner improves ARC accuracy',
         'false target benefit': 'target path improves ARC accuracy',
-        'false external reproduction': 'independently externally reproduced',
+        'false broad external reproduction': 'independently externally reproduced across multiple sites',
+        'false peer-review claim': 'peer-reviewed publication validates',
         'test-set result claim': 'ARC test accuracy',
     }
     for label, token in forbidden_tex.items():
@@ -116,6 +133,44 @@ if not errors:
         if token.lower() not in provenance.lower():
             errors.append(f'missing provenance boundary: {token}')
 
+    required_external_review = [
+        'A genuinely external reviewer independently reran the frozen ARC protocol',
+        'all retained full/control runs collapse to constant classifiers',
+        'VQ assignment | **1 of 32 codes**',
+        'Quantizer removal solves the ARC task.',
+        'The external review constitutes peer-reviewed publication or broad independent replication.',
+    ]
+    for token in required_external_review:
+        if token.lower() not in external_review.lower():
+            errors.append(f'missing external-review evidence boundary: {token}')
+
+    required_claim_ledger = [
+        'C21 | One genuinely external frozen-protocol rerun/review',
+        'VERIFIED, bounded external reproduction',
+        'ONE_EXTERNAL_FROZEN_PROTOCOL_REPRODUCTION',
+        'BROAD_INDEPENDENT_REPLICATION',
+    ]
+    for token in required_claim_ledger:
+        if token.lower() not in claim_ledger.lower():
+            errors.append(f'missing claim-ledger external-review boundary: {token}')
+
+    required_readme = [
+        'One genuinely external frozen-protocol rerun/review has already reproduced the retained headline metrics',
+        'it is not broad multi-site replication or peer review',
+        'A second independent rerun/reviewer remains a stronger promotion gate',
+    ]
+    for token in required_readme:
+        if token.lower() not in paper_readme.lower():
+            errors.append(f'missing paper README external-review boundary: {token}')
+
+    stale_readme_claims = [
+        'Independent external reproduction is also still pending',
+        'no genuinely independent reproduction/review report has been returned yet',
+    ]
+    for token in stale_readme_claims:
+        if token.lower() in paper_readme.lower():
+            errors.append(f'stale external-review state present in paper README: {token}')
+
     # These TeX-safe placeholders are deliberately required until owner-controlled
     # metadata is truthfully supplied. Their presence means the source is NOT upload-ready.
     # Keep them bracket-free inside IEEEtran author blocks to avoid parser ambiguity.
@@ -135,5 +190,5 @@ if errors:
 
 print('ICDM Teen submission-source verification: PASS')
 print(f'Cross-checked {len(cited_keys)} cited keys against BibTeX and the primary-source citation audit.')
-print('Static scientific, protocol, venue, citation, and provenance boundaries are present.')
-print('This does NOT prove successful LaTeX compilation, PDF page count, font/overflow quality, owner metadata, external reproduction, or submission.')
+print('Static scientific, protocol, venue, citation, provenance, and bounded external-review boundaries are present.')
+print('This does NOT prove successful LaTeX compilation, PDF page count, font/overflow quality, owner metadata, broad independent replication, peer review, or submission.')
