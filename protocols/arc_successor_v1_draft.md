@@ -1,7 +1,7 @@
 # LAM successor study — ARC-contextual predictive representation protocol v1 (DRAFT)
 
 **Status:** DRAFT / NOT FROZEN / NOT AUTHORIZED FOR HELD-OUT CLAIMS  
-**Date:** 2026-08-27; primary decision rules frozen pre-outcome 2026-09-06  
+**Date:** 2026-08-27; primary decision rules and context/target construction frozen pre-outcome 2026-09-06  
 **Scientific relationship to ARC-v5:** separate versioned study. This protocol does not modify, rescue, or reinterpret the frozen ARC-v5 negative/inconclusive result. The old locked confirmatory test remains untouched.
 
 ## 1. Why a successor study is justified
@@ -100,15 +100,13 @@ Vector quantization is **not** part of the primary headline treatment. A quantiz
 
 ## 7. Context/target construction
 
-The context and target must encode genuinely different information. Accepted v1 constructions are restricted to one choice frozen before outcomes:
+`CONTEXT_TARGET_CONSTRUCTION` is now resolved by the pre-outcome artifact `protocols/arc_successor_v1_context_target.json` (SHA-256 `6d828536b9983f84beb85e29c1db56dfd01a23aa22f3840a88272867bd3f5d6b`) and the executable constructor `tools/arc_successor_context_target.py`. This resolution does **not** authorize a scientific run and does not resolve the encoder, data, collapse, budget, environment, or independent-review blockers.
 
-- masked contiguous semantic spans;
-- withheld sentence/question substructure that is not visible in the context view;
-- another explicitly defined non-overlapping representation target.
+The frozen construction is label-blind and deterministic. It accepts only a stable example identifier, the question stem, and ordered choice texts. Answer keys, gold labels, correct-choice indices, and equivalent label-bearing fields are not inputs to view construction. One contiguous span is selected from the **question stem only** using whitespace-token positions, a fixed view seed `20260906`, a 20% span fraction, a minimum of one token, and a maximum of eight tokens. The start position is deterministically derived from the example identifier and frozen view seed. The same example therefore receives the same view across epochs and model seeds.
 
-The target encoder may not receive the same full serialized input as the context encoder and then be described as predictive target learning.
+The T1 auxiliary context replaces exactly that withheld question span with `[WITHHELD_SPAN]` and preserves all ordered choice texts. The auxiliary target contains only the withheld question span; it receives no answer label, choice text, or remaining context. B0 and T1 retain the same full label-free question-plus-choices serialization for the supervised classifier path, so this artifact changes the auxiliary predictive view rather than granting T1 different supervised input.
 
-The exact mask rate/distribution, span construction, randomization, and visibility rules remain a hard blocker and must be frozen before scientific execution.
+Post-outcome changes to mask rate, span rule, view seed, example-specific masking, or named-confirmatory-example special cases are prohibited. The constructor and its verifier/tests are experiment-enabling controls only; they are not evidence of an accuracy benefit or of non-collapse.
 
 ## 8. Matched-budget contract
 
@@ -182,14 +180,13 @@ Exact collapse thresholds remain `COLLAPSE_THRESHOLDS_TBD` and must be fixed fro
 
 ## 12. Success, null, and kill criteria
 
-Three primary decision fields are already frozen: `DELTA_PRIMARY=0.02`, `SEED_WIN_FRACTION=0.8` (4/5 strictly positive seeds), and the 10,000-replicate paired hierarchical `UNCERTAINTY_RULE` described above.
+Three primary decision fields are already frozen: `DELTA_PRIMARY=0.02`, `SEED_WIN_FRACTION=0.8` (4/5 strictly positive seeds), and the 10,000-replicate paired hierarchical `UNCERTAINTY_RULE` described above. `CONTEXT_TARGET_CONSTRUCTION` is also frozen as described in Section 7.
 
 The study remains intentionally non-executable until these remaining blockers are resolved in evidence-backed artifacts:
 
 - `DATA_FRESHNESS_AUDIT` independent review;
 - `CONFIRMATORY_DATASET` independent approval and exact byte receipt;
 - `ENCODER_FAMILY_AND_REVISION`;
-- `CONTEXT_TARGET_CONSTRUCTION`;
 - `COLLAPSE_THRESHOLDS`;
 - `PARAMETER_MATCH_TOLERANCE`;
 - `MAX_COMPUTE_RATIO`;
@@ -277,7 +274,7 @@ Do **not** run held-out treatment evaluation until all are true:
 - [ ] `DATA_FRESHNESS_AUDIT.md` independently reviewed.
 - [ ] confirmatory dataset/split proven unobserved and frozen, or study explicitly downgraded to development-only.
 - [ ] encoder/checkpoint/tokenizer frozen.
-- [ ] context/target visibility rules frozen.
+- [x] context/target visibility rules frozen (`protocols/arc_successor_v1_context_target.json`, SHA-256 `6d828536b9983f84beb85e29c1db56dfd01a23aa22f3840a88272867bd3f5d6b`).
 - [ ] B0/B1/T1/T2 definitions and implementation identities frozen.
 - [ ] parameter/search/compute tolerances frozen.
 - [x] seeds frozen (`11, 23, 37, 53, 71`).
@@ -306,7 +303,7 @@ Not allowed before evidence:
 
 1. obtain independent review of the data-freshness audit and OpenBookQA candidate provenance/licensing/overlap/split policy; retain `CONFIRMATORY_DATASET` as unresolved until that review and exact-byte receipt exist;
 2. select and pin the contextual encoder/checkpoint/tokenizer;
-3. freeze the exact context/target construction and add visibility/leakage tests;
+3. integrate the frozen context/target constructor into the B0/T1 data path and keep the label/visibility/leakage regressions green;
 4. freeze collapse thresholds from literature/train-only diagnostics plus parameter-match and compute-ratio tolerances;
 5. implement B0 first and verify deterministic data plumbing;
 6. add the representation-health logger;
