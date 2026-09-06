@@ -24,7 +24,8 @@ Scientific prose and claim boundaries originate from:
 - `../PAPER_FINALIZATION_20260822.md`
 - `../MANUSCRIPT_PROVENANCE.md`
 - `../REPRODUCE.md`
-- `../EXTERNAL_VALIDATION_PACKET_20260814.md`
+- `EXTERNAL_REVIEW_VQ_COLLAPSE_CORRECTION_20260831.md`
+- `../CLAIM_LEDGER.md`
 
 If any numerical or scientific discrepancy is found, those evidence/provenance files and the frozen artifacts take precedence over this typesetting layer.
 
@@ -37,8 +38,8 @@ The TeX source intentionally leaves authorship unresolved. Before any public sub
 - final citation metadata;
 - venue-specific formatting/required declarations.
 
-Independent external reproduction is also still pending and must not be claimed as complete until performed by a genuinely independent party.
+One genuinely external frozen-protocol rerun/review has already reproduced the retained headline metrics and supplied the bounded VQ-collapse diagnosis recorded in `EXTERNAL_REVIEW_VQ_COLLAPSE_CORRECTION_20260831.md`. That evidence must be described only at one-reviewer/frozen-protocol scope; it is not broad multi-site replication or peer review. A second independent rerun/reviewer remains a stronger promotion gate if the project is to claim broader external reproducibility.
 
 ## Scientific boundary
 
-The supported conclusion is a reproducible negative/inconclusive result for the tested frozen ARC configuration. Do not claim ARC superiority, planner benefit, EMA-target benefit, general JEPA failure, Transformer reasoning capability, quantization/generalization benefit, or successful use of the locked confirmatory test.
+The supported conclusion is a reproducible negative/inconclusive result for the tested frozen ARC configuration, sharpened by one bounded external failure-mechanism review. Do not claim ARC superiority, planner benefit, EMA-target benefit, general JEPA failure, general vector-quantization failure, Transformer reasoning capability, quantizer-off task success, or successful use of the locked confirmatory test.
