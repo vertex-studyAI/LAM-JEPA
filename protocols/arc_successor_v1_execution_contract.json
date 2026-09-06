@@ -1,0 +1,120 @@
+{
+  "contract_id": "lam-arc-contextual-successor-v1-execution-lock",
+  "contract_version": 1,
+  "status": "PREOUTCOME_EXECUTION_LOCK_ONLY",
+  "protocol_id": "lam-arc-contextual-successor-v1-draft",
+  "stack_base_sha": "f74b8ea99778fc7e8199d9f3df7379e20f51f584",
+  "scientific_execution_authorized": false,
+  "outcome_access_authorized": false,
+  "old_locked_test_access": "PROHIBITED",
+  "frozen_dependencies": {
+    "evidence_schema": {
+      "artifact": "protocols/arc_successor_v1_evidence_schema.json",
+      "required_status": "PREOUTCOME_CONTRACT_ONLY"
+    },
+    "decision_rules": {
+      "artifact": "protocols/arc_successor_v1_decision_rules.json",
+      "sha256": "28d7158589091c2326154a30a4a14b1dac50c5d3049fae2b70298ac1a14dc625"
+    },
+    "context_target": {
+      "artifact": "protocols/arc_successor_v1_context_target.json",
+      "sha256": "6d828536b9983f84beb85e29c1db56dfd01a23aa22f3840a88272867bd3f5d6b"
+    },
+    "encoder": {
+      "artifact": "protocols/arc_successor_v1_encoder.json",
+      "sha256": "8d9ea79aa7ee9777d3aad9044b63f1db5813b6e214d2bc7d559539700f09b516"
+    }
+  },
+  "frozen_primary_systems": [
+    "B0",
+    "B1",
+    "T1",
+    "T2"
+  ],
+  "frozen_seeds": [
+    11,
+    23,
+    37,
+    53,
+    71
+  ],
+  "preoutcome_entrypoint": {
+    "artifact": "tools/arc_successor_locked_entrypoint.py",
+    "default_mode": "verify-preoutcome",
+    "allowed_current_modes": [
+      "verify-preoutcome"
+    ],
+    "canonical_preoutcome_command": "python tools/arc_successor_locked_entrypoint.py --mode verify-preoutcome",
+    "scientific_runner_bound": false,
+    "scientific_runner_identity": null
+  },
+  "required_source_binding_fields": [
+    "source_sha",
+    "source_tree_sha",
+    "protocol_sha256",
+    "decision_rules_sha256",
+    "context_target_sha256",
+    "encoder_sha256",
+    "evidence_schema_sha256",
+    "execution_contract_sha256"
+  ],
+  "required_environment_binding_fields": [
+    "environment_lock_sha256",
+    "python_version",
+    "torch_version",
+    "transformers_version",
+    "tokenizers_version",
+    "numpy_version",
+    "device_class",
+    "precision",
+    "host_metadata_sha256"
+  ],
+  "required_execution_manifest_fields": [
+    "exact_reproduce_command",
+    "implementation_sha256",
+    "optimizer_contract_sha256",
+    "budget_contract_sha256",
+    "analysis_sha256",
+    "dataset_snapshot_sha256",
+    "split_manifest_sha256",
+    "authorization_receipt_sha256"
+  ],
+  "required_authorization_state": {
+    "protocol_status": "FROZEN",
+    "protocol_execution_authorized": true,
+    "protocol_hard_blockers": [],
+    "confirmatory_dataset_approved": true,
+    "independent_freshness_review_complete": true,
+    "outcomes_observed_before_authorization": false
+  },
+  "current_required_hard_blockers": [
+    "DATA_FRESHNESS_AUDIT",
+    "CONFIRMATORY_DATASET",
+    "COLLAPSE_THRESHOLDS",
+    "PARAMETER_MATCH_TOLERANCE",
+    "MAX_COMPUTE_RATIO",
+    "EXACT_REPRODUCE_COMMAND"
+  ],
+  "fail_closed_rules": {
+    "execute_mode_must_refuse_while_scientific_runner_unbound": true,
+    "execute_mode_must_refuse_while_protocol_not_frozen": true,
+    "execute_mode_must_refuse_without_independent_authorization_receipt": true,
+    "execute_mode_must_refuse_without_exact_dataset_bytes": true,
+    "execute_mode_must_refuse_without_exact_environment_lock": true,
+    "execute_mode_must_refuse_without_exact_source_binding": true,
+    "old_arc_v5_locked_test_never_permitted": true,
+    "failed_seeds_must_be_retained": true,
+    "secondary_metric_rescue_prohibited": true,
+    "posthoc_seed_exclusion_prohibited": true
+  },
+  "publication_boundary": {
+    "allowed_statement": "A fail-closed source/runtime/authorization execution contract was frozen before successor outcome access.",
+    "prohibited_claims": [
+      "successor_improves_reasoning",
+      "jepa_beats_supervised_learning",
+      "mechanism_confirmed",
+      "externally_validated",
+      "execution_authorized"
+    ]
+  }
+}

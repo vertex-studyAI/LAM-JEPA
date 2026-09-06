@@ -1,0 +1,128 @@
+name: ARC Successor Execution Lock
+
+on:
+  pull_request:
+    branches: [research/successor-evidence-schema-v1, main]
+    paths:
+      - "protocols/arc_successor_v1_execution_contract.json"
+      - "protocols/arc_successor_v1_execution_contract_resolution.md"
+      - "protocols/arc_successor_v1_draft.json"
+      - "protocols/arc_successor_v1_evidence_schema.json"
+      - "protocols/arc_successor_v1_decision_rules.json"
+      - "protocols/arc_successor_v1_context_target.json"
+      - "protocols/arc_successor_v1_encoder.json"
+      - "tools/verify_arc_successor_execution_contract.py"
+      - "tools/arc_successor_locked_entrypoint.py"
+      - "tests/test_arc_successor_execution_contract.py"
+      - ".github/workflows/arc-successor-execution-lock.yml"
+  push:
+    branches: [main]
+    paths:
+      - "protocols/arc_successor_v1_execution_contract.json"
+      - "protocols/arc_successor_v1_execution_contract_resolution.md"
+      - "protocols/arc_successor_v1_draft.json"
+      - "protocols/arc_successor_v1_evidence_schema.json"
+      - "protocols/arc_successor_v1_decision_rules.json"
+      - "protocols/arc_successor_v1_context_target.json"
+      - "protocols/arc_successor_v1_encoder.json"
+      - "tools/verify_arc_successor_execution_contract.py"
+      - "tools/arc_successor_locked_entrypoint.py"
+      - "tests/test_arc_successor_execution_contract.py"
+      - ".github/workflows/arc-successor-execution-lock.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lam-jepa-successor-execution-lock-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-preoutcome-execution-lock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact source head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Assert exact source identity
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Setup Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+
+      - name: Compile control-plane code
+        run: |
+          python -m py_compile \
+            tools/verify_arc_successor_execution_contract.py \
+            tools/arc_successor_locked_entrypoint.py \
+            tests/test_arc_successor_execution_contract.py
+
+      - name: Verify pre-outcome execution contract
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          python tools/verify_arc_successor_execution_contract.py \
+            --report ci-evidence/execution-lock-verification.json
+
+      - name: Verify canonical pre-outcome entrypoint
+        run: |
+          set -euo pipefail
+          python tools/arc_successor_locked_entrypoint.py \
+            --mode verify-preoutcome \
+            --report ci-evidence/entrypoint-verification.json
+
+      - name: Prove scientific execute mode fails closed
+        run: |
+          set -euo pipefail
+          set +e
+          python tools/arc_successor_locked_entrypoint.py --mode execute \
+            > ci-evidence/execute-refusal.json
+          rc=$?
+          set -e
+          test "$rc" -eq 4
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path("ci-evidence/execute-refusal.json").read_text())
+          assert payload["status"] == "SCIENTIFIC_EXECUTION_REFUSED_PREOUTCOME"
+          assert payload["scientific_execution_started"] is False
+          assert payload["outcome_accessed"] is False
+          assert "scientific_runner_unbound" in payload["reasons"]
+          assert "protocol_not_frozen" in payload["reasons"]
+          PY
+
+      - name: Run fail-closed regressions
+        run: python tests/test_arc_successor_execution_contract.py
+
+      - name: Record exact source and control-plane identities
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD | tee ci-evidence/source-head.txt
+          test "$(cat ci-evidence/source-head.txt)" = "$EXPECTED_HEAD"
+          sha256sum protocols/arc_successor_v1_execution_contract.json | tee ci-evidence/execution-contract.sha256
+          sha256sum protocols/arc_successor_v1_evidence_schema.json | tee ci-evidence/evidence-schema.sha256
+          sha256sum protocols/arc_successor_v1_draft.json | tee ci-evidence/successor-protocol.sha256
+          sha256sum tools/arc_successor_locked_entrypoint.py | tee ci-evidence/entrypoint.sha256
+          sha256sum tools/verify_arc_successor_execution_contract.py | tee ci-evidence/verifier.sha256
+
+      - name: Upload pre-outcome execution-lock evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: lam-jepa-successor-execution-lock-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 14
