@@ -1,0 +1,157 @@
+{
+  "schema_id": "lam-arc-contextual-successor-v1-evidence-schema",
+  "schema_version": 1,
+  "status": "PREOUTCOME_CONTRACT_ONLY",
+  "protocol_id": "lam-arc-contextual-successor-v1-draft",
+  "relationship_to_arc_v5": "separate_versioned_study_no_rescue",
+  "contract_does_not_authorize_execution": true,
+  "contract_does_not_authorize_outcome_access": true,
+  "frozen_dependencies": {
+    "decision_rules": {
+      "artifact": "protocols/arc_successor_v1_decision_rules.json",
+      "sha256": "28d7158589091c2326154a30a4a14b1dac50c5d3049fae2b70298ac1a14dc625"
+    },
+    "context_target": {
+      "artifact": "protocols/arc_successor_v1_context_target.json",
+      "sha256": "6d828536b9983f84beb85e29c1db56dfd01a23aa22f3840a88272867bd3f5d6b"
+    },
+    "encoder": {
+      "artifact": "protocols/arc_successor_v1_encoder.json",
+      "sha256": "8d9ea79aa7ee9777d3aad9044b63f1db5813b6e214d2bc7d559539700f09b516",
+      "repo_id": "distilbert/distilroberta-base",
+      "revision": "fb53ab8802853c8e4fbdbcd0529f21fc6f459b2b",
+      "checkpoint_sha256": "2b11ca9cf3d2cbb44cc1a93ad96aedc2894231ae6e33e2d2268c3d7b1ff97663"
+    }
+  },
+  "allowed_primary_systems": ["B0", "B1", "T1", "T2"],
+  "frozen_primary_seeds": [11, 23, 37, 53, 71],
+  "required_receipt_sections": [
+    "identity",
+    "authorization",
+    "environment",
+    "data",
+    "training",
+    "artifacts",
+    "claim_ledger",
+    "completion"
+  ],
+  "identity_contract": {
+    "required_fields": [
+      "protocol_id",
+      "system_id",
+      "seed",
+      "source_sha",
+      "decision_rules_sha256",
+      "context_target_sha256",
+      "encoder_sha256"
+    ],
+    "source_sha_format": "40_lowercase_hex",
+    "artifact_sha256_format": "64_lowercase_hex"
+  },
+  "authorization_contract": {
+    "required_fields": [
+      "execution_authorized",
+      "outcome_access_authorized",
+      "confirmatory_dataset_approved",
+      "independent_freshness_review_complete"
+    ],
+    "complete_result_requires_all_true": true
+  },
+  "environment_contract": {
+    "required_fields": [
+      "environment_lock_sha256",
+      "python_version",
+      "torch_version",
+      "device_class",
+      "precision",
+      "host_metadata_sha256"
+    ]
+  },
+  "data_contract": {
+    "required_fields": [
+      "dataset_id",
+      "dataset_bytes_sha256",
+      "split_manifest_sha256",
+      "tokenizer_repo_id",
+      "tokenizer_revision",
+      "checkpoint_sha256"
+    ],
+    "checkpoint_sha256": "2b11ca9cf3d2cbb44cc1a93ad96aedc2894231ae6e33e2d2268c3d7b1ff97663"
+  },
+  "training_contract": {
+    "required_fields": [
+      "trainable_parameter_count",
+      "optimizer_steps",
+      "label_exposures",
+      "batch_size",
+      "gradient_accumulation",
+      "optimizer_config_sha256",
+      "runtime_seconds",
+      "device_seconds"
+    ]
+  },
+  "required_artifact_roles": [
+    "raw_predictions",
+    "metric_json",
+    "representation_diagnostics",
+    "optimizer_diagnostics",
+    "stdout_stderr",
+    "machine_readable_config",
+    "split_manifest",
+    "environment_lock",
+    "host_metadata"
+  ],
+  "artifact_contract": {
+    "each_role_requires": ["path", "sha256", "bytes"],
+    "paths_must_be_relative": true,
+    "duplicate_roles_prohibited": true,
+    "missing_required_role_fails_closed": true
+  },
+  "claim_ledger_contract": {
+    "required_entry_fields": [
+      "claim_id",
+      "reported_field",
+      "source_artifact_role",
+      "source_json_pointer"
+    ],
+    "every_reported_number_requires_source_pointer": true,
+    "secondary_metric_rescue_prohibited": true,
+    "posthoc_seed_exclusion_prohibited": true,
+    "failed_seed_omission_prohibited": true,
+    "external_validation_claim_without_external_evidence_prohibited": true
+  },
+  "completion_contract": {
+    "required_fields": [
+      "status",
+      "receipt_sha256",
+      "all_required_artifacts_present",
+      "all_frozen_seeds_retained",
+      "claim_ledger_complete"
+    ],
+    "allowed_statuses": [
+      "PREOUTCOME_ONLY",
+      "BLOCKED",
+      "FAILED_RUN_RETAINED",
+      "COMPLETE_RESULT_PACKAGE"
+    ],
+    "complete_status": "COMPLETE_RESULT_PACKAGE"
+  },
+  "integrity_rules": {
+    "retain_failed_seeds": true,
+    "posthoc_seed_exclusion": false,
+    "heldout_threshold_tuning": false,
+    "architecture_shopping_after_failure": false,
+    "secondary_metric_rescue": false,
+    "old_locked_test_access": "PROHIBITED",
+    "schema_may_not_contain_scientific_outcomes": true
+  },
+  "publication_boundary": {
+    "allowed_preoutcome_statement": "A retained-evidence and claim-ledger schema was frozen before successor outcome access.",
+    "prohibited_preoutcome_claims": [
+      "successor_improves_reasoning",
+      "jepa_beats_supervised_learning",
+      "mechanism_confirmed",
+      "externally_validated"
+    ]
+  }
+}
