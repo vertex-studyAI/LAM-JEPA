@@ -10,14 +10,25 @@
     "CONFIRMATORY_DATASET",
     "ENCODER_FAMILY_AND_REVISION",
     "CONTEXT_TARGET_CONSTRUCTION",
-    "DELTA_PRIMARY",
-    "SEED_WIN_FRACTION",
-    "UNCERTAINTY_RULE",
     "COLLAPSE_THRESHOLDS",
     "PARAMETER_MATCH_TOLERANCE",
     "MAX_COMPUTE_RATIO",
     "EXACT_REPRODUCE_COMMAND"
   ],
+  "resolved_blockers": {
+    "DELTA_PRIMARY": {
+      "artifact": "protocols/arc_successor_v1_decision_rules.json",
+      "sha256": "28d7158589091c2326154a30a4a14b1dac50c5d3049fae2b70298ac1a14dc625"
+    },
+    "SEED_WIN_FRACTION": {
+      "artifact": "protocols/arc_successor_v1_decision_rules.json",
+      "sha256": "28d7158589091c2326154a30a4a14b1dac50c5d3049fae2b70298ac1a14dc625"
+    },
+    "UNCERTAINTY_RULE": {
+      "artifact": "protocols/arc_successor_v1_decision_rules.json",
+      "sha256": "28d7158589091c2326154a30a4a14b1dac50c5d3049fae2b70298ac1a14dc625"
+    }
+  },
   "systems": {
     "B0": "contextual_supervised",
     "B1": "contextual_supervised_plus_reconstruction_control",
@@ -25,8 +36,26 @@
     "T2": "T1_plus_variance_covariance_regularization",
     "VQ": "deferred_secondary_ablation_only"
   },
-  "proposed_seeds": [11, 23, 37, 53, 71],
+  "proposed_seeds": [
+    11,
+    23,
+    37,
+    53,
+    71
+  ],
   "primary_metric": "held_out_multiple_choice_accuracy",
+  "primary_decision_rules": {
+    "artifact": "protocols/arc_successor_v1_decision_rules.json",
+    "sha256": "28d7158589091c2326154a30a4a14b1dac50c5d3049fae2b70298ac1a14dc625",
+    "delta_primary_absolute_accuracy": 0.02,
+    "seed_win_fraction": 0.8,
+    "minimum_positive_seed_count": 4,
+    "uncertainty_method": "paired_hierarchical_bootstrap",
+    "bootstrap_replicates": 10000,
+    "bootstrap_seed": 20260906,
+    "confidence_level": 0.95,
+    "directional_gate": "lower endpoint must be strictly greater than 0"
+  },
   "secondary_metrics": [
     "negative_log_likelihood",
     "calibration",
