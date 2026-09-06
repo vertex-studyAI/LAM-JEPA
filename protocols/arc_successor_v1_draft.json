@@ -8,6 +8,9 @@
   "hard_blockers": [
     "DATA_FRESHNESS_AUDIT",
     "CONFIRMATORY_DATASET",
+    "COLLAPSE_THRESHOLDS",
+    "PARAMETER_MATCH_TOLERANCE",
+    "MAX_COMPUTE_RATIO",
     "EXACT_REPRODUCE_COMMAND"
   ],
   "resolved_blockers": {
@@ -34,21 +37,6 @@
       "revision": "fb53ab8802853c8e4fbdbcd0529f21fc6f459b2b",
       "checkpoint_sha256": "2b11ca9cf3d2cbb44cc1a93ad96aedc2894231ae6e33e2d2268c3d7b1ff97663",
       "local_byte_receipts_retained": false
-    },
-    "COLLAPSE_THRESHOLDS": {
-      "artifact": "protocols/arc_successor_v1_budget_collapse_gates.json",
-      "sha256": "f4cd76c85b92f4a769ad295cbb9316bf88321ec6f71382ce3dcff88ab304323e",
-      "scope": "catastrophic_collapse_falsifiers_only_not_representation_quality_claim"
-    },
-    "PARAMETER_MATCH_TOLERANCE": {
-      "artifact": "protocols/arc_successor_v1_budget_collapse_gates.json",
-      "sha256": "f4cd76c85b92f4a769ad295cbb9316bf88321ec6f71382ce3dcff88ab304323e",
-      "maximum_t1_to_b0_gradient_active_parameter_ratio_inclusive": 1.1
-    },
-    "MAX_COMPUTE_RATIO": {
-      "artifact": "protocols/arc_successor_v1_budget_collapse_gates.json",
-      "sha256": "f4cd76c85b92f4a769ad295cbb9316bf88321ec6f71382ce3dcff88ab304323e",
-      "per_seed_maximum_t1_to_b0_accelerator_seconds_ratio_inclusive": 2.0
     }
   },
   "systems": {
