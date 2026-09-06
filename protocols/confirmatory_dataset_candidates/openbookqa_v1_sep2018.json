@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "candidate_id": "lam-jepa-successor-openbookqa-v1-sep2018-candidate-20260906",
+  "status": "CANDIDATE_METADATA_ONLY_NOT_APPROVED_NOT_ACCESSED",
+  "resolves_successor_blocker": false,
+  "execution_authorized": false,
+  "outcome_access_authorized": false,
+  "relationship_to_successor": "Candidate separately sourced science multiple-choice confirmation surface for lam-arc-contextual-successor-v1-draft. This metadata does not resolve CONFIRMATORY_DATASET until independent freshness/compatibility/licensing review and an exact local byte receipt are complete.",
+  "selection_rationale_preoutcome": [
+    "OpenBookQA is a separately released science multiple-choice benchmark rather than an ARC-Challenge train/validation/test split.",
+    "The task family is close enough to the ARC-Challenge science-QA setting to exercise the same multiple-choice objective while providing a distinct source release.",
+    "The complete dataset identity can be pinned before any successor model outcome is generated."
+  ],
+  "official_source": {
+    "repository": "allenai/OpenBookQA",
+    "repository_commit": "b51971646e9371a61508d9953fc706645e194a71",
+    "download_script_path": "scripts/download_and_prepare_data.sh",
+    "download_script_git_blob_sha1": "69be4903aa6722f9912becaf109ac2c6b5b7b0f9",
+    "archive_filename": "OpenBookQA-V1-Sep2018.zip",
+    "archive_url_declared_by_official_script": "https://s3-us-west-2.amazonaws.com/ai2-website/data/OpenBookQA-V1-Sep2018.zip",
+    "archive_sha256_from_huggingface_dataset_metadata": "82368cf05df2e3b309c17d162e10b888b4d768fad6e171e0a041954c8553be46",
+    "archive_bytes_from_huggingface_dataset_metadata": 1446098
+  },
+  "secondary_mirror_identity_for_crosscheck_only": {
+    "repository": "allenai/openbookqa",
+    "huggingface_conversion_commit": "388097ea7776314e93a529163e0fea805b8a6454",
+    "config": "main",
+    "expected_examples": {
+      "train": 4957,
+      "validation": 500,
+      "test": 500
+    },
+    "parquet_sha256": {
+      "train": "98148f8a54e62eb862346a75192d5fb824d6cbb68f2f59aecd793d39ecb5cd8b",
+      "validation": "35370b9cfee8c1ff325ccc74adc434d12c47ca0ac3244aa87f3fa77069285206",
+      "test": "cd5483e366daa230c1c87bbdc512d8b7229f14f6dd04d19fc8b1a3855aaaa8a3"
+    },
+    "role": "Independent metadata cross-check only. The official archive remains the proposed canonical source unless independent review chooses otherwise."
+  },
+  "preoutcome_access_policy": {
+    "test_rows_or_answer_keys_opened_for_this_candidate_review": false,
+    "model_outcomes_generated": false,
+    "allowed_before_independent_approval": [
+      "verify archive bytes against the declared SHA-256 without displaying task contents",
+      "enumerate filenames and counts without displaying questions, choices, labels, or answer keys",
+      "validate parser/schema compatibility using train-only rows after the candidate passes provenance/licensing review",
+      "document exact train/development/confirmatory split policy before any model outcome"
+    ],
+    "prohibited_before_independent_approval": [
+      "inspect test questions, choices, labels, or answer keys",
+      "run any successor system on the candidate test split",
+      "choose the dataset because of observed model performance",
+      "change the primary metric, seeds, effect threshold, or uncertainty rule after candidate outcomes are observed"
+    ]
+  },
+  "required_independent_review_before_freeze": [
+    "confirm the official archive provenance and exact SHA-256",
+    "confirm dataset redistribution/use terms and record the applicable license or usage terms; current Hugging Face card metadata does not identify a license",
+    "confirm no task-level overlap or known answer-level contamination with the retained ARC-Challenge development surfaces to the extent mechanically and manually reviewable",
+    "confirm multiple-choice schema compatibility and freeze the exact adapter without opening the confirmatory test outcome surface",
+    "decide which OpenBookQA split is confirmatory and which, if any, may be used for development; freeze that policy before execution",
+    "confirm the candidate is scientifically appropriate for the successor question rather than merely convenient"
+  ],
+  "remaining_successor_blockers": [
+    "DATA_FRESHNESS_AUDIT independent review",
+    "CONFIRMATORY_DATASET independent approval and byte receipt",
+    "ENCODER_FAMILY_AND_REVISION",
+    "CONTEXT_TARGET_CONSTRUCTION",
+    "DELTA_PRIMARY",
+    "SEED_WIN_FRACTION",
+    "UNCERTAINTY_RULE",
+    "COLLAPSE_THRESHOLDS",
+    "PARAMETER_MATCH_TOLERANCE",
+    "MAX_COMPUTE_RATIO",
+    "EXACT_REPRODUCE_COMMAND"
+  ],
+  "claim_boundary": "This artifact is a candidate-dataset dossier only. It is not a frozen confirmatory dataset, not an authorization receipt, and not evidence that LAM-JEPA works on OpenBookQA or any other held-out benchmark."
+}
