@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "protocols/arc_successor_v1_encoder.json"
+      - "protocols/arc_successor_v1_encoder_resolution.md"
       - "protocols/arc_successor_v1_draft.json"
       - "tools/verify_arc_successor_encoder.py"
       - "tools/verify_arc_successor_context_target.py"
@@ -16,6 +17,7 @@ on:
     branches: [main]
     paths:
       - "protocols/arc_successor_v1_encoder.json"
+      - "protocols/arc_successor_v1_encoder_resolution.md"
       - "protocols/arc_successor_v1_draft.json"
       - "tools/verify_arc_successor_encoder.py"
       - "tools/verify_arc_successor_context_target.py"
@@ -85,6 +87,7 @@ jobs:
           set -euo pipefail
           mkdir -p ci-evidence
           sha256sum protocols/arc_successor_v1_encoder.json | tee ci-evidence/encoder-freeze.sha256
+          sha256sum protocols/arc_successor_v1_encoder_resolution.md | tee ci-evidence/encoder-resolution.sha256
           git rev-parse HEAD | tee ci-evidence/source-head.txt
           test "$(cat ci-evidence/source-head.txt)" = "$EXPECTED_HEAD"
           python tools/verify_arc_successor_encoder.py > ci-evidence/verification.json
