@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "artifact_id": "lam-jepa-successor-context-target-v1-20260906",
+  "status": "FROZEN_PREOUTCOME_CONSTRUCTION_ONLY",
+  "execution_authorized": false,
+  "outcome_access_authorized": false,
+  "relationship_to_successor": "Resolves only CONTEXT_TARGET_CONSTRUCTION for lam-arc-contextual-successor-v1-draft. It does not resolve encoder, data freshness, confirmatory dataset, collapse, budget, environment, or authorization blockers.",
+  "input_contract": {
+    "required_fields": [
+      "example_id",
+      "question_stem",
+      "ordered_choice_texts"
+    ],
+    "forbidden_fields": [
+      "answer_key",
+      "correct_choice_index",
+      "label",
+      "gold",
+      "target_label"
+    ],
+    "choice_order_preserved": true,
+    "construction_may_read_supervised_label": false
+  },
+  "serialization": {
+    "context_prefix": "Question: ",
+    "choice_prefix_template": "\nChoice {index}: ",
+    "withheld_marker": "[WITHHELD_SPAN]",
+    "target_prefix": "Withheld question span: ",
+    "target_contains_choices": false,
+    "target_contains_answer_or_label": false
+  },
+  "target_selection": {
+    "source_region": "question_stem_only",
+    "tokenization_for_span_selection": "unicode_whitespace_split",
+    "view_seed": 20260906,
+    "span_fraction": 0.2,
+    "span_length_rule": "min(question_token_count, max(1, min(8, ceil(0.20 * question_token_count))))",
+    "start_rule": "int.from_bytes(sha256(f'{view_seed}\\0{example_id}').digest()[:8], 'big') % (question_token_count - span_length + 1)",
+    "one_view_per_example": true,
+    "changes_across_epochs": false,
+    "changes_across_model_seeds": false
+  },
+  "visibility_rules": {
+    "context_receives_withheld_tokens": false,
+    "context_receives_answer_or_label": false,
+    "target_receives_context_remainder": false,
+    "target_receives_choice_texts": false,
+    "target_receives_answer_or_label": false,
+    "supervised_classifier_input": "full label-free question plus ordered choices; gold label is used only by supervised loss, never by view construction",
+    "jepa_context_input": "question with exactly one frozen contiguous span replaced by [WITHHELD_SPAN], plus all ordered choices",
+    "jepa_target_input": "withheld question span only"
+  },
+  "edge_cases": {
+    "empty_example_id": "reject",
+    "empty_question_stem": "reject",
+    "zero_choices": "reject",
+    "empty_choice_text": "reject",
+    "source_contains_withheld_marker": "reject",
+    "question_with_one_token": "withhold the single question token",
+    "duplicate_choice_texts": "allowed because original order and multiplicity are preserved"
+  },
+  "pairing_contract": {
+    "B0_supervised_input": "full label-free serialization",
+    "T1_supervised_input": "same full label-free serialization as B0",
+    "T1_auxiliary_context": "frozen incomplete context serialization",
+    "T1_auxiliary_target": "frozen withheld-span target serialization",
+    "classifier_architecture_or_label_exposure_changed_by_this_artifact": false
+  },
+  "integrity_rules": {
+    "post_outcome_mask_rate_change": false,
+    "post_outcome_span_rule_change": false,
+    "post_outcome_view_seed_change": false,
+    "example_specific_manual_masking": false,
+    "named_confirmatory_example_special_case": false,
+    "target_or_context_selection_using_labels": false
+  },
+  "claim_boundary": "This artifact freezes a deterministic label-blind distinct-target construction. It is not evidence that the construction improves multiple-choice accuracy, prevents collapse, or is authorized for confirmatory execution."
+}
