@@ -10,8 +10,8 @@ class DecisionRuleError(ValueError):
     pass
 
 
-RESOLVED = {"DELTA_PRIMARY", "SEED_WIN_FRACTION", "UNCERTAINTY_RULE"}
-REMAINING = {
+DECISION_RESOLVED = {"DELTA_PRIMARY", "SEED_WIN_FRACTION", "UNCERTAINTY_RULE"}
+UNRESOLVED_AT_DECISION_FREEZE = {
     "DATA_FRESHNESS_AUDIT",
     "CONFIRMATORY_DATASET",
     "ENCODER_FAMILY_AND_REVISION",
@@ -20,6 +20,12 @@ REMAINING = {
     "PARAMETER_MATCH_TOLERANCE",
     "MAX_COMPUTE_RATIO",
     "EXACT_REPRODUCE_COMMAND",
+}
+SUPPORTED_LATER_RESOLUTIONS = {
+    "CONTEXT_TARGET_CONSTRUCTION": {
+        "artifact": "protocols/arc_successor_v1_context_target.json",
+        "sha256": "6d828536b9983f84beb85e29c1db56dfd01a23aa22f3840a88272867bd3f5d6b",
+    }
 }
 SEEDS = [11, 23, 37, 53, 71]
 
@@ -102,28 +108,38 @@ def verify_rules(rules: Mapping[str, Any], successor: Mapping[str, Any]) -> dict
     _require(logic.get("posthoc_threshold_change") is False, "posthoc threshold changes must remain forbidden")
     _require(logic.get("null_or_negative_is_valid_terminal_outcome") is True, "null/negative terminal outcome must remain valid")
 
-    resolved = set(rules.get("resolved_successor_blockers") or [])
-    remaining = set(rules.get("still_unresolved_successor_blockers") or [])
-    _require(resolved == RESOLVED, "resolved blocker set drift")
-    _require(remaining == REMAINING, "remaining blocker set drift")
-
-    successor_blockers = set(successor.get("hard_blockers") or [])
-    _require(successor_blockers == REMAINING, "successor hard_blockers must exactly match unresolved decision-rule blockers")
+    resolved_at_freeze = set(rules.get("resolved_successor_blockers") or [])
+    unresolved_at_freeze = set(rules.get("still_unresolved_successor_blockers") or [])
+    _require(resolved_at_freeze == DECISION_RESOLVED, "resolved blocker set drift in immutable decision artifact")
+    _require(unresolved_at_freeze == UNRESOLVED_AT_DECISION_FREEZE, "remaining blocker set drift in immutable decision artifact")
 
     resolved_map = _as_mapping(successor.get("resolved_blockers"), "successor.resolved_blockers")
-    _require(set(resolved_map) == RESOLVED, "successor resolved_blockers must contain exactly the three frozen decision blockers")
-    for blocker in sorted(RESOLVED):
+    resolved_now = set(resolved_map)
+    _require(DECISION_RESOLVED.issubset(resolved_now), "successor lost frozen decision-rule resolutions")
+    later_resolved = resolved_now - DECISION_RESOLVED
+    _require(later_resolved.issubset(SUPPORTED_LATER_RESOLUTIONS), "unsupported later successor blocker resolution")
+    expected_hard_blockers = UNRESOLVED_AT_DECISION_FREEZE - later_resolved
+    successor_blockers = set(successor.get("hard_blockers") or [])
+    _require(successor_blockers == expected_hard_blockers, "successor hard_blockers do not match independently bound later resolutions")
+
+    for blocker in sorted(DECISION_RESOLVED):
         binding = _as_mapping(resolved_map[blocker], f"successor.resolved_blockers.{blocker}")
         _require(binding.get("artifact") == "protocols/arc_successor_v1_decision_rules.json", f"{blocker} artifact binding drift")
         digest = str(binding.get("sha256", ""))
         _require(len(digest) == 64 and all(c in "0123456789abcdef" for c in digest), f"{blocker} sha256 must be lowercase hex")
 
+    for blocker in sorted(later_resolved):
+        binding = _as_mapping(resolved_map[blocker], f"successor.resolved_blockers.{blocker}")
+        expected_binding = SUPPORTED_LATER_RESOLUTIONS[blocker]
+        _require(dict(binding) == expected_binding, f"{blocker} later-resolution binding drift")
+
     _require("do not authorize execution" in str(rules.get("claim_boundary", "")).lower(), "claim boundary must preserve non-authorization")
 
     return {
         "status": "ARC_SUCCESSOR_PREOUTCOME_DECISION_RULES_VERIFIED",
-        "resolved_blockers": sorted(RESOLVED),
-        "remaining_blockers": sorted(REMAINING),
+        "decision_rule_resolved_blockers": sorted(DECISION_RESOLVED),
+        "later_resolved_blockers": sorted(later_resolved),
+        "remaining_blockers": sorted(successor_blockers),
         "primary_metric": metric,
         "delta_primary": 0.02,
         "seed_win_fraction": 0.8,
