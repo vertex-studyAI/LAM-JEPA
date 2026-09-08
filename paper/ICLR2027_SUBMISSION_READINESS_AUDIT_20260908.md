@@ -22,11 +22,11 @@ The current manuscript already preserves the central retained conclusions:
 - the historical locked confirmatory ARC test stays closed;
 - the supported state remains negative/inconclusive.
 
-Those boundaries are consistent with `CLAIM_LEDGER.md`, `paper/EXTERNAL_REVIEW_VQ_COLLAPSE_CORRECTION_20260831.md`, and the current `paper/main.tex`.
+Those boundaries remain consistent with `CLAIM_LEDGER.md`, `paper/EXTERNAL_REVIEW_VQ_COLLAPSE_CORRECTION_20260831.md`, and `paper/main.tex`.
 
 ## 2. External-review correction reconciliation
 
-### Reflected in current `paper/main.tex`
+### Already reflected in `paper/main.tex`
 
 - [x] exact H1/H2/H3 preregistered thresholds are stated rather than summarized vaguely;
 - [x] one external rerun/review is described as one bounded external rerun, not broad replication or peer review;
@@ -37,98 +37,97 @@ Those boundaries are consistent with `CLAIM_LEDGER.md`, `paper/EXTERNAL_REVIEW_V
 - [x] architecture wording is constrained: the tested path is not described as a Transformer or canonical I-JEPA context-to-distinct-target task;
 - [x] the locked confirmatory-test stop rule remains explicit.
 
-### Evidence located in-repository during this audit
+### Quantitative evidence blockers closed on 2026-09-08
 
-A follow-up source check found an exact implementation for the gradient-capacity accounting in `scripts/ci/measure_arc_gradient_capacity.py`. It defines the reported gradient-active capacity as:
+A retained paper-facing diagnostic now exists at:
 
-> `sum numel(parameter) where parameter.grad is not None after exact _lam_arc_loss backward`
+`paper/ICLR2027_RETAINED_DIAGNOSTICS_20260908.md`
 
-The script separately records total parameters, `requires_grad` parameters, gradient-active parameters, and gradient-inactive trainable parameters. This is materially narrower than saying “all trainable parameters” and, importantly, it does **not** mean every scalar had a nonzero numerical gradient on every batch. The manuscript should use this exact accounting definition and bind the published 86,372 / 86,644 values to retained generated reports before submission.
+It closes the two missing-quantitative-evidence blockers without a new training run or test access.
 
-The retained external-review correction at `paper/EXTERNAL_REVIEW_VQ_COLLAPSE_CORRECTION_20260831.md` also contains the already-reviewed truncation observation: roughly 2% of retained examples exceed the 96-whitespace-token limit, and some validation rows lose the fourth-answer marker under truncation. That observation may be disclosed without rerunning the model, but the manuscript sentence must cite/bind to that retained review artifact rather than re-estimating from memory.
+- [x] **Seed-level integer counts / deltas.** Artifact `9162165932` was downloaded again and its archive SHA-256 re-matched the retained provenance digest `caa898f1ff046a337db9b5ddbffe1b332943a732868e2fd809abeda8ee89c30b`. Counts were recomputed directly from the raw `predictions` arrays in `arc-protocol-v3-full-controls-validation.json` (file SHA-256 `76aad8b1327e21470aeed137bac341b75b4fcf1f37e5394047642d395e8070f8`). The retained counts are:
+  - `full`: `71, 78, 78, 71, 78` correct of 295;
+  - `no_planner`: `71, 78, 71, 71, 78`;
+  - `no_target`: `71, 78, 83, 71, 83`;
+  - shuffled: `78, 71, 83, 78, 78`;
+  - `full-no_planner` item deltas: `[0,0,+7,0,0]`;
+  - `full-no_target` item deltas: `[0,0,-5,0,-5]`;
+  - every listed retained run has prediction support 1.
+- [x] **Hash-collision quantification.** The original retained external-review note reports `7,030` distinct word types mapped into `256` hash buckets, mean `27.5` distinct word types per bucket, maximum `47`. This is retained as an external-review diagnostic, not promoted to a newly generated model outcome and not substituted for the measured VQ bottleneck.
 
-### Remaining paper-facing blockers
+### Additional retained disclosure evidence closed
 
-The unresolved work is now split into **missing retained numbers**, **evidence-located manuscript disclosures**, and **venue-format work** so that easy editorial fixes are not confused with new scientific analysis.
+- [x] **Truncation counts independently rechecked.** The non-expired `ARC Canonical Input Visibility Audit` artifact `9884278396` was downloaded and its archive digest re-matched `eaf1b43a781d52b74bcf14b23e36acec27e8f4870dd182b57c23badf5d9df8c3`. Its retained row records give 23/1117 eligible train prompts and 6/295 validation prompts over the 96-whitespace-token limit; 3/295 validation rows place the fourth-answer marker `[3]` beyond the retained surface; `test_split_accessed=false`.
+- [x] **Gradient-active accounting source located.** `scripts/ci/measure_arc_gradient_capacity.py` defines the reported accounting as the sum of parameter tensor sizes for parameters whose `.grad` is not `None` after the exact `_lam_arc_loss` backward. This is not a claim that every scalar had a nonzero numerical gradient.
+- [x] **ARC naming correction identified.** First dataset use must read **AI2 Reasoning Challenge (ARC-Challenge)**.
+- [x] **Five-seed uncertainty wording determined.** The manuscript must state that the retained bootstrap over five fixed seeds is a finite-seed protocol summary, not an asymptotic or population-level uncertainty guarantee.
 
-#### A. Missing retained quantitative evidence — hard blockers
-
-- [ ] **Seed-level integer deltas / counts:** pair the five-seed bootstrap summaries with retained per-seed integer correct counts / differences. Because the reviewed conditions collapse to constant classifiers, these counts are important context for interpreting small mechanism deltas. Do not infer counts from rounded means.
-- [ ] **Hash-collision quantification:** the manuscript states that text is hashed into a 256-ID vocabulary, while the external review explicitly asks for a collision statistic. Do not invent a rate. Either locate an already-retained deterministic audit or generate a separately reviewable deterministic diagnostic from the frozen eligible text surface without opening the locked test set.
-
-#### B. Evidence located; manuscript-only disclosure still required
-
-- [ ] **Five-seed uncertainty limitation:** `paper/main.tex` already says that five seeds quantify only a narrow protocol, but the bootstrap sentence should be explicit: uncertainty from five fixed seeds is a finite-seed summary and is not an asymptotic or population-level guarantee.
-- [ ] **Truncation disclosure:** add the retained external-review observation described above and bind it to `paper/EXTERNAL_REVIEW_VQ_COLLAPSE_CORRECTION_20260831.md`.
-- [ ] **ARC naming disambiguation:** at first dataset use, spell out **AI2 Reasoning Challenge (ARC-Challenge)** so it cannot be confused with the Abstraction and Reasoning Corpus.
-- [ ] **Gradient-active parameter definition:** replace the manuscript’s shorthand with the exact accounting definition from `scripts/ci/measure_arc_gradient_capacity.py`; retain a provenance link/report for each published count.
-
-These four items require no change to the frozen scientific protocol and no outcome access. They are editorial/provenance work only.
-
-Until Sections A and B are closed from retained evidence, the paper is **scientifically coherent but not submission-ready**.
+These gates are now **evidence-closed but not yet manuscript-closed**: `paper/main.tex` still needs the exact disclosures inserted before submission.
 
 ## 3. Current ICLR 2027 venue gate
 
-Official ICLR 2027 requirements re-checked on 2026-09-08:
+Requirements re-checked on 2026-09-08 from the official ICLR 2027 Call for Papers, Author Guidelines, and AI Policy:
 
 - abstract deadline: **2026-09-18 11:59 PM AoE**;
 - full-paper deadline: **2026-09-25 11:59 PM AoE**;
 - abstract must be genuine/informative; placeholder or duplicate abstracts are removed;
 - no new authors may be added after the abstract deadline;
 - all authors need current OpenReview profiles;
-- submission is **double blind** and author identity in the paper/supplement can cause desk rejection;
-- main text is **9 pages maximum** at initial submission; references are excluded from the page limit; appendices may follow the references;
-- the official **ICLR 2027 LaTeX style** is required;
-- an **AI use statement is mandatory** in the paper and does not count toward the page limit;
+- submission is **double blind**;
+- main text is **9 pages maximum** at initial submission, excluding references;
+- official **ICLR 2027 LaTeX style** is required;
+- an **AI use statement is mandatory** and does not count toward the page limit;
 - a reproducibility statement is strongly recommended.
 
-Primary sources:
+Primary sources remain:
 - https://iclr.cc/Conferences/2027/CallForPapers
 - https://iclr.cc/Conferences/2027/AuthorGuidelines
 - https://iclr.cc/Conferences/2027/AIPolicyForAuthors
 
-## 4. Venue-format blockers on the current manuscript
+## 4. Remaining submission blockers
 
-The authoritative `paper/main.tex` is presently an `11pt article` with `geometry`, not the ICLR 2027 style package. It also contains owner-placeholder author metadata rather than a final anonymous ICLR author block. Therefore:
+### Manuscript disclosure
 
-- [ ] create a **separate ICLR 2027 submission source** from the evidence-bound manuscript; do not mutate scientific values while reformatting;
-- [ ] use the official ICLR 2027 style and verify main-text page count <= 9;
-- [ ] replace owner-placeholder metadata with the venue-correct anonymous submission form;
-- [ ] add the required AI use statement describing actual tool use, with authors retaining responsibility for the final content;
+- [ ] insert the exact seed-level integer count table from `ICLR2027_RETAINED_DIAGNOSTICS_20260908.md`;
+- [ ] explicitly describe the five-seed bootstrap as a finite-seed summary;
+- [ ] add the 23/1117 and 6/295 truncation counts and the 3/295 fourth-marker cutoff;
+- [ ] add the external-review collision statistic while keeping VQ as the measured primary bottleneck;
+- [ ] spell out AI2 Reasoning Challenge at first use;
+- [ ] define gradient-active parameter accounting exactly and avoid implying every scalar has nonzero gradient.
+
+### Venue format and metadata
+
+- [ ] create a separate ICLR 2027 submission source from the evidence-bound manuscript;
+- [ ] use official ICLR 2027 style and verify main-text page count <= 9;
+- [ ] replace owner-placeholder metadata with venue-correct anonymous submission form;
+- [ ] add the mandatory AI-use statement based on actual author/tool use;
 - [ ] add/reconcile the recommended reproducibility statement;
-- [ ] run a final anonymity scrub over main text, appendix, supplemental material, repository links, artifact names, acknowledgments, and metadata;
-- [ ] freeze the final author list before the Sep 18 abstract deadline.
+- [ ] run an anonymity scrub across manuscript, supplement, repository links, artifact names, acknowledgments, and PDF metadata;
+- [ ] freeze final authors before the Sep 18 abstract deadline.
 
-## 5. Safe work that can proceed without new experiments
+## 5. Archival reproducibility risk
 
-The following work is explicitly safe under the current research freeze because it does not alter outcomes or access the locked confirmatory set:
+The historical matched-supervised raw artifact `9003785715` is now expired in GitHub Actions. Its digest and raw-result provenance remain recorded in `MANUSCRIPT_PROVENANCE.md`, and the external rerun reproduced the retained matched headline value, but the old ZIP can no longer be freshly downloaded from GitHub. Do not silently replace its identity.
 
-1. Patch the four manuscript-only disclosures in Section 2B using the retained sources already identified.
-2. Locate and checksum the retained generated gradient-capacity reports that substantiate the manuscript’s 86,372 / 86,644 figures; if a report is absent, treat the numerical values as unverified rather than regenerating silently.
-3. Materialize the seed-level integer-count table only from retained result artifacts, with source paths / hashes adjacent to every row.
-4. Add a deterministic hash-collision diagnostic only over the already-eligible frozen train/validation text surface; keep it as a separately reviewable artifact and do not touch the locked ARC test.
-5. Create a venue-format-only ICLR source that imports/copies the evidence-bound text without changing scientific values.
-6. Add the mandatory AI-use disclosure based on actual author/tool usage and run an anonymity scrub before any submission build.
-
-None of these steps authorizes a new training run, threshold change, new seed, successor outcome, or historical test access.
+If a fresh clean-room rerun of the **unchanged frozen validation protocol** is performed for archival retention, it must be labeled as a new reproduction artifact, preserve seeds/split/budget/metric/locked-test boundaries exactly, and be compared against the retained historical digest/values rather than treated as a new scientific trial.
 
 ## 6. Go / no-go rule
 
-**GO for an ICLR abstract only if, before the abstract deadline, the submission source can honestly describe the existing frozen negative/collapse result without relying on an unfinished successor experiment.**
+**GO for an ICLR abstract only if the submission source can honestly describe the existing frozen negative/collapse result without relying on an unfinished successor experiment.**
 
-**NO-GO** if submission would require any of the following:
+**NO-GO** if submission would require:
 
 - opening the locked historical ARC confirmatory test;
 - using OpenBookQA/successor outcomes to rescue the historical claim;
-- changing H1/H2/H3 thresholds, seeds, split, metric, or matched-comparator definition;
+- changing H1/H2/H3 thresholds, seeds, split, metric, or comparator definition;
 - omitting the constant-classifier/VQ-collapse finding;
 - describing one external rerun as broad independent replication;
-- fabricating truncation, collision, seed-level, parameter-count, or other missing numbers to meet a deadline.
+- fabricating missing values or rewriting the adverse result to meet the deadline.
 
 A missed venue is preferable to weakening the retained scientific boundary.
 
 ## 7. Strongest next gate
 
-Before manuscript styling, close the **two missing-quantitative-evidence blockers in Section 2A** and then apply the four evidence-located disclosures in Section 2B. The highest-value single artifact remains a deterministic paper-facing table containing, for each frozen seed, retained predicted class/support and integer correct counts for `full`, `no_planner`, `no_target`, and matched supervised, with exact source paths/hashes next to the already-reviewed collapse/VQ evidence.
+The two missing quantitative evidence blockers are now closed. The strongest next submission gate is to **patch `paper/main.tex` from the retained diagnostics and then create the venue-format-only ICLR source**, without changing any scientific value.
 
-After that table and the collision statistic are independently reviewable, the remaining work is predominantly manuscript disclosure, venue formatting, author/AI-use compliance, and anonymity checking—not scientific rescue work.
+A second independent frozen-protocol reproduction would strengthen the scientific package further, but it is not permission to alter or rescue the existing negative result.
