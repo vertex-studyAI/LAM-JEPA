@@ -5,6 +5,7 @@ on:
     paths:
       - 'paper/**'
       - 'scripts/ci/verify_icdm_teen_submission_source.py'
+      - 'scripts/ci/verify_reproducible_pdfs.sh'
       - '.github/workflows/paper-build.yml'
   workflow_dispatch:
 
@@ -57,6 +58,9 @@ jobs:
           pdflatex -interaction=nonstopmode -halt-on-error icdm_teen_2026.tex
           pdflatex -interaction=nonstopmode -halt-on-error icdm_teen_2026.tex
           test -s icdm_teen_2026.pdf
+
+      - name: Verify byte-identical clean PDF rerenders
+        run: bash scripts/ci/verify_reproducible_pdfs.sh
 
       - name: Enforce submission PDF gates
         working-directory: paper
