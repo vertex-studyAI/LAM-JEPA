@@ -1,0 +1,93 @@
+name: ICLR 2027 submission source
+
+on:
+  pull_request:
+    paths:
+      - 'paper/iclr2027_submission.tex'
+      - 'paper/iclr2027_conference.sty'
+      - 'paper/references.bib'
+      - '.github/workflows/iclr2027-submission.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-anonymous-submission:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Bind build to exact source
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected='${{ github.event.pull_request.head.sha || github.sha }}'
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$expected"
+          echo "verified_source=$actual"
+
+      - name: Install minimal LaTeX/PDF tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-extra texlive-fonts-recommended texlive-bibtex-extra poppler-utils
+
+      - name: Enforce anonymous and disclosure source contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          f=paper/iclr2027_submission.tex
+          grep -F '\author{Anonymous Authors}' "$f"
+          grep -F '\section*{AI Use Statement}' "$f"
+          grep -F '\section*{Reproducibility Statement}' "$f"
+          grep -F 'AI2 Reasoning Challenge (ARC-Challenge)' "$f"
+          grep -F '23/1,117' "$f"
+          grep -F '6/295' "$f"
+          grep -F '7,030 distinct word types' "$f"
+          grep -F 'Gradient-active parameter count is defined' "$f"
+          grep -F 'finite-seed protocol summaries' "$f"
+          ! grep -E -i 'ryan gomez|oakridge|@gmail\.com|@outlook\.com' "$f"
+
+      - name: Build ICLR source
+        working-directory: paper
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f iclr2027_submission.{aux,bbl,blg,log,out,pdf}
+          pdflatex -interaction=nonstopmode -halt-on-error iclr2027_submission.tex
+          bibtex iclr2027_submission
+          pdflatex -interaction=nonstopmode -halt-on-error iclr2027_submission.tex
+          pdflatex -interaction=nonstopmode -halt-on-error iclr2027_submission.tex
+          test -s iclr2027_submission.pdf
+
+      - name: Fail closed on bibliography/layout defects and conservative page bound
+        working-directory: paper
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -E 'LaTeX Warning: (Citation|Reference).*undefined|There were undefined references' iclr2027_submission.log
+          ! grep -E 'Overfull \\hbox|Overfull \\vbox' iclr2027_submission.log
+          pages="$(pdfinfo iclr2027_submission.pdf | awk '/^Pages:/ {print $2}')"
+          test -n "$pages"
+          test "$pages" -le 9
+          echo "pdf_pages=$pages"
+          pdftotext iclr2027_submission.pdf iclr2027_submission.txt
+          tr '\n' ' ' < iclr2027_submission.txt | tr -s '[:space:]' ' ' > iclr2027_submission.normalized.txt
+          grep -F -i 'Generative AI tools were used' iclr2027_submission.normalized.txt
+          grep -F -i 'Every quantitative claim is tied' iclr2027_submission.normalized.txt
+          ! grep -E -i 'ryan gomez|oakridge|@gmail\.com|@outlook\.com' iclr2027_submission.normalized.txt
+
+      - name: Retain anonymous PDF and build log
+        uses: actions/upload-artifact@v4
+        with:
+          name: iclr2027-anonymous-submission-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            paper/iclr2027_submission.pdf
+            paper/iclr2027_submission.log
+            paper/iclr2027_submission.bbl
+          if-no-files-found: error
