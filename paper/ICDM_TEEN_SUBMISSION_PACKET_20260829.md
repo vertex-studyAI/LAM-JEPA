@@ -1,6 +1,8 @@
 # ICDM 2026 Teen Research Track — Final Submission Packet
 
-Status: **SCIENCE/BUILD GO; FINAL UPLOAD BLOCKED ONLY ON OWNER-CONTROLLED METADATA + FINAL REBUILD**
+Status as of 2026-09-01: **NO-GO FOR NEW ICDM 2026 TEEN SUBMISSION — OFFICIAL DEADLINE PASSED**
+
+The official August 30, 2026 AoE deadline has elapsed. This packet is retained as historical preparation evidence only. It must not be represented as a live upload surface unless the track chairs provide a documented extension or reopen the portal. No such extension is currently evidenced in this repository.
 
 This packet is the canonical copy/paste + verification surface for the final submission. It must not be used to bypass the scientific or authorship gates in `ICDM_TEEN_SUBMISSION_GATE_20260828.md`.
 
@@ -190,4 +192,6 @@ Do not commit private portal passwords or credentials to the public repository.
 
 ## Hard stop
 
-The repository-side submission package is complete as far as evidence permits **until truthful owner metadata is supplied**. Do not spend the remaining pre-deadline window inventing new experiments, opening the locked confirmatory test, retuning frozen negative/mixed results, or widening claims. The next legitimate transition is owner metadata → exact-head rebuild → final PDF inspection → portal submission.
+Do not upload this packet to ICDM 2026 as a new submission after the official deadline without written venue authorization. Do not invent an extension, backdate a submission, open the locked confirmatory test, retune frozen negative/mixed results, or widen claims.
+
+The legitimate next path is archival negative-result packaging or a separately verified future venue. Any future submission must receive truthful owner metadata, an exact-head rebuild, current venue verification, and a final PDF inspection.
