@@ -77,9 +77,10 @@ jobs:
           test "$pages" -le 9
           echo "pdf_pages=$pages"
           pdftotext iclr2027_submission.pdf iclr2027_submission.txt
-          grep -F -i 'Generative AI tools were used' iclr2027_submission.txt
-          grep -F -i 'Every quantitative claim is tied' iclr2027_submission.txt
-          ! grep -E -i 'ryan gomez|oakridge|@gmail\.com|@outlook\.com' iclr2027_submission.txt
+          tr '\n' ' ' < iclr2027_submission.txt | tr -s '[:space:]' ' ' > iclr2027_submission.normalized.txt
+          grep -F -i 'Generative AI tools were used' iclr2027_submission.normalized.txt
+          grep -F -i 'Every quantitative claim is tied' iclr2027_submission.normalized.txt
+          ! grep -E -i 'ryan gomez|oakridge|@gmail\.com|@outlook\.com' iclr2027_submission.normalized.txt
 
       - name: Retain anonymous PDF and build log
         uses: actions/upload-artifact@v4
