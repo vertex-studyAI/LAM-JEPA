@@ -77,8 +77,8 @@ jobs:
           test "$pages" -le 9
           echo "pdf_pages=$pages"
           pdftotext iclr2027_submission.pdf iclr2027_submission.txt
-          grep -F -i 'AI Use Statement' iclr2027_submission.txt
-          grep -F -i 'Reproducibility Statement' iclr2027_submission.txt
+          grep -F -i 'Generative AI tools were used' iclr2027_submission.txt
+          grep -F -i 'Every quantitative claim is tied' iclr2027_submission.txt
           ! grep -E -i 'ryan gomez|oakridge|@gmail\.com|@outlook\.com' iclr2027_submission.txt
 
       - name: Retain anonymous PDF and build log
