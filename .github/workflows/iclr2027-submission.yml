@@ -75,11 +75,11 @@ jobs:
           pages="$(pdfinfo iclr2027_submission.pdf | awk '/^Pages:/ {print $2}')"
           test -n "$pages"
           test "$pages" -le 9
-          pdftotext iclr2027_submission.pdf iclr2027_submission.txt
-          grep -F 'AI Use Statement' iclr2027_submission.txt
-          grep -F 'Reproducibility Statement' iclr2027_submission.txt
-          ! grep -E -i 'ryan gomez|oakridge|@gmail\.com|@outlook\.com' iclr2027_submission.txt
           echo "pdf_pages=$pages"
+          pdftotext iclr2027_submission.pdf iclr2027_submission.txt
+          grep -F -i 'AI Use Statement' iclr2027_submission.txt
+          grep -F -i 'Reproducibility Statement' iclr2027_submission.txt
+          ! grep -E -i 'ryan gomez|oakridge|@gmail\.com|@outlook\.com' iclr2027_submission.txt
 
       - name: Retain anonymous PDF and build log
         uses: actions/upload-artifact@v4
