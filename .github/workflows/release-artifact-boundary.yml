@@ -1,0 +1,66 @@
+name: Release Artifact Boundary
+
+on:
+  pull_request:
+    paths:
+      - 'PAPER_SOURCE_STATUS.md'
+      - 'paper/ICDM_TEEN_DEADLINE_CLOSURE_20260901.md'
+      - 'paper/ICDM_TEEN_SUBMISSION_PACKET_20260829.md'
+      - 'tests/test_release_artifact_boundary.py'
+      - '.github/workflows/release-artifact-boundary.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-artifact-boundary-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-release-boundary:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Bind verification to exact source
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected='${{ github.event.pull_request.head.sha || github.sha }}'
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$expected"
+          printf 'verified_source=%s\n' "$actual"
+
+      - name: Run release-boundary regressions only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import importlib.util
+          from pathlib import Path
+
+          path = Path('tests/test_release_artifact_boundary.py')
+          spec = importlib.util.spec_from_file_location('release_artifact_boundary', path)
+          if spec is None or spec.loader is None:
+              raise RuntimeError(f'cannot load {path}')
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+
+          tests = [
+              (name, value)
+              for name, value in vars(module).items()
+              if name.startswith('test_') and callable(value)
+          ]
+          if not tests:
+              raise RuntimeError('no release-boundary tests discovered')
+          for name, test in sorted(tests):
+              test()
+              print(f'PASS {name}')
+          print(f'passed={len(tests)}')
+          PY
