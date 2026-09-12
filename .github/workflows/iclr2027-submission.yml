@@ -42,9 +42,9 @@ jobs:
         run: |
           set -euo pipefail
           f=paper/iclr2027_submission.tex
-          grep -F '\\author{Anonymous Authors}' "$f"
-          grep -F '\\section*{AI Use Statement}' "$f"
-          grep -F '\\section*{Reproducibility Statement}' "$f"
+          grep -F '\author{Anonymous Authors}' "$f"
+          grep -F '\section*{AI Use Statement}' "$f"
+          grep -F '\section*{Reproducibility Statement}' "$f"
           grep -F 'AI2 Reasoning Challenge (ARC-Challenge)' "$f"
           grep -F '23/1,117' "$f"
           grep -F '6/295' "$f"
