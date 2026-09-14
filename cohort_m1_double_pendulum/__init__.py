@@ -1,0 +1,1 @@
+CONTRACT_VERSION = "m1-v1"
