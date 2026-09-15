@@ -1,0 +1,101 @@
+name: Cohort M1 double-pendulum gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "cohort_m1_double_pendulum/**"
+      - ".github/workflows/cohort-m1-double-pendulum.yml"
+  push:
+    branches: [main]
+    paths:
+      - "cohort_m1_double_pendulum/**"
+      - ".github/workflows/cohort-m1-double-pendulum.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lam-jepa-cohort-m1-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+
+      - name: Compile benchmark package
+        run: python -m compileall -q cohort_m1_double_pendulum
+
+      - name: Run benchmark self-check
+        run: python -m cohort_m1_double_pendulum.selfcheck
+
+      - name: Reproduce bounded artifact twice
+        run: |
+          set -euo pipefail
+          rm -rf ci-evidence
+          mkdir -p ci-evidence/run-a ci-evidence/run-b
+          python -m cohort_m1_double_pendulum.run --steps 32 --dt 0.02 --out ci-evidence/run-a > ci-evidence/run-a.stdout.json
+          python -m cohort_m1_double_pendulum.run --steps 32 --dt 0.02 --out ci-evidence/run-b > ci-evidence/run-b.stdout.json
+
+      - name: Verify byte-for-byte determinism
+        run: |
+          set -euo pipefail
+          diff -ru ci-evidence/run-a ci-evidence/run-b
+          cmp ci-evidence/run-a.stdout.json ci-evidence/run-b.stdout.json
+
+      - name: Verify required evidence surface
+        run: |
+          set -euo pipefail
+          test -s ci-evidence/run-a/split_manifest.csv
+          test -s ci-evidence/run-a/baseline_metrics.json
+          test -s ci-evidence/run-a/sample_test_trajectory.csv
+          test -s ci-evidence/run-a/sample_test_trajectory.svg
+          test -s ci-evidence/run-a/run_manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("ci-evidence/run-a")
+          manifest = json.loads((root / "run_manifest.json").read_text())
+          assert manifest["contract_version"] == "m1-v1", manifest
+          assert manifest["trajectory_count"] == 216, manifest
+          assert set(manifest["split_counts"]) == {"train", "validation", "test"}, manifest
+          assert sum(manifest["split_counts"].values()) == 216, manifest
+          assert manifest["steps"] == 32, manifest
+          assert manifest["dt"] == 0.02, manifest
+          required = {
+              "split_manifest.csv",
+              "baseline_metrics.json",
+              "sample_test_trajectory.csv",
+              "sample_test_trajectory.svg",
+          }
+          assert set(manifest["artifact_sha256"]) == required, manifest
+          metrics = json.loads((root / "baseline_metrics.json").read_text())
+          assert set(metrics) == {"persistence", "constant_velocity"}, metrics
+          for values in metrics.values():
+              assert set(values) == {"train", "validation", "test"}, values
+              assert all(isinstance(v, (int, float)) and v >= 0 for v in values.values()), values
+          print(json.dumps({"status": "ok", "manifest": manifest}, sort_keys=True))
+          PY
+
+      - name: Upload M1 verification evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cohort-m1-double-pendulum-${{ github.sha }}
+          path: ci-evidence
+          if-no-files-found: error
+          retention-days: 14
