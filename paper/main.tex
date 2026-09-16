@@ -105,6 +105,25 @@ Shuffled-label control & $0.2630508475 \pm 0.0145011862$ \\
 \end{table}
 Full minus \texttt{no\_planner} was $+0.0047457627$ with retained bootstrap 95\% CI $[0.0, 0.0142372881]$: the mean is below the preregistered $+0.01$ H2 gate and the interval does not exclude zero. Full minus \texttt{no\_target} was $-0.0067796610$ with interval $[-0.0135593220,0.0]$: it likewise fails the $+0.01$ H3 gate and the interval does not exclude zero. Neither mechanism attribution is supported. The shuffled-label control remained below the frozen $0.35$ ceiling, which establishes only that the declared validity stop rule did not trigger; it is not favorable evidence for H1--H3.
 
+\begin{table}[t]
+\centering
+\caption{Seed-level correct-count decomposition for the frozen mechanism ablations. Each seed uses the same 295-row validation cohort. The reviewed retained runs are constant classifiers, so sparse count differences should not be interpreted as stable input-conditional mechanism effects.}
+\label{tab:seed-level-ablation-counts}
+\begin{tabular}{rrrrrrr}
+\toprule
+Seed & Full & No planner & $\Delta_{\mathrm{planner}}$ & No target & $\Delta_{\mathrm{target}}$ & Shuffled \\
+\midrule
+1 & 71 & 71 & 0 & 71 & 0 & 78 \\
+2 & 78 & 78 & 0 & 78 & 0 & 71 \\
+3 & 78 & 71 & +7 & 83 & -5 & 83 \\
+4 & 71 & 71 & 0 & 71 & 0 & 78 \\
+5 & 78 & 78 & 0 & 83 & -5 & 78 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Seed-level integer outcomes make the five-seed limitation explicit. Over the fixed 295-row validation set, full-minus-\texttt{no\_planner} correct-count differences were $[0,0,+7,0,0]$, while full-minus-\texttt{no\_target} differences were $[0,0,-5,0,-5]$. Thus the planner aggregate is driven by a single seed and the target-path aggregate by two seeds. Because the externally reviewed retained runs are constant classifiers, these sparse count shifts are consistent with changes in the class selected under collapse rather than evidence of stable input-conditional planner or target-path benefit.
+
 \subsection{Bounded pretrained comparison and repaired validation}
 On the recorded bounded development comparison, LAM-JEPA achieved 0.15625 and DeBERTa-v3-xsmall achieved 0.21875, a paired difference of $-0.0625$. This is characterization evidence rather than a broad inferiority claim.
 
