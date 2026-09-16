@@ -1,0 +1,30 @@
+% Manuscript-ready seed-level ablation table for the frozen LAM-JEPA ARC study.
+% Derived only from retained five-seed accuracies on the fixed 295-row validation cohort.
+% Does not authorize any claim beyond the bounded frozen-protocol result.
+
+\begin{table}[t]
+\centering
+\caption{Seed-level correct-count decomposition for the frozen mechanism ablations. Each seed uses the same 295-row validation cohort. The reviewed retained runs are constant classifiers, so sparse count differences should not be interpreted as stable input-conditional mechanism effects.}
+\label{tab:seed-level-ablation-counts}
+\begin{tabular}{rrrrrrr}
+\toprule
+Seed & Full & No planner & $\Delta_{\mathrm{planner}}$ & No target & $\Delta_{\mathrm{target}}$ & Shuffled \\
+\midrule
+1 & 71 & 71 & 0 & 71 & 0 & 78 \\
+2 & 78 & 78 & 0 & 78 & 0 & 71 \\
+3 & 78 & 71 & +7 & 83 & -5 & 83 \\
+4 & 71 & 71 & 0 & 71 & 0 & 78 \\
+5 & 78 & 78 & 0 & 83 & -5 & 78 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Suggested accompanying prose:
+% Seed-level integer outcomes make the five-seed limitation explicit. Over the
+% fixed 295-row validation set, full-minus-no-planner correct-count differences
+% were [0, 0, +7, 0, 0], while full-minus-no-target differences were
+% [0, 0, -5, 0, -5]. Thus the planner aggregate is driven by a single seed and
+% the target-path aggregate by two seeds. Because the externally reviewed
+% retained runs are constant classifiers, these sparse count shifts are
+% consistent with changes in the class selected under collapse rather than
+% evidence of stable input-conditional planner or target-path benefit.
