@@ -1,6 +1,6 @@
 # LAM-JEPA Claim Ledger
 
-**Evidence cutoff:** 5 September 2026  
+**Evidence cutoff:** 17 September 2026  
 **Rule:** every public scientific statement must map to retained evidence. A GREEN negative result is allowed; unsupported positive wording is not.
 
 | ID | Claim | Evidence | Status | Public wording |
@@ -29,10 +29,11 @@
 | C22 | In the externally reviewed retained runs, the tested quantized path collapsed distinct pre-quantizer latents to a single VQ code per run and produced constant downstream predictions | `paper/EXTERNAL_REVIEW_VQ_COLLAPSE_CORRECTION_20260831.md`; externally reviewed retained artifacts summarized there | VERIFIED, bounded mechanism diagnosis | Allowed; do not generalize to vector quantization or JEPA broadly |
 | C23 | Removing quantization in the bounded external diagnostic restored input-dependent predictions and established above-chance ARC performance | `paper/EXTERNAL_REVIEW_VQ_COLLAPSE_CORRECTION_20260831.md` | FALSE | Forbidden; the diagnostic localizes collapse only |
 | C24 | The external review constitutes peer-reviewed publication or broad multi-site independent replication | `paper/EXTERNAL_REVIEW_VQ_COLLAPSE_CORRECTION_20260831.md`; current validation campaign state | FALSE | Forbidden |
+| C25 | Seed-level mechanism deltas are sparse: full-minus-`no_planner` correct-count differences are `[0, 0, +7, 0, 0]`, while full-minus-`no_target` differences are `[0, 0, -5, 0, -5]` on the fixed 295-row validation cohort | `paper/SEED_LEVEL_ABLATION_EVIDENCE_20260916.md`; `paper/seed_level_ablation_table_20260916.tex`; retained five-seed validation accuracies | VERIFIED, bounded decomposition | Allowed only as a frozen-cohort decomposition; do not present as positive mechanism evidence |
 
 ## Canonical headline
 
-> Under the frozen ARC-Challenge validation protocol, LAM-JEPA did not outperform the capacity-matched supervised baseline and its planner/target mechanism criteria were not met. Independent project-controlled reruns reproduce the aggregate negative conclusion and verifier verdict. One genuinely external frozen-protocol rerun/review also reproduced the retained headline metrics and found that the reviewed quantized path collapsed distinct pre-quantizer latents to a single VQ code per run, yielding constant downstream predictions. This supports a bounded reproducible failure-mechanism report, not architecture superiority or a general JEPA/vector-quantization conclusion.
+> Under the frozen ARC-Challenge validation protocol, LAM-JEPA did not outperform the capacity-matched supervised baseline and its planner/target mechanism criteria were not met. Independent project-controlled reruns reproduce the aggregate negative conclusion and verifier verdict. One genuinely external frozen-protocol rerun/review also reproduced the retained headline metrics and found that the reviewed quantized path collapsed distinct pre-quantizer latents to a single VQ code per run, yielding constant downstream predictions. Seed-level decomposition further shows that the retained planner aggregate is driven by one seed and the target-path aggregate by two seeds. This supports a bounded reproducible failure-mechanism report, not architecture superiority or a general JEPA/vector-quantization conclusion.
 
 ## Never collapse these states
 
