@@ -25,7 +25,15 @@ SUPPORTED_LATER_RESOLUTIONS = {
     "CONTEXT_TARGET_CONSTRUCTION": {
         "artifact": "protocols/arc_successor_v1_context_target.json",
         "sha256": "6d828536b9983f84beb85e29c1db56dfd01a23aa22f3840a88272867bd3f5d6b",
-    }
+    },
+    "ENCODER_FAMILY_AND_REVISION": {
+        "artifact": "protocols/arc_successor_v1_encoder.json",
+        "sha256": "8d9ea79aa7ee9777d3aad9044b63f1db5813b6e214d2bc7d559539700f09b516",
+        "repo_id": "distilbert/distilroberta-base",
+        "revision": "fb53ab8802853c8e4fbdbcd0529f21fc6f459b2b",
+        "checkpoint_sha256": "2b11ca9cf3d2cbb44cc1a93ad96aedc2894231ae6e33e2d2268c3d7b1ff97663",
+        "local_byte_receipts_retained": False,
+    },
 }
 SEEDS = [11, 23, 37, 53, 71]
 

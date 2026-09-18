@@ -1,0 +1,106 @@
+name: ARC Successor Encoder Freeze
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "protocols/arc_successor_v1_encoder.json"
+      - "protocols/arc_successor_v1_encoder_resolution.md"
+      - "protocols/arc_successor_v1_draft.json"
+      - "tools/verify_arc_successor_encoder.py"
+      - "tools/verify_arc_successor_context_target.py"
+      - "tools/verify_arc_successor_decision_rules.py"
+      - "tests/test_arc_successor_encoder_freeze.py"
+      - "tests/test_arc_successor_context_target.py"
+      - ".github/workflows/arc-successor-encoder.yml"
+  push:
+    branches: [main]
+    paths:
+      - "protocols/arc_successor_v1_encoder.json"
+      - "protocols/arc_successor_v1_encoder_resolution.md"
+      - "protocols/arc_successor_v1_draft.json"
+      - "tools/verify_arc_successor_encoder.py"
+      - "tools/verify_arc_successor_context_target.py"
+      - "tools/verify_arc_successor_decision_rules.py"
+      - "tests/test_arc_successor_encoder_freeze.py"
+      - "tests/test_arc_successor_context_target.py"
+      - ".github/workflows/arc-successor-encoder.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lam-jepa-successor-encoder-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-encoder-freeze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact source head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Assert exact source identity
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Setup Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+
+      - name: Verify immutable encoder artifact and successor binding
+        run: |
+          set -euo pipefail
+          python tools/verify_arc_successor_encoder.py
+
+      - name: Run encoder freeze regressions
+        run: |
+          set -euo pipefail
+          python tests/test_arc_successor_encoder_freeze.py
+
+      - name: Re-verify context-target freeze remains intact
+        run: |
+          set -euo pipefail
+          python tools/verify_arc_successor_context_target.py
+          python tests/test_arc_successor_context_target.py
+
+      - name: Re-verify immutable decision-rule compatibility
+        run: |
+          set -euo pipefail
+          python tools/verify_arc_successor_decision_rules.py \
+            protocols/arc_successor_v1_decision_rules.json \
+            protocols/arc_successor_v1_draft.json
+
+      - name: Record exact evidence
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p ci-evidence
+          sha256sum protocols/arc_successor_v1_encoder.json | tee ci-evidence/encoder-freeze.sha256
+          sha256sum protocols/arc_successor_v1_encoder_resolution.md | tee ci-evidence/encoder-resolution.sha256
+          git rev-parse HEAD | tee ci-evidence/source-head.txt
+          test "$(cat ci-evidence/source-head.txt)" = "$EXPECTED_HEAD"
+          python tools/verify_arc_successor_encoder.py > ci-evidence/verification.json
+          python tools/verify_arc_successor_decision_rules.py \
+            protocols/arc_successor_v1_decision_rules.json \
+            protocols/arc_successor_v1_draft.json \
+            > ci-evidence/decision-rule-compatibility.json
+
+      - name: Upload encoder-freeze evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: lam-jepa-successor-encoder-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ci-evidence
+          if-no-files-found: warn
+          retention-days: 14
