@@ -1,0 +1,62 @@
+name: Frozen negative ARC statistical audit
+
+on:
+  push:
+    branches:
+      - research/arc-negative-stat-audit-20260909
+  pull_request:
+    paths:
+      - tools/verify_frozen_negative_arc_statistics.py
+      - audits/ARC_NEGATIVE_STATISTICAL_CLOSURE_20260909.md
+      - experiments/repro_wave_2026_08_13/independent_audit.json
+      - audits/independent_artifact_audit_2026-08-13.json
+      - experiments/repro_wave_2026_08_12/metrics.json
+      - .github/workflows/frozen-negative-arc-stat-audit.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify-retained-negative-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile verifier
+        run: python -m py_compile tools/verify_frozen_negative_arc_statistics.py
+
+      - name: Recompute frozen statistics from retained evidence only
+        run: |
+          python tools/verify_frozen_negative_arc_statistics.py \
+            --out /tmp/arc_negative_statistical_closure_20260909.json
+          test -s /tmp/arc_negative_statistical_closure_20260909.json
+
+      - name: Prove locked-test and claim boundary in receipt
+        run: |
+          python - <<'PY'
+          import json
+          p = json.load(open('/tmp/arc_negative_statistical_closure_20260909.json'))
+          assert p['dataset_semantics']['all_eligible_rows_evaluated'] is True
+          assert p['dataset_semantics']['locked_confirmatory_test_evaluated'] is False
+          assert p['claim_boundary']['arc_superiority_supported'] is False
+          assert p['claim_boundary']['planner_mechanism_supported'] is False
+          assert p['claim_boundary']['target_mechanism_supported'] is False
+          assert p['claim_boundary']['no_new_outcome_access'] is True
+          assert p['per_seed_correct_counts_over_295']['full'] == [71, 78, 78, 71, 78]
+          assert p['paired_count_deltas']['full_minus_no_planner'] == [0, 0, 7, 0, 0]
+          assert p['paired_count_deltas']['full_minus_no_target'] == [0, 0, -5, 0, -5]
+          PY
+
+      - name: Retain verification receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: frozen-negative-arc-statistical-closure
+          path: /tmp/arc_negative_statistical_closure_20260909.json
+          if-no-files-found: error
