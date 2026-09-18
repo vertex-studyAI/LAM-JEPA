@@ -8,11 +8,12 @@ This is a submission-operations packet for the bounded negative/inconclusive LAM
 
 Verified against the official ICLR 2027 Call for Papers and Author Guidelines on 2026-09-17:
 
-- Abstract deadline: **2026-09-18 11:59 PM Anywhere on Earth (UTC-12)**.
-- Full paper deadline: **2026-09-25 11:59 PM Anywhere on Earth (UTC-12)**.
+- Abstract deadline: **2026-09-18 11:59 PM Anywhere on Earth (UTC-12)** = **2026-09-19 5:29 PM IST**.
+- Full paper deadline: **2026-09-25 11:59 PM Anywhere on Earth (UTC-12)** = **2026-09-26 5:29 PM IST**.
 - The abstract must be genuine and informative; placeholder or duplicate abstracts may be removed.
 - **No authors can be added or removed after the abstract deadline.** Author order may still be changed up to the full-paper deadline.
 - Every author should have an up-to-date OpenReview profile before abstract submission.
+- Any profile-activation or parental-consent requirement must be completed **before the abstract deadline**; a support-link expiry later than the deadline does not extend the ICLR submission deadline. Do not store consent-link tokens in this repository.
 - Submission is double blind; the review PDF and supplementary material must not reveal author identity.
 
 Official sources:
@@ -61,7 +62,8 @@ Before the abstract is submitted, freeze the complete author set. For **every** 
 - [ ] legal/preferred author name is correct;
 - [ ] author has explicitly agreed to authorship;
 - [ ] contribution meets the team’s authorship standard;
-- [ ] OpenReview profile exists and can be selected in the portal;
+- [ ] OpenReview profile exists, is fully activated, and can be selected in the portal;
+- [ ] any required parental-consent/profile-activation step is complete before **2026-09-19 5:29 PM IST**;
 - [ ] preferred email in OpenReview is current;
 - [ ] affiliation/profile information is current;
 - [ ] no intended author is missing;
