@@ -4,16 +4,25 @@
 
 This is a submission-operations packet for the bounded negative/inconclusive LAM-JEPA ARC-Challenge paper. It is derived from the exact ICLR source at commit `0c428bcb57346b4929f24e837f00ee1f5f880d9b` and does not change any scientific result, frozen protocol, seed, threshold, claim boundary, or locked-test state.
 
+## Post-deadline status — 2026-09-20
+
+The ICLR 2027 abstract-registration deadline has passed. The retained repository/account evidence checked after the cutoff contains **no verified OpenReview forum/submission URL and no timestamped successful abstract-registration receipt**. Therefore the evidence-supported status is:
+
+**ICLR 2027 packet prepared; abstract registration NOT VERIFIED / no evidence of successful registration before the cutoff.**
+
+Do not describe this work as “submitted to ICLR 2027” unless a valid pre-deadline submission receipt is produced later or ICLR/OpenReview provides a written administrative exception and a resulting submission receipt is retained.
+
+The full-paper checklist below is now **conditional archival guidance only**: it applies only if a valid pre-deadline abstract registration is established or a written venue-authorized exception permits continuation. Missing the abstract deadline is an administrative publication-state fact, not a scientific result and not a reason to alter the frozen evidence, unlock the confirmatory ARC test, add rescue experiments, or expand the claims.
+
 ## Official deadline checkpoint
 
-Verified against the official ICLR 2027 Call for Papers and Author Guidelines on 2026-09-17:
+Verified against the official ICLR 2027 Call for Papers and Author Guidelines on 2026-09-17 and rechecked on 2026-09-20:
 
 - Abstract deadline: **2026-09-18 11:59 PM Anywhere on Earth (UTC-12)** = **2026-09-19 5:29 PM IST**.
 - Full paper deadline: **2026-09-25 11:59 PM Anywhere on Earth (UTC-12)** = **2026-09-26 5:29 PM IST**.
 - The abstract must be genuine and informative; placeholder or duplicate abstracts may be removed.
 - **No authors can be added or removed after the abstract deadline.** Author order may still be changed up to the full-paper deadline.
-- Every author should have an up-to-date OpenReview profile before abstract submission.
-- Any profile-activation or parental-consent requirement must be completed **before the abstract deadline**; a support-link expiry later than the deadline does not extend the ICLR submission deadline. Do not store consent-link tokens in this repository.
+- ICLR requires authors to have OpenReview profiles. The Author Guidelines recommend resolving profiles before abstract submission; the FAQ also states that an author already included in the frozen author set can create/link the relevant OpenReview profile before the full-paper deadline. This does **not** permit adding or removing authors after the abstract deadline and does not extend either submission deadline.
 - Submission is double blind; the review PDF and supplementary material must not reveal author identity.
 
 Official sources:
@@ -22,17 +31,17 @@ Official sources:
 - https://iclr.cc/Conferences/2027/AuthorGuidelines
 - https://openreview.net/group?id=ICLR.cc/2027/Conference
 
-## Portal title — copy exactly unless the authors deliberately change it before submission
+## Portal title — archival copy from the prepared packet
 
 **LAM-JEPA on ARC-Challenge: A Reproducible Falsification-First Evaluation**
 
-## Portal abstract — copy from the frozen ICLR source
+## Portal abstract — archival copy from the frozen ICLR source
 
 We evaluate the project-named LAM-JEPA system on the AI2 Reasoning Challenge (ARC-Challenge) under a frozen falsification-first protocol with a gradient-active-parameter-matched supervised comparator, mechanism ablations, a shuffled-label validity control, and a bounded pinned pretrained comparison. Source inspection constrains the architecture claim: the evaluated ARC path is a small hashed-token, mean-pooled embedding model with vector quantization, learned sparse memory, a one-step latent-action rollout, and same-input exponential-moving-average target alignment; it is neither a Transformer encoder nor the canonical I-JEPA context-to-distinct-target prediction task. The preregistered superiority gate required a mean paired accuracy gain of at least +0.02 with a paired seed-level 95% bootstrap confidence interval excluding zero; planner and target-path attribution each required a paired full-minus-ablation gain of at least +0.01 with the paired interval excluding zero. Across five frozen validation seeds, full LAM-JEPA achieved 0.2549152542 ± 0.0129968064 accuracy versus 0.2664406780 ± 0.0154600058 for the matched supervised model, with paired mean difference -0.0115254237; the superiority gate therefore failed. Full-minus-no_planner was +0.0047457627 with 95% bootstrap CI [0.0, 0.0142372881], and full-minus-no_target was -0.0067796610 with CI [-0.0135593220, 0.0], so neither mechanism gate was met. One independent frozen-protocol external rerun/review reproduced the retained headline metrics and found single-code vector-quantizer collapse with constant downstream predictions in the reviewed runs; disabling quantization restored input-dependent predictions but did not establish above-chance ARC performance. We therefore report a bounded, reproducible failure-mechanism case study rather than architecture superiority, a general JEPA conclusion, or a general claim about vector quantization, and we keep the confirmatory ARC test locked for this failed hypothesis line.
 
 ## Scientific claim boundary that must remain intact
 
-The submission may claim only the bounded evidence represented in the frozen source and retained artifacts. In particular:
+Any release or future submission may claim only the bounded evidence represented in the frozen source and retained artifacts. In particular:
 
 - the frozen LAM-JEPA configuration does **not** satisfy the superiority gate;
 - planner contribution is **not supported** under the preregistered criterion;
@@ -53,42 +62,44 @@ Submission source branch at the time this packet was created:
 - retained anonymous submission artifact: `10319170333`
 - retained archive digest: `sha256:6f8b06efa8aad774236a945f15cc23174672e9b6f73863a9f930bce8b51098e8`
 
-The exact-head technical workflows recorded on PR #175 were terminal green for that head, but canonical `main` subsequently advanced. Therefore those checks establish the integrity of that exact submission source; they are not evidence of a fresh integration against current `main`.
+The exact-head technical workflows recorded on PR #175 were terminal green for that head, but canonical `main` subsequently advanced. Therefore those checks establish the integrity of that exact submission source; they are not evidence of a fresh integration against current `main` and they are not evidence of successful ICLR portal registration.
 
-## Author-set freeze checklist — HUMAN AUTHORITY REQUIRED
+## Historical author-set freeze checklist — HUMAN AUTHORITY REQUIRED
 
-Before the abstract is submitted, freeze the complete author set. For **every** intended author, verify all of the following:
+Before the abstract deadline, the complete author set needed to be frozen. For **every** intended author, the operational checklist was:
 
 - [ ] legal/preferred author name is correct;
 - [ ] author has explicitly agreed to authorship;
 - [ ] contribution meets the team’s authorship standard;
-- [ ] OpenReview profile exists, is fully activated, and can be selected in the portal;
-- [ ] any required parental-consent/profile-activation step is complete before **2026-09-19 5:29 PM IST**;
+- [ ] author identity/email was included correctly in the frozen portal author set;
+- [ ] OpenReview profile exists or can be validly linked before the venue’s applicable profile deadline;
 - [ ] preferred email in OpenReview is current;
 - [ ] affiliation/profile information is current;
 - [ ] no intended author is missing;
 - [ ] no contributor who should not be an author is included;
 - [ ] everyone understands that authors cannot be added or removed after the abstract deadline.
 
-Do not submit the abstract while this checklist is incomplete.
+This checklist is retained as provenance. It must not be used now to imply that a submission occurred.
 
-## Abstract-submission portal checklist
+## Historical abstract-submission portal checklist
 
 - [ ] Open the ICLR 2027 Conference submission page on OpenReview.
 - [ ] Create the submission using the final author set.
 - [ ] Paste the title above.
 - [ ] Paste the genuine abstract above.
-- [ ] Verify every author resolves to the correct OpenReview profile.
-- [ ] Check author order. It can still be reordered before the full-paper deadline, but the set is frozen after the abstract deadline.
+- [ ] Verify every author identity/email is correct and linkable to the appropriate OpenReview profile.
+- [ ] Check author order. It could still be reordered before the full-paper deadline, but the set froze after the abstract deadline.
 - [ ] Confirm there is no author-identifying material in the anonymous PDF if one is uploaded at this stage.
 - [ ] Review subject areas/keywords for truthful fit to representation learning, evaluation/reproducibility, reasoning/QA, and failure analysis as supported by the portal’s available categories.
 - [ ] Save the OpenReview submission URL / forum ID.
 - [ ] Save a timestamped receipt or screenshot after successful abstract submission.
 - [ ] Record the exact portal title, abstract, author set, order, and OpenReview IDs in the project submission ledger.
 
-## Full-paper follow-through after abstract lock
+No retained evidence currently verifies completion of the receipt/forum steps above.
 
-Before 2026-09-25 11:59 PM AoE:
+## Conditional full-paper follow-through after a valid abstract lock
+
+Only if a valid pre-deadline abstract registration is established, or a written ICLR/OpenReview exception explicitly authorizes continuation, complete the following before 2026-09-25 11:59 PM AoE:
 
 - visually inspect the exact anonymous PDF page by page;
 - verify bibliography/citations and references are resolved;
@@ -99,6 +110,8 @@ Before 2026-09-25 11:59 PM AoE:
 - rerun the claim/evidence audit if any quantitative or interpretation wording changes;
 - retain exact final PDF hash, source SHA, build log, and portal submission receipt.
 
+If no valid registration/exception exists, do **not** treat the full-paper deadline as an opportunity to create a new ICLR submission after the missed abstract cutoff.
+
 ## Do-not-cross lines
 
 Do not:
@@ -107,10 +120,11 @@ Do not:
 - add a positive/superiority framing unsupported by the frozen evidence;
 - generalize the collapse diagnosis to JEPA or vector quantization broadly;
 - mix successor-study outcomes into this paper as rescue evidence;
-- add or remove authors after the abstract deadline;
-- submit a placeholder abstract;
-- expose author identity in the anonymous review package.
+- claim ICLR submission without a valid receipt/forum record;
+- add or remove authors after the abstract deadline if a valid abstract registration exists;
+- submit placeholder or marketing copy in place of the genuine abstract;
+- expose author identity in an anonymous review package.
 
 ## Current stop condition
 
-Technical packaging is substantially prepared. The remaining abstract-deadline gate is principally **human**: finalize the complete author set, confirm each OpenReview profile, review the exact title/abstract, and submit through OpenReview before the official deadline.
+The scientific package remains a bounded negative/inconclusive result with a frozen evidence boundary. The ICLR 2027 abstract-registration state is **not verified as successful**. Preserve the prepared packet and provenance, keep the confirmatory test locked, and separate the next venue/release decision from any scientific changes. Do not run new experiments merely to manufacture a more favorable publication story.
