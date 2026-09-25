@@ -32,9 +32,9 @@ jobs:
         working-directory: paper
         run: |
           test -s aistats2027_submission.pdf
-          grep -q "\\section\*{AI Use Statement}" aistats2027_submission.tex
-          grep -q "confirmatory ARC test remains locked" aistats2027_submission.tex
-          grep -q "failed its preregistered superiority gate" aistats2027_submission.tex
+          grep -Fq '\section*{AI Use Statement}' aistats2027_submission.tex
+          grep -Fq 'confirmatory test remains locked' aistats2027_submission.tex
+          grep -Fq 'failed its preregistered superiority gate' aistats2027_submission.tex
 
       - name: Upload candidate
         uses: actions/upload-artifact@v4
