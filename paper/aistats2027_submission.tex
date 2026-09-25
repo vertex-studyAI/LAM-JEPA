@@ -84,8 +84,9 @@ The full-controls validation uses seeds $\{1,2,3,4,5\}$, 20 epochs, batch size 3
 \subsection{Capacity-matched comparison}
 \begin{table}[t]
 \centering
+\small
 \caption{Frozen ARC-Challenge validation result.}
-\begin{tabular}{lr}
+\begin{tabular}{@{}lr@{}}
 \toprule
 System & Validation accuracy \\
 \midrule
@@ -98,10 +99,10 @@ Paired LAM $-$ matched & $-0.0115254237 \pm 0.0140994131$ \\
 The frozen validation fails H1. The paired mean is negative and therefore cannot satisfy the preregistered $+0.02$ practical-effect gate.
 
 \subsection{Mechanism ablations}
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \caption{Seed-level frozen ARC-Challenge validation counts. Each entry is correct predictions out of 295 retained validation examples. Every listed run has prediction support 1.}
-\begin{tabular}{lrrrrr}
+\begin{tabular}{@{}lrrrrr@{}}
 \toprule
 Configuration & Seed 1 & Seed 2 & Seed 3 & Seed 4 & Seed 5 \\
 \midrule
@@ -111,7 +112,7 @@ Full LAM-JEPA & 71 & 78 & 78 & 71 & 78 \\
 Shuffled-label control & 78 & 71 & 83 & 78 & 78 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 The paired item-count differences are \texttt{full-no\_planner} $=[0,0,+7,0,0]$ and \texttt{full-no\_target} $=[0,0,-5,0,-5]$. Full minus \texttt{no\_planner} was $+0.0047457627$ with retained bootstrap 95\% CI $[0.0, 0.0142372881]$; full minus \texttt{no\_target} was $-0.0067796610$ with interval $[-0.0135593220,0.0]$. Neither mechanism attribution is supported. The shuffled-label control remained below the frozen $0.35$ ceiling, which establishes only that the declared validity stop rule did not trigger.
 
