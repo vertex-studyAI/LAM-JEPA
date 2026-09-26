@@ -15,7 +15,6 @@ EXPECTED_ARTIFACT_SHA256 = "6d828536b9983f84beb85e29c1db56dfd01a23aa22f3840a8827
 EXPECTED_BLOCKERS_AFTER_FREEZE = {
     "DATA_FRESHNESS_AUDIT",
     "CONFIRMATORY_DATASET",
-    "ENCODER_FAMILY_AND_REVISION",
     "COLLAPSE_THRESHOLDS",
     "PARAMETER_MATCH_TOLERANCE",
     "MAX_COMPUTE_RATIO",
@@ -107,6 +106,7 @@ def verify(artifact_path: Path, successor_path: Path, implementation_path: Path)
     hard_blockers = set(successor.get("hard_blockers") or [])
     require(hard_blockers == EXPECTED_BLOCKERS_AFTER_FREEZE, "successor hard-blocker set drift")
     require("CONTEXT_TARGET_CONSTRUCTION" not in hard_blockers, "resolved context-target blocker must not remain hard-blocked")
+    require("ENCODER_FAMILY_AND_REVISION" not in hard_blockers, "resolved encoder blocker must not remain hard-blocked")
     resolved = as_mapping(successor.get("resolved_blockers"), "resolved_blockers")
     binding = as_mapping(resolved.get("CONTEXT_TARGET_CONSTRUCTION"), "resolved_blockers.CONTEXT_TARGET_CONSTRUCTION")
     require(binding.get("artifact") == "protocols/arc_successor_v1_context_target.json", "context-target artifact binding drift")

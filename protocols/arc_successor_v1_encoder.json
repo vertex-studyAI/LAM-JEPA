@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "artifact_id": "lam-jepa-successor-encoder-v1-20260906",
+  "status": "FROZEN_PREOUTCOME_ENCODER_IDENTITY_ONLY",
+  "execution_authorized": false,
+  "outcome_access_authorized": false,
+  "relationship_to_successor": "Resolves ENCODER_FAMILY_AND_REVISION only for lam-arc-contextual-successor-v1-draft. It does not approve a confirmatory dataset, freeze collapse/budget/environment rules, implement B0/T1, or authorize held-out execution.",
+  "selection_timing": "Selected before successor B0/T1 held-out outcomes and before confirmatory-dataset approval.",
+  "encoder": {
+    "provider": "Hugging Face Hub",
+    "repo_id": "distilbert/distilroberta-base",
+    "revision": "fb53ab8802853c8e4fbdbcd0529f21fc6f459b2b",
+    "library_family": "transformers",
+    "model_class_contract": "AutoModel / RobertaModel base encoder, not a task-finetuned checkpoint",
+    "model_type": "roberta",
+    "language": "English",
+    "license": "apache-2.0",
+    "hidden_size": 768,
+    "num_hidden_layers": 6,
+    "num_attention_heads": 12,
+    "max_position_embeddings": 514,
+    "published_model_parameter_count_approx": 82800000,
+    "checkpoint_file": "model.safetensors",
+    "checkpoint_sha256": "2b11ca9cf3d2cbb44cc1a93ad96aedc2894231ae6e33e2d2268c3d7b1ff97663",
+    "checkpoint_remote_size_bytes": 331000000,
+    "checkpoint_size_is_approximate_from_hub_display": true
+  },
+  "tokenizer": {
+    "repo_id": "distilbert/distilroberta-base",
+    "revision": "fb53ab8802853c8e4fbdbcd0529f21fc6f459b2b",
+    "implementation_contract": "AutoTokenizer.from_pretrained(..., revision=REVISION, use_fast=True)",
+    "model_max_length": 512,
+    "experiment_max_length": 512,
+    "truncation": true,
+    "truncation_side": "right",
+    "padding_side": "right",
+    "add_special_tokens": true,
+    "added_tokens": [],
+    "withheld_marker_policy": "The already-frozen literal [WITHHELD_SPAN] is tokenized by the pinned native tokenizer as ordinary text; no new special token or embedding row may be added."
+  },
+  "representation": {
+    "source_layer": "final_hidden_state",
+    "pooling": "attention-mask-weighted arithmetic mean over all non-padding positions, including native special tokens",
+    "output_dimension": 768,
+    "normalization_after_pooling": "none unless separately frozen for all compared systems before outcome access",
+    "B0_and_T1_supervised_encoder_identity_must_match": true,
+    "T1_target_encoder_initialization": "exact copy of the same pinned base encoder weights before any successor training; subsequent EMA rule remains a separate implementation/config binding"
+  },
+  "matching_rules": {
+    "B0_encoder_repo_revision": "must equal this artifact",
+    "T1_online_encoder_repo_revision": "must equal this artifact",
+    "T1_target_encoder_initial_revision": "must equal this artifact",
+    "supervised_input_tokenizer": "must equal this artifact for B0 and T1",
+    "auxiliary_context_and_target_tokenizer": "must equal this artifact for T1",
+    "post_outcome_checkpoint_swap": false,
+    "post_outcome_tokenizer_swap": false,
+    "treatment_specific_added_tokens": false,
+    "treatment_specific_sequence_length": false
+  },
+  "selection_rationale": [
+    "The successor requires a genuine contextual encoder rather than the predecessor's hashed whitespace-token representation.",
+    "DistilRoBERTa is a compact English RoBERTa-family encoder with 6 layers, 768 hidden dimensions and 12 attention heads, reducing compute relative to RoBERTa-base while retaining contextual token representations.",
+    "The same immutable pretrained revision can initialize B0 and T1, so encoder choice is not a treatment-specific advantage.",
+    "The checkpoint is general-purpose rather than fine-tuned on the successor task."
+  ],
+  "known_limitations": [
+    "The checkpoint was pretrained on OpenWebText. This artifact does not establish that candidate ARC/OpenBookQA examples were absent from pretraining data; contamination/overlap remains a limitation and separate freshness-review item.",
+    "Pinning a Hub revision does not substitute for local download receipts. Before any admissible execution, retain exact local SHA-256 hashes for every downloaded model/tokenizer/config file and bind them to the run environment.",
+    "This artifact does not freeze encoder trainability, classifier-head implementation, optimizer, predictor, EMA decay, collapse thresholds, parameter-match tolerance or compute ratio. Those remain separate blockers.",
+    "The approx parameter count and displayed checkpoint size are descriptive metadata, not the final trainable-parameter count used for matched-budget certification."
+  ],
+  "external_source_receipts": {
+    "hub_revision_verified": true,
+    "hub_revision_date": "2024-02-19",
+    "hub_revision_change": "adds tokenizer_config.json with model_max_length 512",
+    "checkpoint_safetensors_sha256_verified_from_hub_metadata": true,
+    "local_byte_receipts_retained": false
+  },
+  "claim_boundary": "This artifact freezes one contextual encoder/checkpoint/tokenizer identity before successor outcomes. It is not evidence that DistilRoBERTa, JEPA, or the successor treatment improves reasoning, generalization, sample efficiency, or representation health."
+}

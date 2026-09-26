@@ -35,7 +35,8 @@ class ArcSuccessorContextTargetTests(unittest.TestCase):
         self.assertEqual(result["status"], "ARC_SUCCESSOR_CONTEXT_TARGET_FROZEN_VERIFIED")
         self.assertFalse(result["execution_authorized"])
         self.assertFalse(result["outcome_access_authorized"])
-        self.assertEqual(len(result["remaining_hard_blockers"]), 7)
+        self.assertEqual(len(result["remaining_hard_blockers"]), 6)
+        self.assertNotIn("ENCODER_FAMILY_AND_REVISION", result["remaining_hard_blockers"])
 
     def test_constructor_signature_has_no_label_surface(self) -> None:
         signature = inspect.signature(construct_context_target)
@@ -123,6 +124,7 @@ class ArcSuccessorContextTargetTests(unittest.TestCase):
         self.assertFalse(payload["input_contract"]["construction_may_read_supervised_label"])
         self.assertFalse(payload["visibility_rules"]["target_receives_answer_or_label"])
         self.assertNotIn("CONTEXT_TARGET_CONSTRUCTION", successor["hard_blockers"])
+        self.assertNotIn("ENCODER_FAMILY_AND_REVISION", successor["hard_blockers"])
 
 
 if __name__ == "__main__":
