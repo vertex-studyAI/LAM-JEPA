@@ -1,0 +1,51 @@
+name: AISTATS 2027 submission build
+
+on:
+  pull_request:
+    paths:
+      - 'paper/aistats2027_submission.tex'
+      - 'paper/aistats2027.sty'
+      - 'paper/references.bib'
+      - 'publication/AISTATS2027_ABSTRACT_PACKET_2026-09-25.md'
+      - '.github/workflows/aistats2027-submission.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+
+      - name: Compile anonymous AISTATS candidate
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: aistats2027_submission.tex
+          working_directory: paper
+          args: -pdf -file-line-error -halt-on-error -interaction=nonstopmode
+
+      - name: Verify required paper surfaces
+        working-directory: paper
+        run: |
+          test -s aistats2027_submission.pdf
+          grep -Fq '\section*{AI Use Statement}' aistats2027_submission.tex
+          grep -Fq 'confirmatory test remains locked' aistats2027_submission.tex
+          grep -Fq 'failed its preregistered superiority gate' aistats2027_submission.tex
+          ! grep -Fq '760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb' aistats2027_submission.tex
+          ! grep -Fq '31203337502' aistats2027_submission.tex
+          ! grep -Fq 'PR \\#' aistats2027_submission.tex
+
+      - name: Upload candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: lam-jepa-aistats2027-${{ github.sha }}
+          retention-days: 30
+          path: |
+            paper/aistats2027_submission.pdf
+            paper/aistats2027_submission.tex
+            paper/references.bib
+            publication/AISTATS2027_ABSTRACT_PACKET_2026-09-25.md
