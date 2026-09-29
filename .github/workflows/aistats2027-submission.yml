@@ -36,7 +36,7 @@ jobs:
           grep -Fq '\ProvidesPackage{aistats2027}[2026/09/02 AISTATS2027 submission/camera-ready style file]' aistats2027.sty
           grep -Fq '\section*{AI Use Statement}' aistats2027_submission.tex
           grep -Fq 'confirmatory ARC test remains locked' aistats2027_submission.tex
-          grep -Fq 'did not satisfy its preregistered superiority gate' aistats2027_submission.tex
+          grep -Fq 'failed its preregistered superiority gate' aistats2027_submission.tex
           ! grep -Fq '760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb' aistats2027_submission.tex
           ! grep -Fq '31203337502' aistats2027_submission.tex
           ! grep -Fq 'PR \#' aistats2027_submission.tex
