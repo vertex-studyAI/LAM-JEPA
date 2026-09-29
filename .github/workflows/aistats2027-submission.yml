@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'paper/aistats2027_submission.tex'
+      - 'paper/aistats2027_checklist.tex'
+      - 'paper/aistats2027_complexity_section.tex'
       - 'paper/aistats2027.sty'
       - 'paper/references.bib'
       - 'publication/AISTATS2027_ABSTRACT_PACKET_2026-09-25.md'
@@ -32,12 +34,19 @@ jobs:
         working-directory: paper
         run: |
           test -s aistats2027_submission.pdf
+          echo '33ab38f8aac4b2f1df9fe67e354928598200584e9568385f32deb889e1b81d42  aistats2027.sty' | sha256sum -c -
+          grep -Fq '\ProvidesPackage{aistats2027}[2026/09/02 AISTATS2027 submission/camera-ready style file]' aistats2027.sty
           grep -Fq '\section*{AI Use Statement}' aistats2027_submission.tex
-          grep -Fq 'confirmatory test remains locked' aistats2027_submission.tex
-          grep -Fq 'failed its preregistered superiority gate' aistats2027_submission.tex
+          grep -Fq '\input{aistats2027_checklist}' aistats2027_submission.tex
+          test -s aistats2027_checklist.tex
+          test -s aistats2027_complexity_section.tex
+          grep -Fq '\input{aistats2027_complexity_section}' aistats2027_submission.tex
+          grep -Fq '\section*{Checklist}' aistats2027_checklist.tex
+          grep -Fq 'confirmatory ARC test remains locked' aistats2027_submission.tex
+          grep -Fq 'the superiority gate therefore failed' aistats2027_submission.tex
           ! grep -Fq '760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb' aistats2027_submission.tex
           ! grep -Fq '31203337502' aistats2027_submission.tex
-          ! grep -Fq 'PR \\#' aistats2027_submission.tex
+          ! grep -Fq 'PR \#' aistats2027_submission.tex
 
       - name: Upload candidate
         uses: actions/upload-artifact@v4
@@ -47,5 +56,6 @@ jobs:
           path: |
             paper/aistats2027_submission.pdf
             paper/aistats2027_submission.tex
+            paper/aistats2027_checklist.tex
             paper/references.bib
             publication/AISTATS2027_ABSTRACT_PACKET_2026-09-25.md
