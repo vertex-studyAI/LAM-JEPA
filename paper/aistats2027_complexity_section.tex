@@ -1,0 +1,17 @@
+% Evidence-bounded complexity analysis for the frozen ARC path.
+% Intended insertion point: end of Method, immediately before Experimental Setup.
+\subsection{Computational and storage complexity}
+Let $B$ be minibatch size, $T$ the serialized token length, $d$ the projected latent width, $K$ the quantizer code count, $M$ the memory capacity, $A$ the latent-action count, $h$ the hidden width, and $S$ the number of planner steps. In the implemented forward path, token embedding, normalization, and mean pooling require $O(BTd)$ work; nearest-code quantization requires $O(BKd)$; memory similarity requires $O(BMd)$, followed by top-$k$ selection whose comparison work is conservatively bounded by $O(BM\log M)$; and each planner step requires $O(B(Ad+dh+h^2))$ for the action policy and residual transition MLPs. The target branch adds a second encoder/projector evaluation during training, while the fixed auxiliary heads add fixed-width MLP and decoder terms. A conservative forward bound is therefore
+\[
+O\!\left(B\left[2Td+Kd+Md+M\log M+S(Ad+dh+h^2)+hV\right]\right),
+\]
+where $V$ is the decoder vocabulary size.
+
+For the frozen ARC configuration, source inspection fixes $T\leq96$, $d=32$, $K=32$, $M=64$, top-$k=16$, $A=8$, $h=64$, $V=256$, and $S=1$. Once these architectural constants are fixed, per-example forward cost is linear in retained token length. Learned codebook and memory storage contribute $O(Kd)$ and $O(Md)$ parameters respectively; per-batch activation storage is bounded by $O(B(Td+K+M+Sd+V))$ up to fixed-width intermediate MLP states. The frozen full-controls budget uses 1,117 retained training examples, batch size 32, and 20 epochs, giving
+\[
+20\left\lceil\frac{1117}{32}\right\rceil=700
+\]
+minibatch optimization steps per model per seed, matching the retained execution record. These bounds characterize the executed small ARC path only and are not a scaling claim for a hypothetical larger LAM-JEPA architecture.
+
+\paragraph{Third-party assets and licenses.}
+The frozen protocol manifest identifies AI2 ARC-Challenge and records its license as CC-BY-SA-4.0; the benchmark creators are cited in \citet{clark2018arc}. The pinned pretrained comparison records the \texttt{microsoft/deberta-v3-xsmall} checkpoint license as MIT, and the DeBERTaV3 family is cited in \citet{he2023debertav3}. These third-party asset licenses do not determine the release license for this project's own code or retained artifacts, which remains an owner-controlled packaging decision.
