@@ -32,6 +32,8 @@ jobs:
         working-directory: paper
         run: |
           test -s aistats2027_submission.pdf
+          echo '33ab38f8aac4b2f1df9fe67e354928598200584e9568385f32deb889e1b81d42  aistats2027.sty' | sha256sum -c -
+          grep -Fq '\\ProvidesPackage{aistats2027}[2026/09/02 AISTATS2027 submission/camera-ready style file]' aistats2027.sty
           grep -Fq '\section*{AI Use Statement}' aistats2027_submission.tex
           grep -Fq 'confirmatory test remains locked' aistats2027_submission.tex
           grep -Fq 'failed its preregistered superiority gate' aistats2027_submission.tex
