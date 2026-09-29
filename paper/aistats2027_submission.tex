@@ -1,7 +1,6 @@
 \documentclass[twoside]{article}
 
-% Build-check mirror only. Replace aistats2027.sty with the official
-% AISTATS 2027 paper-pack file before the final OpenReview upload.
+% Official AISTATS 2027 paper-pack style integrated; CI verifies its pinned hash.
 \usepackage{aistats2027}
 \usepackage[T1]{fontenc}
 \usepackage[round,authoryear]{natbib}
@@ -74,6 +73,8 @@ L = L_{\mathrm{CE}} + 0.5L_{\mathrm{align}} + 0.25L_{\mathrm{quant}} + 0.25L_{\m
 where $L_{\mathrm{CE}}$ is four-choice cross entropy, $L_{\mathrm{align}}$ is cosine alignment between $z_q$ and detached EMA target $z_{\mathrm{target}}$, $L_{\mathrm{quant}}$ is the quantizer loss, and $L_{\mathrm{traj}}$ is mean squared error from planner rollout states to detached $z_q$.
 
 The matched supervised comparator uses the same encoder/projector family and a four-choice classifier without target, quantizer, memory, or planner machinery. Gradient-active parameter count is defined as the sum of parameter tensor sizes for parameters whose \texttt{.grad} is not \texttt{None} after backpropagating the exact retained \texttt{\_lam\_arc\_loss}; this identifies tensors participating in the backward graph and does not claim that every scalar gradient is numerically nonzero. The retained counts are 86,372 for LAM-JEPA and 86,644 for the matched supervised model, a ratio of 1.0031491687.
+
+\input{aistats2027_complexity_section}
 
 \section{Experimental Setup}
 The frozen eligibility rule retained 1,117 of 1,119 ARC-Challenge training rows and 295 of 299 validation rows. Excluded rows are retained as evidence. The locked ARC test was not downloaded or evaluated for this failed hypothesis line.
