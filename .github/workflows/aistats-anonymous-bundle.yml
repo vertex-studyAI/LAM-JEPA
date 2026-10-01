@@ -1,0 +1,56 @@
+name: Anonymous reproduction bundle
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/paper/build_aistats2027_anonymous_bundle.py'
+      - 'paper/aistats2027_checklist.tex'
+      - '.github/workflows/aistats-anonymous-bundle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact source with scientific history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.11'
+
+      - name: Build deterministic anonymous supplement
+        run: |
+          mkdir -p dist
+          python scripts/paper/build_aistats2027_anonymous_bundle.py --output dist/anonymous-reproduction-supplement.zip
+          python scripts/paper/build_aistats2027_anonymous_bundle.py --output dist/anonymous-reproduction-supplement.second.zip
+          cmp dist/anonymous-reproduction-supplement.zip dist/anonymous-reproduction-supplement.second.zip
+          python scripts/paper/build_aistats2027_anonymous_bundle.py --verify-only --output dist/anonymous-reproduction-supplement.zip
+
+      - name: Smoke-check extracted Python source
+        run: |
+          rm -rf /tmp/anonymous-supplement
+          mkdir -p /tmp/anonymous-supplement
+          python -m zipfile -e dist/anonymous-reproduction-supplement.zip /tmp/anonymous-supplement
+          python -m compileall -q /tmp/anonymous-supplement/src /tmp/anonymous-supplement/scripts
+          test ! -e /tmp/anonymous-supplement/.git
+          test -s /tmp/anonymous-supplement/README.md
+          test -s /tmp/anonymous-supplement/EXPECTED_RESULTS.json
+          test -s /tmp/anonymous-supplement/BUNDLE_MANIFEST.json
+
+      - name: Upload anonymous supplement
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: anonymous-reproduction-supplement-${{ github.event.pull_request.head.sha || github.sha }}
+          if-no-files-found: error
+          retention-days: 30
+          path: dist/anonymous-reproduction-supplement.zip
