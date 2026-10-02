@@ -10,6 +10,7 @@ from typing import Sequence
 
 from lam_jepa.benchmarking.arc_challenge import dataset_digest, id_digest, load_arc_split
 from lam_jepa.benchmarking.arc_protocol import select_protocol_eligible_examples
+from retained_row_integrity import verify_rows
 
 BOOTSTRAP_SAMPLES = 10000
 BOOTSTRAP_BASE = 20260808
@@ -54,7 +55,7 @@ def main() -> None:
     validation = list(select_protocol_eligible_examples(load_arc_split(args.validation)).eligible)
     expected_ids = [example.item_id for example in validation]
     evidence = result["dataset_evidence"]
-    if evidence["validation_eligible_rows"] != len(validation) != 0:
+    if len(validation) == 0 or evidence["validation_eligible_rows"] != len(validation):
         raise SystemExit("validation row count mismatch")
     if evidence["validation_dataset_digest"] != dataset_digest(validation):
         raise SystemExit("validation dataset digest mismatch")
@@ -65,13 +66,17 @@ def main() -> None:
     seeds = [int(x) for x in protocol["training"]["seeds"]]
     recomputed_accuracy: dict[str, list[float]] = {condition: [] for condition in CONDITIONS}
     repaired_support: list[tuple[int, float]] = []
-    canonical_labels = None
+    canonical_labels = [example.label for example in validation]
     for condition in CONDITIONS:
         condition_records = records.get(condition)
         if not isinstance(condition_records, list) or [int(r["seed"]) for r in condition_records] != seeds:
             raise SystemExit(f"{condition}: seed records differ from frozen protocol")
         for record in condition_records:
             rows = record["rows"]
+            try:
+                verify_rows(rows, expected_ids, canonical_labels)
+            except ValueError as exc:
+                raise SystemExit(f"{condition}/seed={record['seed']}: {exc}") from exc
             if [row["id"] for row in rows] != expected_ids:
                 raise SystemExit(f"{condition}/seed={record['seed']}: validation row identity/order mismatch")
             labels = [int(row["label"]) for row in rows]
@@ -154,3 +159,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
