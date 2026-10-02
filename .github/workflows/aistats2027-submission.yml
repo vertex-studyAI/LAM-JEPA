@@ -42,6 +42,17 @@ jobs:
           test -s aistats2027_complexity_section.tex
           grep -Fq '\input{aistats2027_complexity_section}' aistats2027_submission.tex
           grep -Fq '\section*{Checklist}' aistats2027_checklist.tex
+          python - <<'PY'
+          from pathlib import Path
+
+          checklist = Path("aistats2027_checklist.tex").read_text(encoding="utf-8")
+          malformed = r"\n    \\item"
+          required = r"\item New assets either in the supplemental material or as a URL, if applicable."
+          if malformed in checklist:
+              raise SystemExit("AISTATS checklist contains a literal escaped newline/item sequence")
+          if required not in checklist:
+              raise SystemExit("AISTATS checklist is missing the New assets item")
+          PY
           grep -Fq 'confirmatory ARC test remains locked' aistats2027_submission.tex
           grep -Fq 'the superiority gate therefore failed' aistats2027_submission.tex
           ! grep -Fq '760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb' aistats2027_submission.tex
