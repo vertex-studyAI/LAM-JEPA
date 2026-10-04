@@ -3,7 +3,10 @@
 \subsection{Computational and storage complexity}
 Let $B$ be minibatch size, $T$ the serialized token length, $d$ the projected latent width, $K$ the quantizer code count, $M$ the memory capacity, $A$ the latent-action count, $h$ the hidden width, and $S$ the number of planner steps. In the implemented forward path, token embedding, normalization, and mean pooling require $O(BTd)$ work; nearest-code quantization requires $O(BKd)$; memory similarity requires $O(BMd)$, followed by top-$k$ selection whose comparison work is conservatively bounded by $O(BM\log M)$; and each planner step requires $O(B(Ad+dh+h^2))$ for the action policy and residual transition MLPs. The target branch adds a second encoder/projector evaluation during training, while the fixed auxiliary heads add fixed-width MLP and decoder terms. A conservative forward bound is therefore
 \[
-O\!\left(B\left[2Td+Kd+Md+M\log M+S(Ad+dh+h^2)+hV\right]\right),
+\begin{aligned}
+O\bigl(B[&2Td+Kd+Md+M\log M\\
+       &{}+S(Ad+dh+h^2)+hV]\bigr),
+\end{aligned}
 \]
 where $V$ is the decoder vocabulary size.
 

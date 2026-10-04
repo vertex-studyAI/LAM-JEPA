@@ -64,9 +64,12 @@ jobs:
         with:
           name: lam-jepa-aistats2027-${{ github.sha }}
           retention-days: 30
+          if-no-files-found: error
           path: |
             paper/aistats2027_submission.pdf
             paper/aistats2027_submission.tex
             paper/aistats2027_checklist.tex
+            paper/aistats2027_complexity_section.tex
+            paper/aistats2027.sty
             paper/references.bib
             publication/AISTATS2027_ABSTRACT_PACKET_2026-09-25.md
