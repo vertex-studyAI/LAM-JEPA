@@ -2,6 +2,14 @@
 
 LAM-JEPA is a latent-action joint-embedding predictive architecture for adaptive educational reasoning, verification, and tutoring.
 
+## Current scientific status
+
+The frozen ARC-Challenge study is a **reproducible negative/inconclusive result**, not a superiority result. Under the five-seed validation protocol, LAM-JEPA reached mean accuracy `0.2549152542` versus `0.2664406780` for the gradient-active-parameter-matched supervised comparator (paired LAM minus matched: `-0.0115254237`). The preregistered superiority, planner-contribution, and target-path gates were not met.
+
+A bounded external frozen-protocol review reproduced the retained headline metrics and localized the reviewed failure to the tested quantized path: distinct pre-quantizer representations collapsed to a single VQ code per run, yielding constant downstream predictions. Disabling quantization restored input dependence in that diagnostic but did **not** establish above-chance ARC performance. These findings are specific to the tested implementation and do not imply general failure of JEPA methods, vector quantization, latent planning, or representation learning.
+
+The locked ARC confirmatory test remains unopened for this failed hypothesis line. Do not use it to rescue the result, replace seeds, relax frozen thresholds, or report the implementation as validated ARC superiority. See `FINAL_STATUS_2026-09-30.md`, `CLAIM_LEDGER.md`, and the AISTATS manuscript under `paper/` for the canonical claim boundary.
+
 This repo now includes:
 
 - reproducible single-run training
