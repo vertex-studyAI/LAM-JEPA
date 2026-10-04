@@ -75,6 +75,47 @@ jobs:
           ! grep -Fq '31203337502' aistats2027_submission.tex
           ! grep -Fq 'PR \#' aistats2027_submission.tex
 
+      - name: Enforce final PDF submission gates
+        working-directory: paper
+        shell: bash
+        run: |
+          set -euo pipefail
+          pages="$(pdfinfo aistats2027_submission.pdf | awk '/^Pages:/ {print $2}')"
+          test -n "$pages"
+          if [ "$pages" -gt 8 ]; then
+            echo "AISTATS submission exceeds 8-page main-paper limit: $pages pages" >&2
+            exit 1
+          fi
+
+          if grep -Eq 'LaTeX Warning: (Citation|Reference).*undefined|There were undefined references|There were undefined citations' aistats2027_submission.log; then
+            echo 'Unresolved citation/reference warning found in AISTATS build log.' >&2
+            exit 1
+          fi
+
+          if ! pdffonts aistats2027_submission.pdf | tail -n +3 | awk 'NF && $6 != "yes" {bad=1} END {exit bad}'; then
+            echo 'At least one AISTATS PDF font is not embedded.' >&2
+            pdffonts aistats2027_submission.pdf >&2
+            exit 1
+          fi
+
+          pdftotext aistats2027_submission.pdf aistats2027_submission.txt
+          if grep -Eqi 'Ryan Gomez|vertex-studyAI|build-the-future-11|Oakridge|@gmail\.com|@outlook\.com' aistats2027_submission.txt; then
+            echo 'Potential author/repository identity leak found in rendered AISTATS PDF.' >&2
+            exit 1
+          fi
+
+          {
+            echo "source_commit=${{ github.event.pull_request.head.sha || github.sha }}"
+            echo "workflow_commit=${GITHUB_SHA}"
+            echo "pages=${pages}"
+            echo "pdf_sha256=$(sha256sum aistats2027_submission.pdf | awk '{print $1}')"
+            echo "tex_sha256=$(sha256sum aistats2027_submission.tex | awk '{print $1}')"
+            echo "style_sha256=$(sha256sum aistats2027.sty | awk '{print $1}')"
+            echo "references_sha256=$(sha256sum references.bib | awk '{print $1}')"
+            echo "scientific_verdict=negative/inconclusive"
+            echo "confirmatory_test=locked/unopened"
+          } | tee aistats2027_build_manifest.txt
+
       - name: Upload candidate
         uses: actions/upload-artifact@v4
         with:
