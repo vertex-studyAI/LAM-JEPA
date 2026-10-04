@@ -34,6 +34,11 @@ jobs:
       - name: Checkout exact source
         uses: actions/checkout@v4
 
+      - name: Install PDF inspection tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends poppler-utils
+
       - name: Compile anonymous AISTATS candidate
         uses: xu-cheng/latex-action@v3
         with:
@@ -83,4 +88,5 @@ jobs:
             paper/aistats2027_complexity_section.tex
             paper/aistats2027.sty
             paper/references.bib
+            paper/aistats2027_build_manifest.txt
             publication/AISTATS2027_ABSTRACT_PACKET_2026-09-25.md
