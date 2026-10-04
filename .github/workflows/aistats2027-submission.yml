@@ -1,6 +1,17 @@
 name: AISTATS 2027 submission build
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'paper/aistats2027_submission.tex'
+      - 'paper/aistats2027_checklist.tex'
+      - 'paper/aistats2027_complexity_section.tex'
+      - 'paper/aistats2027.sty'
+      - 'paper/references.bib'
+      - 'publication/AISTATS2027_ABSTRACT_PACKET_2026-09-25.md'
+      - '.github/workflows/aistats2027-submission.yml'
   pull_request:
     paths:
       - 'paper/aistats2027_submission.tex'
