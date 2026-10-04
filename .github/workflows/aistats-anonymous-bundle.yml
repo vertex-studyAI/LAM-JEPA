@@ -1,6 +1,13 @@
 name: Anonymous reproduction bundle
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/paper/build_aistats2027_anonymous_bundle.py'
+      - 'paper/aistats2027_checklist.tex'
+      - '.github/workflows/aistats-anonymous-bundle.yml'
   pull_request:
     paths:
       - 'scripts/paper/build_aistats2027_anonymous_bundle.py'
