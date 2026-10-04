@@ -22,6 +22,7 @@ FIXED_PATHS = (
     "scripts/ci/verify_arc_protocol_v3.py",
     "scripts/ci/verify_arc_protocol_v3_controls.py",
     "scripts/ci/verify_arc_protocol_v3_full_controls.py",
+    "scripts/ci/verify_arc_matched_baseline.py",
     "scripts/ci/verify_arc_matched_baseline_v3.py",
     "scripts/ci/measure_arc_gradient_capacity.py",
 )
@@ -128,11 +129,24 @@ python scripts/benchmark/run_arc_matched_baseline_v3.py \\
   --learning-rate 0.0003 \\
   --model-steps 1 \\
   --device cpu \\
-  --match-tolerance 0.05 \\
+  --match-tolerance 0.01 \\
   --out work/matched-baseline.json
+
+python scripts/ci/verify_arc_matched_baseline.py \\
+  --results work/matched-baseline.json \\
+  --report work/matched-baseline-base-verification.json
+
+python scripts/ci/verify_arc_matched_baseline_v3.py \\
+  --results work/matched-baseline.json \\
+  --base-verification work/matched-baseline-base-verification.json \\
+  --protocol protocols/arc_challenge_v3.json \\
+  --train work/arc-data/arc-challenge-train.parquet \\
+  --validation work/arc-data/arc-challenge-validation.parquet \\
+  --expected-stage validation_stage \\
+  --report work/matched-baseline-v3-verification.json
 ~~~
 
-Compare the aggregate outputs against EXPECTED_RESULTS.json. Small
+Both matched-baseline verifiers must pass. Compare the aggregate outputs against EXPECTED_RESULTS.json. Small
 representation-level floating-point differences are acceptable only when the
 aggregate scientific conclusion and verifier verdict remain unchanged.
 
