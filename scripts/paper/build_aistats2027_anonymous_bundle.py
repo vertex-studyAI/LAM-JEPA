@@ -4,9 +4,10 @@ import argparse
 import hashlib
 import json
 import re
+import stat
 import subprocess
 import zipfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[2]
 SCIENTIFIC_REVISION = "760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb"
@@ -36,7 +37,7 @@ BANNED_FRAGMENTS = (
     "openreview",
     "aistats",
 )
-EMAIL_RE = re.compile(r"(?i)\\b[A-Z0-9._%+-]+@(gmail|outlook|hotmail|yahoo)\\.[A-Z]{2,}\\b")
+EMAIL_RE = re.compile(r"(?i)\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b")
 
 README = """# Anonymous reproduction supplement
 
@@ -203,14 +204,33 @@ def frozen_python_paths() -> list[str]:
 def scan_text(path: str, data: bytes) -> None:
     try:
         text = data.decode("utf-8")
-    except UnicodeDecodeError:
-        return
+    except UnicodeDecodeError as exc:
+        raise SystemExit(f"non-UTF-8 content cannot be anonymity-checked: {path}") from exc
     lower = text.lower()
     for fragment in BANNED_FRAGMENTS:
         if fragment in lower:
             raise SystemExit(f"identity/submission fragment {fragment!r} found in bundle file {path}")
     if EMAIL_RE.search(text):
-        raise SystemExit(f"personal email address found in bundle file {path}")
+        raise SystemExit(f"email address found in bundle file {path}")
+
+
+def verify_member(info: zipfile.ZipInfo) -> None:
+    """Reject ambiguous/extractable aliases before checking anonymous text."""
+    name = info.filename
+    parts = name.split("/")
+    if (
+        not name
+        or PurePosixPath(name).is_absolute()
+        or any(part in ("", ".", "..") for part in parts)
+        or "\\" in name
+        or ":" in name
+        or any(ord(char) < 32 for char in name)
+    ):
+        raise SystemExit(f"unsafe bundle member path: {name!r}")
+    kind = stat.S_IFMT(info.external_attr >> 16)
+    if info.is_dir() or kind not in (0, stat.S_IFREG):
+        raise SystemExit(f"bundle member must be a regular file: {name}")
+    scan_text(name, name.encode("utf-8"))
 
 
 def zip_info(path: str) -> zipfile.ZipInfo:
@@ -254,8 +274,12 @@ def build(output: Path) -> None:
 def verify(output: Path) -> None:
     with zipfile.ZipFile(output, "r") as archive:
         names = archive.namelist()
+        if len(names) != len(set(names)):
+            raise SystemExit("bundle contains duplicate member names")
         if names != sorted(names):
             raise SystemExit("bundle member order is not deterministic")
+        for info in archive.infolist():
+            verify_member(info)
         required = {
             "README.md",
             "EXPECTED_RESULTS.json",
@@ -279,7 +303,20 @@ def verify(output: Path) -> None:
             scan_text(name, archive.read(name))
 
         manifest = json.loads(archive.read("BUNDLE_MANIFEST.json"))
-        for name, record in manifest["files"].items():
+        if not isinstance(manifest, dict) or not isinstance(manifest.get("files"), dict):
+            raise SystemExit("bundle manifest must contain a files mapping")
+        files = manifest["files"]
+        if set(files) != set(names) - {"BUNDLE_MANIFEST.json"}:
+            raise SystemExit("manifest must cover every payload member exactly once")
+        for name, record in files.items():
+            if (
+                not isinstance(record, dict)
+                or type(record.get("bytes")) is not int
+                or record["bytes"] < 0
+                or not isinstance(record.get("sha256"), str)
+                or re.fullmatch(r"[0-9a-f]{64}", record["sha256"]) is None
+            ):
+                raise SystemExit(f"invalid manifest record for {name}")
             data = archive.read(name)
             if hashlib.sha256(data).hexdigest() != record["sha256"] or len(data) != record["bytes"]:
                 raise SystemExit(f"manifest mismatch for {name}")

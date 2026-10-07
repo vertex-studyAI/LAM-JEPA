@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "base_commit": "3a6462753de89b85d5867c8e67fa87fa1eb2b13d",
+  "base_tree": "d4e41d2b59cef4c46453973ba3b45c7ceed076ef",
+  "verification_date": "2026-10-07",
+  "changed_existing_files": [
+    "scripts/paper/build_aistats2027_anonymous_bundle.py"
+  ],
+  "unchanged_baseline_file_count": 654,
+  "new_outcome_runs": 0,
+  "scientific_claims_upgraded": false,
+  "submitted_or_retained_manuscripts_modified": false,
+  "tests": {
+    "anonymous_archive_counterexamples": 12,
+    "retained_row_regressions": 16,
+    "failed": 0
+  },
+  "bundle": {
+    "scientific_source_commit": "760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb",
+    "before_equals_after": true,
+    "sha256": "2e48c739df51acff2eea0c20974b57fc4d9306f5ef5959a2b382809abf800714",
+    "bytes": 143225
+  },
+  "limitations": [
+    "This verifies the deterministic source supplement, not a submission receipt or new scientific outcome.",
+    "Historical missing matched-run archive and external probe specification remain separate evidence gates."
+  ]
+}
