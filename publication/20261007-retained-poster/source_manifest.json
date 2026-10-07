@@ -1,0 +1,18 @@
+{
+  "input_commit": "c6ee9d1dcfdf6bc9efbde61877cc300528964e73",
+  "sources": [
+    {
+      "path": "audits/MATCHED_REPRODUCTION_20260930.md",
+      "sha256": "28f74a1ac7c70229ed4f81adbc96e685d7485fd8a14ca8947902c18a58b995f4"
+    },
+    {
+      "path": "audits/independent_artifact_audit_2026-08-13.json",
+      "sha256": "d31a03390ae89e67241de4fbff41238f04d685eb3a523889bca8c6bd2ad6c71c"
+    },
+    {
+      "path": "paper/aistats2027_submission.tex",
+      "sha256": "78b87a10e8c3023f42a594d386a1a0069b1188bac7d85515d795ae236a87377c"
+    }
+  ],
+  "scientific_source_replayed": false
+}
