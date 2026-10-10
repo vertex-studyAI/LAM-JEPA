@@ -5,19 +5,20 @@
   "initialization_note": "Reconstructed from existing repository evidence after bounded defect discovery. This is not retrospective preregistration and makes no claim that a new scientific protocol was frozen before exploratory checks.",
   "session_rule": "Read this state and the applicable historical truth/protocol before work. Update actual decisions, evidence, failures and open gates before finishing. Append history; never erase adverse results.",
   "repository": "vertex-studyAI/LAM-JEPA",
-  "base_commit": "3a6462753de89b85d5867c8e67fa87fa1eb2b13d",
-  "development_branch": "codex/paired-statistical-report-20261010",
+  "base_commit": "d40a4c4a3a9490a252265b1c54229506dd6a7b3a",
+  "development_branch": "codex/lam-frozen-supplement-verification-20261010",
   "phase": "ENGINEERING_MAINTENANCE_OF_CLOSED_STUDY",
   "research_question": "Did the frozen LAM-JEPA configuration support architecture superiority or its preregistered planner and target-path mechanisms on ARC-Challenge?",
   "scientific_objective": "Preserve the completed negative study and maintain statistically coherent utilities for separately versioned future work.",
   "current_hypothesis": "The tested architecture-superiority and planner/target mechanism claims were not supported; the locked test cannot be used to rescue them.",
-  "intended_contribution_this_revision": "Correct the reusable paired report so its mean, confidence interval and randomization test concern the same A-minus-B estimand.",
+  "intended_contribution_this_revision": "Authenticate the complete frozen supplement against independently pinned Git commits, trees, source blobs and generated package literals.",
   "scope": {
     "code_paths": [
-      "src/lam_jepa/eval/statistical_eval.py",
-      "tests/unit/test_paired_statistical_report.py"
+      "scripts/paper/verify_frozen_supplement.py",
+      "tests/test_frozen_supplement_source.py",
+      "research/verification/frozen_supplement_source_20261010/reproduce_artifacts.py"
     ],
-    "study_outcome": "No new study outcome produced"
+    "study_outcome": "No new study outcome produced; closed negative study unchanged"
   },
   "historical_disposition": "Closed as a reproducible negative / failure-mechanism study; scope is the frozen tested configuration.",
   "terminal_research_disposition": "NEGATIVE",
@@ -44,7 +45,8 @@
       "FINAL_STATUS_2026-09-30.md"
     ],
     "development_note": "research/DEVELOPMENT_PAIRED_STATISTICAL_REPORT_20261010.md",
-    "verification_receipt": "research/verification/paired_statistical_report_20261010/receipt.json"
+    "verification_receipt": "research/verification/paired_statistical_report_20261010/receipt.json",
+    "frozen_supplement_source_receipt": "research/verification/frozen_supplement_source_20261010/receipt.json"
   },
   "baseline_failures_preserved": {
     "original_new_suite_tests": 23,
@@ -76,6 +78,13 @@
       "raw_artifact": "research/verification/paired_statistical_report_20261010/receipt.json",
       "analysis": "Analytic regression assertions and independent source review",
       "figure_or_table": "No scientific figure or table generated"
+    },
+    {
+      "claim": "Authenticate the complete frozen supplement against independently pinned Git commits, trees, source blobs and generated package literals.",
+      "evidence_scope": "Engineering source identity only",
+      "raw_artifact": "research/verification/frozen_supplement_source_20261010/audit-receipt.json",
+      "analysis": "Two genuine canonical builds, coherent model/result rewrite witnesses, raw Git object corruption regressions, and independent source review",
+      "figure_or_table": "Per-member hash records and test receipts; no new scientific figure"
     }
   ],
   "independent_review": {
@@ -92,7 +101,7 @@
   "engineering_sessions": [
     {
       "id": "frozen_supplement_source_20261010",
-      "status": "IMPLEMENTED_VERIFIED_READY_FOR_SEPARATE_DRAFT_PR",
+      "status": "PUBLISHED_REVIEWED_ENGINEERING_DRAFT",
       "started_at_utc": "2026-10-10T04:47:04Z",
       "authorization": "Renewed attached individual research project pipeline instruction, 2026-10-10",
       "parent_commit": "d40a4c4a3a9490a252265b1c54229506dd6a7b3a",
@@ -165,14 +174,60 @@
         "branch": "codex/lam-frozen-supplement-verification-20261010",
         "target_branch": "codex/paired-statistical-report-20261010",
         "merge_status": "NOT_MERGED",
-        "ci_policy": "Dedicated source-only test workflow on the stacked branch; scientific training and protected evaluation are not invoked."
+        "ci_policy": "Dedicated source-only test workflow on the stacked branch; scientific training and protected evaluation are not invoked.",
+        "pull_request": "https://github.com/vertex-studyAI/LAM-JEPA/pull/205",
+        "implementation_commit": "903a74d08c8e11b1f1dcbaadf4878fddbaf9a9dc",
+        "implementation_tree": "a538508f0f6d167f2e5de98f53774838c4c13ace",
+        "verified_leaf_entries": 682,
+        "tree_mismatches": 0,
+        "implementation_head_ci": [
+          {
+            "run_id": 38026186617,
+            "name": "Frozen supplement source identity",
+            "conclusion": "success"
+          },
+          {
+            "run_id": 38026186487,
+            "name": "Research claim boundary",
+            "conclusion": "success"
+          }
+        ],
+        "metadata_note": "This follow-up commit records publication only; verifier, tests, workflow and retained artifacts match the implementation commit."
       },
       "remaining_gates": [
         "Separate PR #200 anonymity and structure check",
         "Manuscript, authorship, licensing and venue review",
         "Any new scientific mechanism requires a successor hypothesis and protocol"
+      ],
+      "status_history": [
+        {
+          "status": "CONTRACT_RECORDED_BEFORE_IMPLEMENTATION",
+          "at_utc": "2026-10-10T04:47:04Z"
+        },
+        {
+          "status": "IMPLEMENTED_VERIFIED_READY_FOR_SEPARATE_DRAFT_PR",
+          "at_utc": "2026-10-10T05:00:20.257236+00:00"
+        },
+        {
+          "status": "PUBLISHED_REVIEWED_ENGINEERING_DRAFT",
+          "at_utc": "2026-10-10T05:04:09.168386+00:00"
+        }
       ]
     }
   ],
-  "active_engineering_session": "frozen_supplement_source_20261010"
+  "active_engineering_session": "frozen_supplement_source_20261010",
+  "archived_engineering_summaries": [
+    {
+      "base_commit": "3a6462753de89b85d5867c8e67fa87fa1eb2b13d",
+      "development_branch": "codex/paired-statistical-report-20261010",
+      "intended_contribution_this_revision": "Correct the reusable paired report so its mean, confidence interval and randomization test concern the same A-minus-B estimand.",
+      "scope": {
+        "code_paths": [
+          "src/lam_jepa/eval/statistical_eval.py",
+          "tests/unit/test_paired_statistical_report.py"
+        ],
+        "study_outcome": "No new study outcome produced"
+      }
+    }
+  ]
 }

@@ -98,5 +98,29 @@
     "Anonymity, manuscript, licensing, authorship and venue approval remain separate release gates.",
     "Both pinned Git revisions and required objects must be available locally; verification does not fetch them.",
     "The retained ZIP container identity is bound to the exact checked snapshot; supported container formatting differences can preserve payload identity."
-  ]
+  ],
+  "publication": {
+    "branch": "codex/lam-frozen-supplement-verification-20261010",
+    "target_branch": "codex/paired-statistical-report-20261010",
+    "merge_status": "NOT_MERGED",
+    "ci_policy": "Dedicated source-only test workflow on the stacked branch; scientific training and protected evaluation are not invoked.",
+    "pull_request": "https://github.com/vertex-studyAI/LAM-JEPA/pull/205",
+    "implementation_commit": "903a74d08c8e11b1f1dcbaadf4878fddbaf9a9dc",
+    "implementation_tree": "a538508f0f6d167f2e5de98f53774838c4c13ace",
+    "verified_leaf_entries": 682,
+    "tree_mismatches": 0,
+    "implementation_head_ci": [
+      {
+        "run_id": 38026186617,
+        "name": "Frozen supplement source identity",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 38026186487,
+        "name": "Research claim boundary",
+        "conclusion": "success"
+      }
+    ],
+    "metadata_note": "This follow-up commit records publication only; verifier, tests, workflow and retained artifacts match the implementation commit."
+  }
 }
