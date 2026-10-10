@@ -8,6 +8,7 @@ import pytest
 import torch
 
 from lam_jepa.callbacks.checkpointing.save import save_checkpoint
+from lam_jepa.inference.explain import explain
 from lam_jepa.inference.predict import load_model, predict
 from lam_jepa.inference.rollout import rollout
 from lam_jepa.model import LAMJEPA, LAMJEPAConfig
@@ -148,7 +149,7 @@ def test_incompatible_weights_fail_strictly_without_consuming_rng(tmp_path, mode
     assert_rng_equal(snapshot_rng(), before)
 
 
-@pytest.mark.parametrize("infer", [predict, rollout], ids=["predict", "rollout"])
+@pytest.mark.parametrize("infer", [predict, rollout, explain], ids=["predict", "rollout", "explain"])
 @pytest.mark.parametrize("training", [False, True], ids=["eval", "train"])
 @pytest.mark.parametrize("steps", [0, 2])
 def test_inference_is_deterministic_and_preserves_state_and_mixed_modes(model, infer, training, steps):
@@ -169,7 +170,7 @@ def test_inference_is_deterministic_and_preserves_state_and_mixed_modes(model, i
         assert torch.equal(value, model.state_dict()[key]), key
 
 
-@pytest.mark.parametrize("infer", [predict, rollout], ids=["predict", "rollout"])
+@pytest.mark.parametrize("infer", [predict, rollout, explain], ids=["predict", "rollout", "explain"])
 def test_inference_restores_mixed_modes_after_forward_exception(model, infer, monkeypatch):
     model.train()
     model.target_encoder.eval()
@@ -186,7 +187,7 @@ def test_inference_restores_mixed_modes_after_forward_exception(model, infer, mo
     assert all(module.training == was_training for module, was_training in modes)
 
 
-@pytest.mark.parametrize("infer", [predict, rollout], ids=["predict", "rollout"])
+@pytest.mark.parametrize("infer", [predict, rollout, explain], ids=["predict", "rollout", "explain"])
 @pytest.mark.parametrize("steps", [-1, True, 1.5, float("nan")])
 def test_invalid_steps_fail_before_model_execution(model, infer, steps, monkeypatch):
     calls = []
@@ -201,6 +202,23 @@ def test_invalid_steps_fail_before_model_execution(model, infer, steps, monkeypa
     assert not calls
 
 
-@pytest.mark.parametrize("infer", [predict, rollout], ids=["predict", "rollout"])
+@pytest.mark.parametrize("infer", [predict, rollout, explain], ids=["predict", "rollout", "explain"])
 def test_numpy_integer_steps_are_accepted(model, infer):
     infer(model, torch.ones(1, 3, dtype=torch.long), steps=np.int64(1))
+
+
+def test_explanation_matches_the_public_prediction_and_rollout(model):
+    model.train()
+    model.target_encoder.eval()
+    tokens = torch.tensor([[1, 2, 3], [3, 2, 1]])
+    explanation = explain(model, tokens, steps=2)
+    prediction = predict(model, tokens, steps=2)
+    trajectory, actions, logits = rollout(model, tokens, steps=2)
+    assert_tree_equal(explanation["prediction"], prediction["pred"])
+    assert_tree_equal(explanation["prediction"], logits.argmax(dim=-1))
+    assert_tree_equal(explanation["confidence"], prediction["confidence"].squeeze(-1))
+    assert_tree_equal(explanation["verifier"], prediction["verifier"].squeeze(-1))
+    assert_tree_equal(explanation["rubric"], prediction["rubric"])
+    assert_tree_equal(explanation["trajectory"], prediction["trajectory"])
+    assert_tree_equal(explanation["trajectory"], trajectory)
+    assert_tree_equal(explanation["actions"], actions)

@@ -65,3 +65,30 @@ compilation and focused lint are available in this workspace; tensor execution
 is validated by the linked hosted job in the pull request because local Torch
 installation was unavailable. A passing synthetic unit job establishes these
 runtime contracts, not scientific superiority or completion of a new study.
+
+## Explanation-path follow-up
+
+Base: `2323d33e2be76c3121e0c7ca68c8bf69619b8624` (PR #201).
+
+The public `explain()` helper still bypassed the inference guard applied to
+`predict()` and `rollout()`. A caller supplying a training-mode model could get
+different predictions from consecutive explanation requests, consume randomness
+and update quantizer state. It also allowed invalid step counts to reach model
+execution.
+
+`explain()` now uses the same step validation, temporary evaluation mode,
+deterministic transition request and per-module mode restoration as the other
+helpers. Its output fields and tensor shapes are preserved. Explanation outputs
+are explicitly compared with the corresponding prediction and rollout outputs.
+This changes the prospective inference helper only; the frozen model, trainer,
+checkpoint utilities, protocol files and retained negative ARC results are
+unchanged.
+
+The new explanation cases first produced seven failures alongside 40 passing
+cases on the parent implementation. The repaired suite, including a new
+cross-helper agreement case, passes 48 tests locally with CPU PyTorch 2.14.1.
+All examples use the existing tiny constructed model and synthetic tensors.
+No dataset, protected outcome, benchmark result or scientific training run is
+accessed. The dedicated inference workflow now checks out and asserts the exact
+PR head before running its compile, lint and runtime checks, and includes
+`explain.py` in lint.

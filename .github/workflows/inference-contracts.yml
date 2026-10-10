@@ -25,6 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
@@ -37,7 +38,8 @@ jobs:
           python -m pip install -e . pytest ruff
       - name: Compile and lint changed inference code
         run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
           python -m compileall -q src/lam_jepa/inference tests/unit/test_inference_contracts.py
-          python -m ruff check --isolated --select E4,E7,E9,F,I src/lam_jepa/inference/_evaluation.py src/lam_jepa/inference/predict.py src/lam_jepa/inference/rollout.py tests/unit/test_inference_contracts.py
+          python -m ruff check --isolated --select E4,E7,E9,F,I src/lam_jepa/inference/_evaluation.py src/lam_jepa/inference/predict.py src/lam_jepa/inference/rollout.py src/lam_jepa/inference/explain.py tests/unit/test_inference_contracts.py
       - name: Exercise real checkpoint round-trips and state-preserving inference
         run: python -m pytest -q tests/unit/test_inference_contracts.py tests/unit/test_model.py
