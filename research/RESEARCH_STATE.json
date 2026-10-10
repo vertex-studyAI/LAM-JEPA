@@ -88,5 +88,91 @@
     "Review utility compatibility: mean now denotes the paired difference, method means have separate fields, and effect_size can be null when undefined.",
     "Keep the completed negative ARC evidence unchanged.",
     "Any scientific architecture repair or stronger claim requires a separately versioned successor hypothesis, new falsifier and new protected protocol."
-  ]
+  ],
+  "engineering_sessions": [
+    {
+      "id": "frozen_supplement_source_20261010",
+      "status": "IMPLEMENTED_VERIFIED_READY_FOR_SEPARATE_DRAFT_PR",
+      "started_at_utc": "2026-10-10T04:47:04Z",
+      "authorization": "Renewed attached individual research project pipeline instruction, 2026-10-10",
+      "parent_commit": "d40a4c4a3a9490a252265b1c54229506dd6a7b3a",
+      "branch": "codex/lam-frozen-supplement-verification-20261010",
+      "contract": "research/FROZEN_SUPPLEMENT_SOURCE_CONTRACT_20261010.md",
+      "observation": "An internal checksum manifest cannot independently establish identity to the frozen scientific source.",
+      "proposed_change": "Compare the complete supplement to scientific Git revision 760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb and package literals at producer revision 328d33f5d2e49a72ebdaf042cec318798c606563.",
+      "budget": {
+        "maximum_crafted_cases": 30,
+        "maximum_canonical_builds": 2,
+        "maximum_cpu_minutes": 10,
+        "new_training_runs": 0,
+        "protected_runs": 0,
+        "protected_outcome_accesses": 0,
+        "paid_compute": 0
+      },
+      "scientific_disposition": "NEGATIVE, unchanged",
+      "concurrent_work_preserved": "PR #200 owns supplement anonymity and structure hardening; this change adds external source identity verification.",
+      "results": {
+        "receipt": "research/verification/frozen_supplement_source_20261010/receipt.json",
+        "tests_passed": 34,
+        "new_regression_cases": 27,
+        "canonical_builds": 2,
+        "canonical_builds_byte_identical": true,
+        "source_files": 144,
+        "archive_members": 147,
+        "coherent_rewrites_rejected": 2,
+        "independent_review": "Completed after raw Git object authenticity repair",
+        "new_training_runs": 0,
+        "protected_outcome_accesses": 0,
+        "paid_compute": 0
+      },
+      "completed_at_utc": "2026-10-10T05:00:20.257236+00:00",
+      "decisions": [
+        {
+          "observation": "A coherently rewritten loose Git object and archive passed the first implementation because git cat-file reports the requested object ID without rehashing its bytes.",
+          "cause": "The first implementation trusted Git object names and ls-tree path output.",
+          "change": "Authenticate both pinned commits, every traversed raw tree, and every selected blob with its Git header and bytes before using it.",
+          "predicted_consequence": "Corruption under a preexisting Git object name cannot authenticate a matching rewritten archive.",
+          "discriminating_experiment": "Changed blob and intermediate tree in isolated disposable Git repositories, with matching changed archive and recomputed internal checksums.",
+          "result": "Both corruption cases are rejected in the final 34-test gate."
+        },
+        {
+          "observation": "The pinned PR #200 producer accepts coherently changed planner defaults and expected accuracy declarations after their internal manifest is recomputed.",
+          "change": "Compare all payloads to authenticated frozen source and generated documents before checking the internal manifest.",
+          "result": "Two genuine builds share the same ZIP hash; both altered archives are rejected at their changed member."
+        }
+      ],
+      "failures_preserved": [
+        {
+          "kind": "INDEPENDENT_REVIEW_VALIDITY_DEFECT",
+          "observation": "A coherently rewritten loose Git object and archive passed the first implementation because git cat-file reports the requested object ID without rehashing its bytes.",
+          "fixture_requested_blob": "95cd69154344ef8570ea95a228419bc85e3c7443",
+          "fixture_effective_changed_blob": "f3aa0a06b6bdf6d6dfc548cb012f9ae1dd3ed582",
+          "cause": "The first implementation trusted Git object names and ls-tree path output.",
+          "repair": "Authenticate both pinned commits, every traversed raw tree, and every selected blob with its Git header and bytes before using it.",
+          "evidence": "test_corrupt_git_object_cannot_authenticate_a_coherently_changed_archive[blob/tree]"
+        },
+        {
+          "kind": "ENGINEERING_TEST_FIXTURE_FAILURE",
+          "failed_tests": 2,
+          "passed_tests": 32,
+          "wall_seconds_reported_by_pytest": 17.8,
+          "cause": "The initial corruption tests attempted to write a read-only loose object in a disposable test repository. Both raised PermissionError before reaching the verifier.",
+          "repair": "Make only the disposable fixture object writable and restore its original bytes and permissions in finally.",
+          "scientific_evidence_affected": false
+        }
+      ],
+      "publication": {
+        "branch": "codex/lam-frozen-supplement-verification-20261010",
+        "target_branch": "codex/paired-statistical-report-20261010",
+        "merge_status": "NOT_MERGED",
+        "ci_policy": "Dedicated source-only test workflow on the stacked branch; scientific training and protected evaluation are not invoked."
+      },
+      "remaining_gates": [
+        "Separate PR #200 anonymity and structure check",
+        "Manuscript, authorship, licensing and venue review",
+        "Any new scientific mechanism requires a successor hypothesis and protocol"
+      ]
+    }
+  ],
+  "active_engineering_session": "frozen_supplement_source_20261010"
 }
