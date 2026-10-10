@@ -1,0 +1,26 @@
+{
+  "evidence_class": "EXPECTED_ORIGINAL_CODE_REGRESSION_FAILURES",
+  "source_base_commit": "3a6462753de89b85d5867c8e67fa87fa1eb2b13d",
+  "source_path": "src/lam_jepa/eval/statistical_eval.py",
+  "base_source_sha256": "77c3011392dbda940f1674f6a44cbd149098c0cba3de09ad4073f7143a2a83aa",
+  "test_path": "tests/unit/test_paired_statistical_report.py",
+  "test_sha256": "5a33bbb92ebd567ff0c013911f118e95741612b7ce6fb8e224c4a7f9eabeeba7",
+  "method": "Import the original target module obtained by git show under its actual package name; run the new artificial regression file against it. Other package source remains at the same base revision.",
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "-c",
+    "import importlib.util,sys,pytest; spec=importlib.util.spec_from_file_location(sys.argv[1],sys.argv[2]); module=importlib.util.module_from_spec(spec); sys.modules[sys.argv[1]]=module; spec.loader.exec_module(module); raise SystemExit(pytest.main([\"-o\",\"addopts=\",\"-q\",sys.argv[3],\"--tb=short\"]))",
+    "lam_jepa.eval.statistical_eval",
+    "/workspace/scratch/2a0c1e6ddd92/paired_statistical_report_base_source.py",
+    "tests/unit/test_paired_statistical_report.py"
+  ],
+  "exit_code": 1,
+  "counts": {
+    "failed": 23,
+    "passed": 4
+  },
+  "wall_seconds": 8.753012421999301,
+  "raw_output": "base_regressions.log",
+  "raw_output_sha256": "fa466ba946a793d933d74f04c900543dd294079a81d673b24d7f564e94e46564",
+  "scope": "Deliberately failing engineering regressions; not a scientific outcome or reopened frozen study."
+}

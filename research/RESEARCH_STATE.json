@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "updated_on": "2026-10-10",
+  "purpose": "Canonical session entry point. Referenced historical records remain authoritative and are retained in their original versions.",
+  "initialization_note": "Reconstructed from existing repository evidence after bounded defect discovery. This is not retrospective preregistration and makes no claim that a new scientific protocol was frozen before exploratory checks.",
+  "session_rule": "Read this state and the applicable historical truth/protocol before work. Update actual decisions, evidence, failures and open gates before finishing. Append history; never erase adverse results.",
+  "repository": "vertex-studyAI/LAM-JEPA",
+  "base_commit": "3a6462753de89b85d5867c8e67fa87fa1eb2b13d",
+  "development_branch": "codex/paired-statistical-report-20261010",
+  "phase": "ENGINEERING_MAINTENANCE_OF_CLOSED_STUDY",
+  "research_question": "Did the frozen LAM-JEPA configuration support architecture superiority or its preregistered planner and target-path mechanisms on ARC-Challenge?",
+  "scientific_objective": "Preserve the completed negative study and maintain statistically coherent utilities for separately versioned future work.",
+  "current_hypothesis": "The tested architecture-superiority and planner/target mechanism claims were not supported; the locked test cannot be used to rescue them.",
+  "intended_contribution_this_revision": "Correct the reusable paired report so its mean, confidence interval and randomization test concern the same A-minus-B estimand.",
+  "scope": {
+    "code_paths": [
+      "src/lam_jepa/eval/statistical_eval.py",
+      "tests/unit/test_paired_statistical_report.py"
+    ],
+    "study_outcome": "No new study outcome produced"
+  },
+  "historical_disposition": "Closed as a reproducible negative / failure-mechanism study; scope is the frozen tested configuration.",
+  "terminal_research_disposition": "NEGATIVE",
+  "scientific_checkpoint_change": "None. Targeted engineering verification does not complete a scientific checkpoint.",
+  "protected_evaluation": {
+    "boundary": "ARC confirmatory test remains unopened. This utility repair does not modify the bespoke frozen ARC analysis scripts, retained outputs, manuscripts, or prior scientific conclusion.",
+    "protected_outcome_accesses": 0,
+    "protected_runs": 0
+  },
+  "development_budget": {
+    "scope": "Bounded artificial regression fixtures and relevant existing implementation tests only",
+    "new_training_runs": 0,
+    "paid_compute": 0,
+    "numeric_threads": 1,
+    "scientific_development_budget": "Not inferred or expanded by this maintenance change"
+  },
+  "datasets_and_splits": {
+    "new_scientific_dataset": null,
+    "authority": "Applicable referenced frozen protocol; no dataset version or split is silently replaced.",
+    "fixtures": "Analytically specified or generated test fixtures, identified by hashed test source."
+  },
+  "artifacts": {
+    "historical_records": [
+      "FINAL_STATUS_2026-09-30.md"
+    ],
+    "development_note": "research/DEVELOPMENT_PAIRED_STATISTICAL_REPORT_20261010.md",
+    "verification_receipt": "research/verification/paired_statistical_report_20261010/receipt.json"
+  },
+  "baseline_failures_preserved": {
+    "original_new_suite_tests": 23,
+    "failed_on_base": 19,
+    "passed_on_base": 4,
+    "independent_review_failure": "Finite values [1e308,1e308] versus [0,0] produced infinite means and NaN interval endpoints before scaled reductions were added.",
+    "review_regressions_added": 4,
+    "final_regression_receipt": "research/verification/paired_statistical_report_20261010/base_receipt.json",
+    "final_suite_counts_on_base": {
+      "failed": 23,
+      "passed": 4
+    }
+  },
+  "decisions": [
+    {
+      "date": "2026-10-10",
+      "observation": "The report combined an A-only mean and interval with an A-versus-B paired test. A fixed absolute permutation tolerance changed results with units; a variance floor manufactured finite standardized effects. Independent review then reproduced finite-input overflow at 1e308.",
+      "hypothesized_cause": "The report combined an A-only mean and interval with an A-versus-B paired test. A fixed absolute permutation tolerance changed results with units; a variance floor manufactured finite standardized effects. Independent review then reproduced finite-input overflow at 1e308.",
+      "change": "Report the paired mean difference and its paired bootstrap interval; keep method means separate; validate aligned finite one-dimensional pairs and resampling parameters; use relative normalized sign-flip tails; return null for undefined standardized effects; normalize mean, variance and quantile reductions before restoring units.",
+      "predicted_consequence": "A constant paired difference has a constant interval even when the individual methods vary. Scaling units preserves the sampled sign-flip p-value; representable extreme means and intervals stay finite.",
+      "discriminating_experiment": "Compare the new regression fixtures with the original base source, then run relevant existing checks.",
+      "result": "See retained verification receipt; no efficacy result is inferred."
+    }
+  ],
+  "claim_evidence": [
+    {
+      "claim": "Correct the reusable paired report so its mean, confidence interval and randomization test concern the same A-minus-B estimand.",
+      "evidence_scope": "Engineering only",
+      "raw_artifact": "research/verification/paired_statistical_report_20261010/receipt.json",
+      "analysis": "Analytic regression assertions and independent source review",
+      "figure_or_table": "No scientific figure or table generated"
+    }
+  ],
+  "independent_review": {
+    "status": "COMPLETED",
+    "scope": "Independent agent source and regression-test review; no human peer-review claim",
+    "date": "2026-10-10"
+  },
+  "limitations": "The p-value remains a Monte Carlo sign-flip test with a plus-one correction, not exact enumeration. Validity requires independent aligned units and sign-exchangeability. The percentile bootstrap does not establish those assumptions. Unrepresentable paired differences or sample SD are rejected.",
+  "next_required_work": [
+    "Review utility compatibility: mean now denotes the paired difference, method means have separate fields, and effect_size can be null when undefined.",
+    "Keep the completed negative ARC evidence unchanged.",
+    "Any scientific architecture repair or stronger claim requires a separately versioned successor hypothesis, new falsifier and new protected protocol."
+  ]
+}
