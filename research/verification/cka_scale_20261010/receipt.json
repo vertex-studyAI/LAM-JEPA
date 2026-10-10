@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-10",
+  "scope": "Bounded local engineering verification; no scientific result",
+  "repository": "vertex-studyAI/LAM-JEPA",
+  "parent_commit": "d40a4c4a3a9490a252265b1c54229506dd6a7b3a",
+  "parent_tree": "102f6c5d91e9641d7e4ebc07906a5579ed156421",
+  "dependent_pr": 203,
+  "development_branch": "codex/cka-scale-invariance-20261010",
+  "baseline": {
+    "source_sha256": "3f210c5e0ca5649d96a72933405151beb9acd44ecafc37b528823cf31d4b2d12",
+    "new_regression_cases": 31,
+    "failed": 27,
+    "passed": 4,
+    "exit_code": 1,
+    "log": "research/verification/cka_scale_20261010/base_regressions.log"
+  },
+  "fixed": {
+    "test_targets": [
+      "tests/unit/test_linear_cka_contract.py",
+      "-q"
+    ],
+    "working_directory": ".",
+    "passed": 31,
+    "failed": 0,
+    "skipped": 0,
+    "exit_code": 0,
+    "log": "research/verification/cka_scale_20261010/pytest.log"
+  },
+  "environment": {
+    "versions": {
+      "python": "3.12.14",
+      "numpy": "2.3.5",
+      "scipy": "1.17.0",
+      "torch": "2.14.1+cpu",
+      "pytest": "9.1.1"
+    },
+    "device": "CPU",
+    "numeric_thread_limit": 1
+  },
+  "artifacts": {
+    "src/lam_jepa/metrics/representation/cka.py": {
+      "sha256": "0d5081ad1b1b5df1d7037ff076b2599e0aea2b19b0d3269daa8f02830fba9146",
+      "bytes": 3565
+    },
+    "tests/unit/test_linear_cka_contract.py": {
+      "sha256": "7674af9e6489be0d6439bd4e7a1e48235505f9d015dfaa0a706f9956598fd970",
+      "bytes": 4370
+    },
+    "research/DEVELOPMENT_CKA_SCALE_20261010.md": {
+      "sha256": "937f2fa77a4e47c489dcd20e1833dd8ed813de93897541c257a9a309cab13549",
+      "bytes": 2826
+    },
+    "research/verification/cka_scale_20261010/base_regressions.log": {
+      "sha256": "1ffddf797ebd11a84cd49f466c7b0ff4a07bc4df4b3defa41f68d2c58795add5",
+      "bytes": 22628
+    },
+    "research/verification/cka_scale_20261010/pytest.log": {
+      "sha256": "464510e6f160701cdd31675062385f4703371561988ca5ce583d0edb07e6071f",
+      "bytes": 99
+    },
+    "research/verification/cka_scale_20261010/static_checks.json": {
+      "sha256": "9ba75ef119b4b4cc681164d0f32ec5a2842651251ee3d821f22fce6995322d31",
+      "bytes": 935
+    }
+  },
+  "scope_limits": {
+    "new_training_runs": 0,
+    "protected_runs": 0,
+    "protected_outcome_accesses": 0,
+    "paid_compute": 0,
+    "independent_review": "Not claimed for this revision",
+    "hosted_ci": "Not executed for this revision; publishing commit will skip automatic CI"
+  }
+}
