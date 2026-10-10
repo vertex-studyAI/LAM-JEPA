@@ -1,0 +1,34 @@
+{
+  "canonical_archive_sha256": "2e48c739df51acff2eea0c20974b57fc4d9306f5ef5959a2b382809abf800714",
+  "generator_revision": "328d33f5d2e49a72ebdaf042cec318798c606563",
+  "member_count": 147,
+  "paid_compute": 0,
+  "protected_outcome_accesses": 0,
+  "scientific_revision": "760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb",
+  "source_file_count": 144,
+  "training_runs": 0,
+  "two_canonical_builds_byte_identical": true,
+  "verifier_source_sha256": "f44fc3d2123b3533dbcaaf2fc6c1a01d069ab1ea0993f88a1692ab461d46a120",
+  "witnesses": [
+    {
+      "archive_sha256": "ea748fa00493366144895f0fbe6d14d90461a3b0291df895b68942e149640812",
+      "artifact": "INVALID-coherent-model.zip",
+      "change": "use_planner default True -> False",
+      "frozen_source_verifier": "REJECTED",
+      "internal_manifest_verifier": "ACCEPTED",
+      "invalid_engineering_witness_only": true,
+      "member": "src/lam_jepa/model.py",
+      "rejection": "frozen-source size mismatch: src/lam_jepa/model.py"
+    },
+    {
+      "archive_sha256": "f5c9e3f67f667cd68b9dcfeddba6e09ab77c038ddc6da3524d8d277d5e293c17",
+      "artifact": "INVALID-coherent-expected-results.zip",
+      "change": "declared full_lam_jepa_accuracy_mean -> 0.99",
+      "frozen_source_verifier": "REJECTED",
+      "internal_manifest_verifier": "ACCEPTED",
+      "invalid_engineering_witness_only": true,
+      "member": "EXPECTED_RESULTS.json",
+      "rejection": "frozen-source size mismatch: EXPECTED_RESULTS.json"
+    }
+  ]
+}

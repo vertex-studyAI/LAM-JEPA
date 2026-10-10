@@ -5,19 +5,20 @@
   "initialization_note": "Reconstructed from existing repository evidence after bounded defect discovery. This is not retrospective preregistration and makes no claim that a new scientific protocol was frozen before exploratory checks.",
   "session_rule": "Read this state and the applicable historical truth/protocol before work. Update actual decisions, evidence, failures and open gates before finishing. Append history; never erase adverse results.",
   "repository": "vertex-studyAI/LAM-JEPA",
-  "base_commit": "3a6462753de89b85d5867c8e67fa87fa1eb2b13d",
-  "development_branch": "codex/paired-statistical-report-20261010",
+  "base_commit": "d40a4c4a3a9490a252265b1c54229506dd6a7b3a",
+  "development_branch": "codex/lam-frozen-supplement-verification-20261010",
   "phase": "ENGINEERING_MAINTENANCE_OF_CLOSED_STUDY",
   "research_question": "Did the frozen LAM-JEPA configuration support architecture superiority or its preregistered planner and target-path mechanisms on ARC-Challenge?",
   "scientific_objective": "Preserve the completed negative study and maintain statistically coherent utilities for separately versioned future work.",
   "current_hypothesis": "The tested architecture-superiority and planner/target mechanism claims were not supported; the locked test cannot be used to rescue them.",
-  "intended_contribution_this_revision": "Correct the reusable paired report so its mean, confidence interval and randomization test concern the same A-minus-B estimand.",
+  "intended_contribution_this_revision": "Authenticate the complete frozen supplement against independently pinned Git commits, trees, source blobs and generated package literals.",
   "scope": {
     "code_paths": [
-      "src/lam_jepa/eval/statistical_eval.py",
-      "tests/unit/test_paired_statistical_report.py"
+      "scripts/paper/verify_frozen_supplement.py",
+      "tests/test_frozen_supplement_source.py",
+      "research/verification/frozen_supplement_source_20261010/reproduce_artifacts.py"
     ],
-    "study_outcome": "No new study outcome produced"
+    "study_outcome": "No new study outcome produced; closed negative study unchanged"
   },
   "historical_disposition": "Closed as a reproducible negative / failure-mechanism study; scope is the frozen tested configuration.",
   "terminal_research_disposition": "NEGATIVE",
@@ -44,7 +45,8 @@
       "FINAL_STATUS_2026-09-30.md"
     ],
     "development_note": "research/DEVELOPMENT_PAIRED_STATISTICAL_REPORT_20261010.md",
-    "verification_receipt": "research/verification/paired_statistical_report_20261010/receipt.json"
+    "verification_receipt": "research/verification/paired_statistical_report_20261010/receipt.json",
+    "frozen_supplement_source_receipt": "research/verification/frozen_supplement_source_20261010/receipt.json"
   },
   "baseline_failures_preserved": {
     "original_new_suite_tests": 23,
@@ -76,6 +78,13 @@
       "raw_artifact": "research/verification/paired_statistical_report_20261010/receipt.json",
       "analysis": "Analytic regression assertions and independent source review",
       "figure_or_table": "No scientific figure or table generated"
+    },
+    {
+      "claim": "Authenticate the complete frozen supplement against independently pinned Git commits, trees, source blobs and generated package literals.",
+      "evidence_scope": "Engineering source identity only",
+      "raw_artifact": "research/verification/frozen_supplement_source_20261010/audit-receipt.json",
+      "analysis": "Two genuine canonical builds, coherent model/result rewrite witnesses, raw Git object corruption regressions, and independent source review",
+      "figure_or_table": "Per-member hash records and test receipts; no new scientific figure"
     }
   ],
   "independent_review": {
@@ -88,6 +97,138 @@
     "Review utility compatibility: mean now denotes the paired difference, method means have separate fields, and effect_size can be null when undefined.",
     "Keep the completed negative ARC evidence unchanged.",
     "Any scientific architecture repair or stronger claim requires a separately versioned successor hypothesis, new falsifier and new protected protocol."
+  ],
+  "engineering_sessions": [
+    {
+      "id": "frozen_supplement_source_20261010",
+      "status": "PUBLISHED_REVIEWED_ENGINEERING_DRAFT",
+      "started_at_utc": "2026-10-10T04:47:04Z",
+      "authorization": "Renewed attached individual research project pipeline instruction, 2026-10-10",
+      "parent_commit": "d40a4c4a3a9490a252265b1c54229506dd6a7b3a",
+      "branch": "codex/lam-frozen-supplement-verification-20261010",
+      "contract": "research/FROZEN_SUPPLEMENT_SOURCE_CONTRACT_20261010.md",
+      "observation": "An internal checksum manifest cannot independently establish identity to the frozen scientific source.",
+      "proposed_change": "Compare the complete supplement to scientific Git revision 760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb and package literals at producer revision 328d33f5d2e49a72ebdaf042cec318798c606563.",
+      "budget": {
+        "maximum_crafted_cases": 30,
+        "maximum_canonical_builds": 2,
+        "maximum_cpu_minutes": 10,
+        "new_training_runs": 0,
+        "protected_runs": 0,
+        "protected_outcome_accesses": 0,
+        "paid_compute": 0
+      },
+      "scientific_disposition": "NEGATIVE, unchanged",
+      "concurrent_work_preserved": "PR #200 owns supplement anonymity and structure hardening; this change adds external source identity verification.",
+      "results": {
+        "receipt": "research/verification/frozen_supplement_source_20261010/receipt.json",
+        "tests_passed": 34,
+        "new_regression_cases": 27,
+        "canonical_builds": 2,
+        "canonical_builds_byte_identical": true,
+        "source_files": 144,
+        "archive_members": 147,
+        "coherent_rewrites_rejected": 2,
+        "independent_review": "Completed after raw Git object authenticity repair",
+        "new_training_runs": 0,
+        "protected_outcome_accesses": 0,
+        "paid_compute": 0
+      },
+      "completed_at_utc": "2026-10-10T05:00:20.257236+00:00",
+      "decisions": [
+        {
+          "observation": "A coherently rewritten loose Git object and archive passed the first implementation because git cat-file reports the requested object ID without rehashing its bytes.",
+          "cause": "The first implementation trusted Git object names and ls-tree path output.",
+          "change": "Authenticate both pinned commits, every traversed raw tree, and every selected blob with its Git header and bytes before using it.",
+          "predicted_consequence": "Corruption under a preexisting Git object name cannot authenticate a matching rewritten archive.",
+          "discriminating_experiment": "Changed blob and intermediate tree in isolated disposable Git repositories, with matching changed archive and recomputed internal checksums.",
+          "result": "Both corruption cases are rejected in the final 34-test gate."
+        },
+        {
+          "observation": "The pinned PR #200 producer accepts coherently changed planner defaults and expected accuracy declarations after their internal manifest is recomputed.",
+          "change": "Compare all payloads to authenticated frozen source and generated documents before checking the internal manifest.",
+          "result": "Two genuine builds share the same ZIP hash; both altered archives are rejected at their changed member."
+        }
+      ],
+      "failures_preserved": [
+        {
+          "kind": "INDEPENDENT_REVIEW_VALIDITY_DEFECT",
+          "observation": "A coherently rewritten loose Git object and archive passed the first implementation because git cat-file reports the requested object ID without rehashing its bytes.",
+          "fixture_requested_blob": "95cd69154344ef8570ea95a228419bc85e3c7443",
+          "fixture_effective_changed_blob": "f3aa0a06b6bdf6d6dfc548cb012f9ae1dd3ed582",
+          "cause": "The first implementation trusted Git object names and ls-tree path output.",
+          "repair": "Authenticate both pinned commits, every traversed raw tree, and every selected blob with its Git header and bytes before using it.",
+          "evidence": "test_corrupt_git_object_cannot_authenticate_a_coherently_changed_archive[blob/tree]"
+        },
+        {
+          "kind": "ENGINEERING_TEST_FIXTURE_FAILURE",
+          "failed_tests": 2,
+          "passed_tests": 32,
+          "wall_seconds_reported_by_pytest": 17.8,
+          "cause": "The initial corruption tests attempted to write a read-only loose object in a disposable test repository. Both raised PermissionError before reaching the verifier.",
+          "repair": "Make only the disposable fixture object writable and restore its original bytes and permissions in finally.",
+          "scientific_evidence_affected": false
+        }
+      ],
+      "publication": {
+        "branch": "codex/lam-frozen-supplement-verification-20261010",
+        "target_branch": "codex/paired-statistical-report-20261010",
+        "merge_status": "NOT_MERGED",
+        "ci_policy": "Dedicated source-only test workflow on the stacked branch; scientific training and protected evaluation are not invoked.",
+        "pull_request": "https://github.com/vertex-studyAI/LAM-JEPA/pull/205",
+        "implementation_commit": "903a74d08c8e11b1f1dcbaadf4878fddbaf9a9dc",
+        "implementation_tree": "a538508f0f6d167f2e5de98f53774838c4c13ace",
+        "verified_leaf_entries": 682,
+        "tree_mismatches": 0,
+        "implementation_head_ci": [
+          {
+            "run_id": 38026186617,
+            "name": "Frozen supplement source identity",
+            "conclusion": "success"
+          },
+          {
+            "run_id": 38026186487,
+            "name": "Research claim boundary",
+            "conclusion": "success"
+          }
+        ],
+        "metadata_note": "This follow-up commit records publication only; verifier, tests, workflow and retained artifacts match the implementation commit."
+      },
+      "remaining_gates": [
+        "Separate PR #200 anonymity and structure check",
+        "Manuscript, authorship, licensing and venue review",
+        "Any new scientific mechanism requires a successor hypothesis and protocol"
+      ],
+      "status_history": [
+        {
+          "status": "CONTRACT_RECORDED_BEFORE_IMPLEMENTATION",
+          "at_utc": "2026-10-10T04:47:04Z"
+        },
+        {
+          "status": "IMPLEMENTED_VERIFIED_READY_FOR_SEPARATE_DRAFT_PR",
+          "at_utc": "2026-10-10T05:00:20.257236+00:00"
+        },
+        {
+          "status": "PUBLISHED_REVIEWED_ENGINEERING_DRAFT",
+          "at_utc": "2026-10-10T05:04:09.168386+00:00"
+        }
+      ]
+    }
+  ],
+  "active_engineering_session": "frozen_supplement_source_20261010",
+  "archived_engineering_summaries": [
+    {
+      "base_commit": "3a6462753de89b85d5867c8e67fa87fa1eb2b13d",
+      "development_branch": "codex/paired-statistical-report-20261010",
+      "intended_contribution_this_revision": "Correct the reusable paired report so its mean, confidence interval and randomization test concern the same A-minus-B estimand.",
+      "scope": {
+        "code_paths": [
+          "src/lam_jepa/eval/statistical_eval.py",
+          "tests/unit/test_paired_statistical_report.py"
+        ],
+        "study_outcome": "No new study outcome produced"
+      }
+    }
   ],
   "session_history": [
     {
@@ -109,6 +250,21 @@
       "historical_result": "The completed negative ARC study and unopened protected confirmatory test remain unchanged.",
       "scientific_checkpoint_change": "None",
       "next_action": "Future planner sessions must read this canonical state and the linked planner development contracts, then append actual decisions, evidence, failures and remaining gates here before finishing."
+    }
+  ],
+  "maintenance_metadata_integrations": [
+    {
+      "date": "2026-10-10",
+      "kind": "canonical_dependency_reconciliation",
+      "supplement_parent": "c7ee6e8a08aedfb26d1471f8b929151b8d94bfd8",
+      "canonical_parent": "08010fb91df08f480e860029b9454ffc551cd132",
+      "preserved_canonical_delta": "session_history links opt-in planner PR202 and its closed-study boundary",
+      "source_and_test_changes": 0,
+      "scientific_runs": 0,
+      "protected_outcomes": 0,
+      "verification": "All original supplement state values retained; all canonical delta values retained; all 681 other parent files/modes unchanged.",
+      "scientific_disposition": "NEGATIVE unchanged; protected ARC confirmation unopened",
+      "next_action": "Review existing supplement draft with current canonical parent; no PR merge or new scientific checkpoint."
     }
   ]
 }

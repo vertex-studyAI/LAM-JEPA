@@ -1,0 +1,11 @@
+{
+  "command": [
+    "python",
+    "research/verification/frozen_supplement_source_20261010/reproduce_artifacts.py",
+    "--output",
+    "/workspace/scratch/2a0c1e6ddd92/lam-supplement-verification/retained-audit"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 3.2648233149957377,
+  "child_cpu_seconds": 3.281246
+}

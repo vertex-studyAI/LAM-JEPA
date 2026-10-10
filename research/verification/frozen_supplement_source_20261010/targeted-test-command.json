@@ -1,0 +1,16 @@
+{
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-W",
+    "error",
+    "tests/test_frozen_supplement_source.py",
+    "tests/test_release_artifact_boundary.py",
+    "tests/test_research_claim_boundary.py"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 5.819689505995484,
+  "child_cpu_seconds": 5.416727
+}
