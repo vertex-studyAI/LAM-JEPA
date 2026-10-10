@@ -88,5 +88,36 @@
     "Review utility compatibility: mean now denotes the paired difference, method means have separate fields, and effect_size can be null when undefined.",
     "Keep the completed negative ARC evidence unchanged.",
     "Any scientific architecture repair or stronger claim requires a separately versioned successor hypothesis, new falsifier and new protected protocol."
-  ]
+  ],
+  "maintenance_updates": [
+    {
+      "id": "cka_scale_20261010",
+      "date": "2026-10-10",
+      "phase": "PROSPECTIVE_ENGINEERING_REPAIR_VERIFIED",
+      "parent_commit": "d40a4c4a3a9490a252265b1c54229506dd6a7b3a",
+      "development_branch": "codex/cka-scale-invariance-20261010",
+      "dependent_pr": 203,
+      "contribution": "Scale-invariant finite linear CKA with explicit undefined-input errors",
+      "code_paths": [
+        "src/lam_jepa/metrics/representation/cka.py",
+        "tests/unit/test_linear_cka_contract.py"
+      ],
+      "development_note": "research/DEVELOPMENT_CKA_SCALE_20261010.md",
+      "verification_receipt": "research/verification/cka_scale_20261010/receipt.json",
+      "baseline_regressions": {
+        "failed": 27,
+        "passed": 4
+      },
+      "verified_tests": {
+        "passed": 31,
+        "failed": 0,
+        "skipped": 0
+      },
+      "scientific_checkpoint_change": "None; prior hypotheses, frozen evidence, outcomes and execution gates remain unchanged.",
+      "independent_review": "Not claimed for this revision; earlier top-level review concerns the previous maintenance entry only.",
+      "limits": "CPU-only artificial fixtures. No training, scientific dataset, protected outcomes, paid compute, or efficacy claim. Explicit error behavior requires compatibility review.",
+      "next_action": "Review the prospective numerical contract and stacked dependency; do not merge or advance a scientific gate based on these tests alone."
+    }
+  ],
+  "latest_maintenance_update_id": "cka_scale_20261010"
 }
