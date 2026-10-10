@@ -92,3 +92,13 @@ No dataset, protected outcome, benchmark result or scientific training run is
 accessed. The dedicated inference workflow now checks out and asserts the exact
 PR head before running its compile, lint and runtime checks, and includes
 `explain.py` in lint.
+
+## Second development pass: checkpoint tensor admission
+
+The inspected parent was `0cf0b7a18572fcf9e07c573092b53fe2e2d5dcc9`, including the separately authored explanation-path repair. `load_state_dict(strict=True)` checked names and shapes but accepted nonfinite parameter/buffer values and silently converted float64, integer or complex weight tensors to the reconstructed model dtype. The complex case discarded imaginary values. Nine new regression cases reproduced those failures; the preceding 48 selected tests passed.
+
+The inference loader now checks that checkpoint state entries are tensors, match the reconstructed architecture's expected dtype, and contain only finite values before strict weight loading. Name/shape checks remain delegated to strict loading, and metadata/weights still come from one deserialization. Validation occurs inside the existing RNG guard. Explicitly incompatible dtypes now fail rather than silently changing checkpoint values; the canonical model's expected dtype is the supported inference serialization contract.
+
+The selected suite passes **57 local tests** under CPU PyTorch 2.14.1, including the nine corruption/coercion cases, canonical checkpoint round trips, deterministic prediction/explanation/rollout, mixed modes, exception restoration and RNG preservation. This loader still accepts only trusted serialized checkpoints; the change is a numerical/format contract and does not change pickle trust.
+
+The frozen model, trainer, resume loader, protocols, submitted negative/inconclusive ARC results and retained artifacts remain unchanged. No scientific or submission workflow was dispatched. Hosted verification is bound to the source revision in the PR.

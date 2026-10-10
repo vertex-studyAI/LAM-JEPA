@@ -222,3 +222,31 @@ def test_explanation_matches_the_public_prediction_and_rollout(model):
     assert_tree_equal(explanation["trajectory"], prediction["trajectory"])
     assert_tree_equal(explanation["trajectory"], trajectory)
     assert_tree_equal(explanation["actions"], actions)
+
+
+@pytest.mark.parametrize("kind", ["parameter", "buffer"])
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf")])
+def test_loader_rejects_nonfinite_checkpoint_state_before_prediction(tmp_path, model, kind, bad):
+    values = dict(model.named_parameters()) if kind == "parameter" else dict(model.named_buffers())
+    key = next(key for key, value in values.items() if value.is_floating_point())
+    state = {key: value.clone() for key, value in model.state_dict().items()}
+    state[key].reshape(-1)[0] = bad
+    path = tmp_path / "nonfinite.pt"
+    torch.save({"model": state, "extra": {"config": asdict(model.cfg)}}, path)
+    before = snapshot_rng()
+    with pytest.raises(ValueError, match="finite"):
+        load_model(path)
+    assert_rng_equal(snapshot_rng(), before)
+
+
+@pytest.mark.parametrize("dtype", [torch.float64, torch.int64, torch.complex64])
+def test_loader_rejects_silent_checkpoint_dtype_conversion(tmp_path, model, dtype):
+    state = {key: value.clone() for key, value in model.state_dict().items()}
+    key = next(iter(dict(model.named_parameters())))
+    state[key] = state[key].to(dtype=dtype)
+    path = tmp_path / "dtype.pt"
+    torch.save({"model": state, "extra": {"config": asdict(model.cfg)}}, path)
+    before = snapshot_rng()
+    with pytest.raises(ValueError, match="dtype"):
+        load_model(path)
+    assert_rng_equal(snapshot_rng(), before)

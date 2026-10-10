@@ -26,6 +26,20 @@ def _checkpoint_config(checkpoint: dict) -> LAMJEPAConfig:
         raise ValueError("checkpoint model configuration is invalid") from exc
 
 
+def _validate_checkpoint_state(model: LAMJEPA, state: dict) -> None:
+    """Strict loading must not silently coerce or admit corrupt tensor values."""
+    expected = model.state_dict()
+    for name, value in state.items():
+        if not isinstance(value, torch.Tensor):
+            raise ValueError(f"checkpoint state {name} must be a tensor")
+        if name in expected and value.dtype != expected[name].dtype:
+            raise ValueError(
+                f"checkpoint state {name} dtype {value.dtype} != expected {expected[name].dtype}"
+            )
+        if not torch.isfinite(value).all():
+            raise ValueError(f"checkpoint state {name} must be finite")
+
+
 def load_model(checkpoint: str | Path, device: str = "cpu") -> LAMJEPA:
     """Load one trusted canonical/legacy checkpoint for inference.
 
@@ -41,6 +55,7 @@ def load_model(checkpoint: str | Path, device: str = "cpu") -> LAMJEPA:
     # Preserve the caller's CPU stream rather than replaying training RNG state.
     with torch.random.fork_rng(devices=[]):
         model = LAMJEPA(cfg)
+        _validate_checkpoint_state(model, ckpt["model"])
         model.load_state_dict(ckpt["model"], strict=True)
     model = model.to(device)
     model.eval()
