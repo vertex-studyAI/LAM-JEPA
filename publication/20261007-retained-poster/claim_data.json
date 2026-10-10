@@ -1,0 +1,52 @@
+{
+  "rows": [
+    {
+      "label": "Full LAM JEPA",
+      "mean": 0.2549152542372881,
+      "sd": 0.01299680644927512
+    },
+    {
+      "label": "Matched supervised",
+      "mean": 0.2664406779661017,
+      "sd": 0.015460005764056107
+    }
+  ],
+  "counts": {
+    "full": [
+      71,
+      78,
+      78,
+      71,
+      78
+    ],
+    "matched": [
+      72,
+      83,
+      82,
+      80,
+      76
+    ]
+  },
+  "n": 295,
+  "paired_difference": -0.01152542372881356,
+  "superiority_gate_passed": false,
+  "planner": {
+    "mean": 0.004745762711864404,
+    "sample_sd": 0.010611848028812555,
+    "bootstrap_ci95": [
+      0.0,
+      0.014237288135593213
+    ],
+    "criterion_met": false
+  },
+  "target": {
+    "mean": -0.006779661016949157,
+    "sample_sd": 0.009283433178053668,
+    "bootstrap_ci95": [
+      -0.013559322033898313,
+      0.0
+    ],
+    "criterion_met": false
+  },
+  "scope": "retained report arithmetic; no raw prediction or checkpoint replay"
+}
