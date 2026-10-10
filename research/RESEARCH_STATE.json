@@ -229,5 +229,42 @@
         "study_outcome": "No new study outcome produced"
       }
     }
+  ],
+  "session_history": [
+    {
+      "date": "2026-10-10",
+      "type": "CANONICAL_SESSION_ENTRY_LINK",
+      "scope": "Metadata-only linkage of a separate opt-in planner development branch to this existing canonical state.",
+      "planner_pull_request": "https://github.com/vertex-studyAI/LAM-JEPA/pull/202",
+      "planner_branch": "codex/portfolio-20261010-lam-beam-v2",
+      "planner_entry_commit": "a0ed9e1877321057076299b99a37def67cb9dde2",
+      "verified_planner_code_commit": "37b14e17432f1d86cdf2c8b365765f167f7c905a",
+      "canonical_state_snapshot_pinned_by_entry": "d40a4c4a3a9490a252265b1c54229506dd6a7b3a",
+      "session_entry": "https://github.com/vertex-studyAI/LAM-JEPA/blob/a0ed9e1877321057076299b99a37def67cb9dde2/AGENTS.md",
+      "development_contract": "https://github.com/vertex-studyAI/LAM-JEPA/blob/a0ed9e1877321057076299b99a37def67cb9dde2/protocols/BEAM_PLANNER_V2_DEVELOPMENT_20261010.md",
+      "numerical_repair_contract": "https://github.com/vertex-studyAI/LAM-JEPA/blob/a0ed9e1877321057076299b99a37def67cb9dde2/protocols/BEAM_PLANNER_V2_NUMERICS_20261010.md",
+      "retained_verification": "https://github.com/vertex-studyAI/LAM-JEPA/blob/a0ed9e1877321057076299b99a37def67cb9dde2/research/verification/maintenance_20261010/receipt.json",
+      "observation": "PR #202 previously lacked a session-entry link to this canonical state on PR #203.",
+      "change": "Add AGENTS.md only on PR #202, with read-before-work and update-before-finishing requirements, an immutable canonical-state fallback, current-head resolution and the closed negative-study boundary; append this link here.",
+      "verification": "The planner metadata commit inherits the verified code and test blobs from 37b14e17432f1d86cdf2c8b365765f167f7c905a. Its existing receipt records 20 focused passing tests, including 6 added extreme-state cases. No code tests or scientific runs are repeated for this metadata-only link.",
+      "historical_result": "The completed negative ARC study and unopened protected confirmatory test remain unchanged.",
+      "scientific_checkpoint_change": "None",
+      "next_action": "Future planner sessions must read this canonical state and the linked planner development contracts, then append actual decisions, evidence, failures and remaining gates here before finishing."
+    }
+  ],
+  "maintenance_metadata_integrations": [
+    {
+      "date": "2026-10-10",
+      "kind": "canonical_dependency_reconciliation",
+      "supplement_parent": "c7ee6e8a08aedfb26d1471f8b929151b8d94bfd8",
+      "canonical_parent": "08010fb91df08f480e860029b9454ffc551cd132",
+      "preserved_canonical_delta": "session_history links opt-in planner PR202 and its closed-study boundary",
+      "source_and_test_changes": 0,
+      "scientific_runs": 0,
+      "protected_outcomes": 0,
+      "verification": "All original supplement state values retained; all canonical delta values retained; all 681 other parent files/modes unchanged.",
+      "scientific_disposition": "NEGATIVE unchanged; protected ARC confirmation unopened",
+      "next_action": "Review existing supplement draft with current canonical parent; no PR merge or new scientific checkpoint."
+    }
   ]
 }
