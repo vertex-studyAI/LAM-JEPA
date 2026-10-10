@@ -49,3 +49,17 @@ used, and no independent reviewer is claimed for this revision.
 Next action: review the explicit invalid-input and `eps` compatibility changes,
 then integrate after PR #203. Any future scientific result using this utility
 must identify this prospective code revision.
+
+
+## Canonical metadata dependency integration
+
+After this draft was published, parent PR #203 advanced from
+`d40a4c4a3a9490a252265b1c54229506dd6a7b3a` to
+`08010fb91df08f480e860029b9454ffc551cd132`, adding only a canonical
+`session_history` link to the separately reviewed planner work. This follow-up
+retains every state field from both current parents and preserves both Git
+histories. CKA implementation, tests, all retained raw failures and the original
+31-test receipt remain byte-identical to implementation
+`13772341f8bb462c1cea0bcb558e09283ad53fff`. No code tests or scientific execution
+were repeated for this metadata-only integration. Draft #204 remains unmerged;
+the negative ARC closeout and unopened confirmation remain unchanged.
