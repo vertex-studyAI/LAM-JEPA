@@ -66,7 +66,7 @@ def beam_plan_v2(
     num_actions = latent_action_model.action_embed.num_embeddings
     _integer("num_actions", num_actions, 1)
     batch, dim = z.shape
-    states = z.unsqueeze(1)
+    states = z.detach().unsqueeze(1)
     scores = z.new_zeros(batch, 1)
     trajectories = states.unsqueeze(2)
     actions = torch.empty(batch, 1, 0, device=z.device, dtype=torch.long)
@@ -96,7 +96,14 @@ def beam_plan_v2(
             verified = verifier_head(next_states)
             if value.shape not in ((count,), (count, 1)) or verified.shape not in ((count,), (count, 1)):
                 raise ValueError("value/verifier heads must return one scalar per candidate")
-            reward = .6 * value.reshape(-1) + .4 * verified.reshape(-1) - .01 * next_states.norm(dim=-1)
+            # Squaring finite large components can overflow even when the
+            # norm penalty is representable. Scale first and apply the penalty
+            # before restoring magnitude, preserving the declared objective.
+            magnitude = next_states.abs().amax(dim=-1)
+            divisor = torch.where(magnitude > 0, magnitude, torch.ones_like(magnitude))
+            unit_norm = (next_states / divisor.unsqueeze(-1)).norm(dim=-1)
+            norm_penalty = (.01 * magnitude) * unit_norm
+            reward = .6 * value.reshape(-1) + .4 * verified.reshape(-1) - norm_penalty
             candidates = scores.unsqueeze(-1) + reward.reshape(batch, width, num_actions)
             candidates = candidates.reshape(batch, -1)
             if not torch.isfinite(candidates).all():

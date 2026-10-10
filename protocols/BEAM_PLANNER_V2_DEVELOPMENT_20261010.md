@@ -35,3 +35,11 @@ unchanged. Run `PYTHONPATH=src python -m pytest tests/test_planner_v2.py -q`.
 This is a successor algorithm implementation, not evidence that planning helps
 ARC reasoning or educational outcomes. Any such experiment needs a new frozen
 protocol and valid evaluation design before outcome access.
+
+## 2026-10-10 numerical maintenance record
+
+The original 14-test record above remains historical. The opt-in planner now
+has 20 passing cases after robust scaled norm penalties and explicit zero-depth
+detachment. Read `BEAM_PLANNER_V2_NUMERICS_20261010.md` and its receipt before
+future planner work; append future decisions/failures here and retain the
+closed negative ARC predecessor exactly. No protected outcome was accessed.
