@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_on": "2026-10-10",
+  "updated_on": "2026-10-11",
   "purpose": "Canonical session entry point. Referenced historical records remain authoritative and are retained in their original versions.",
   "initialization_note": "Reconstructed from existing repository evidence after bounded defect discovery. This is not retrospective preregistration and makes no claim that a new scientific protocol was frozen before exploratory checks.",
   "session_rule": "Read this state and the applicable historical truth/protocol before work. Update actual decisions, evidence, failures and open gates before finishing. Append history; never erase adverse results.",
@@ -76,6 +76,14 @@
       "raw_artifact": "research/verification/paired_statistical_report_20261010/receipt.json",
       "analysis": "Analytic regression assertions and independent source review",
       "figure_or_table": "No scientific figure or table generated"
+    },
+    {
+      "claim": "The optional evaluator preserves distinct-logit winners and works with the tested current deterministic LAM forward contract.",
+      "evidence_scope": "Engineering only; generated tensors and analytic arrays",
+      "experiment": "Near-tie baseline witness plus all current unit tests and three real-model forward-contract checks",
+      "raw_artifact": "research/verification/classification_v2_20261011/current_unit_acceptance_02.xml",
+      "analysis": "Exact assertions and numerical tolerances specified in hashed tests",
+      "figure_or_table": "No new scientific figure/table; development note reports engineering counts"
     }
   ],
   "independent_review": {
@@ -109,6 +117,60 @@
       "historical_result": "The completed negative ARC study and unopened protected confirmatory test remain unchanged.",
       "scientific_checkpoint_change": "None",
       "next_action": "Future planner sessions must read this canonical state and the linked planner development contracts, then append actual decisions, evidence, failures and remaining gates here before finishing."
+    },
+    {
+      "date": "2026-10-11",
+      "type": "CURRENT_SOURCE_CLASSIFICATION_V2_INTEGRATION",
+      "revision": "lam.classification-summary.v2/near-tie-20261011",
+      "immutable_parent": "08010fb91df08f480e860029b9454ffc551cd132",
+      "parent_branch": "codex/paired-statistical-report-20261010",
+      "observation": "A prior private additive evaluator repair had static-only admission. On the preserved older additive evaluator, distinct float64 logits separated by 2**-60 rounded to equal probabilities; probability argmax reported 0.5 accuracy on a two-row exact-logit-winner fixture. The new module is absent on current main and PR201–205.",
+      "hypothesized_cause": "Class selection after softmax rounded distinct logits into a tie. The repaired private module selected on validated logits but had not been admitted against actual current package source.",
+      "change": "Adopt the existing repaired module and 52-case tests byte-for-byte as an opt-in addition; add three tests against the current real LAM model for deterministic sample-weighted output, pre-forward label-shape rejection, and failure-mode preservation. Existing evaluator callers and model source are unchanged.",
+      "predicted_consequence": "Distinct represented logits keep their argmax ordering; current model output metrics match a direct reference; successful and interrupted evaluations preserve the current model state and deliberately mixed module modes.",
+      "discriminating_experiment": "Run a failure witness on the preserved prior additive scorer, then all current authenticated unit tests plus additive evaluator tests with warnings as errors on generated tensors and analytic arrays only.",
+      "result": {
+        "baseline_witness": "1 expected failed near-tie case, 51 deselected",
+        "attempt_1": "Collection stopped before test execution because declared tqdm dependency was missing; exact failure log/XML/receipt retained.",
+        "dependency_repair": "tqdm 4.70.1 installed in isolated local dependency target; shared runtime and source unchanged.",
+        "attempt_2": "89 passed, 0 failed, 0 errors, 0 skipped; no training or protected data used.",
+        "receipt": "research/verification/classification_v2_20261011/current_unit_acceptance_02_receipt.json"
+      },
+      "publication": "Prepare an independently reviewed draft stacked on the exact PR203 parent; preserve the entire parent Git tree and history. No merge or scientific release is authorized by this engineering result.",
+      "historical_result": "NEGATIVE_CLOSED remains unchanged; ARC protected confirmatory test remains unopened; submission disposition is not advanced.",
+      "scientific_checkpoint_change": "None",
+      "next_action": "Review the optional utility and its current-source compatibility. Any future architecture claim requires a separately versioned successor hypothesis and protected protocol."
     }
-  ]
+  ],
+  "current_maintenance_revision": {
+    "id": "lam.classification-summary.v2/near-tie-20261011",
+    "source_anchor": "08010fb91df08f480e860029b9454ffc551cd132",
+    "intended_contribution": "Admit the existing opt-in sample-weighted classification evaluator against the actual current package, preserving represented-logit winners under rounded probabilities.",
+    "scope": [
+      "src/lam_jepa/eval/classification_v2.py",
+      "tests/unit/test_classification_v2.py",
+      "tests/unit/test_classification_v2_model_integration.py"
+    ],
+    "development_note": "research/DEVELOPMENT_CLASSIFICATION_V2_20261011.md",
+    "verification_directory": "research/verification/classification_v2_20261011",
+    "independent_review": {
+      "status": "PASS_NO_SCOPED_BLOCKER",
+      "receipt": "research/verification/classification_v2_20261011/independent_review.json",
+      "workflow_status": "PASS_STACKED_DRAFT_WORKFLOW_BOUNDARY",
+      "workflow_receipt": "research/verification/classification_v2_20261011/independent_workflow_review.json",
+      "scope": "Independent source and retained acceptance review, with separate immutable workflow-boundary review; no independent test rerun or scientific efficacy claim."
+    },
+    "budget": {
+      "numeric_threads": 1,
+      "per_suite_wall_limit_seconds": 180,
+      "model_fits": 0,
+      "paid_compute": 0,
+      "protected_outcome_accesses": 0
+    },
+    "gates": {
+      "code_acceptance": "89 unit tests passed",
+      "scientific_checkpoint_advance": false,
+      "scientific_outcome": "NEGATIVE_CLOSED_UNCHANGED"
+    }
+  }
 }

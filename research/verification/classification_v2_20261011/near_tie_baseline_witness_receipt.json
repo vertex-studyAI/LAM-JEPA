@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/workspace/scratch/b44aa5e56ef8/repo_execution/fim_runtime/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/test_classification_v2.py",
+    "-q",
+    "-k",
+    "distinct_near_tie",
+    "--maxfail=1",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 1.4939397359994473,
+  "child_CPU_seconds": 1.490281,
+  "observed_child_peak_RSS_KiB": 267188,
+  "source_sha256": "da0a2bf288475799fd17d0a5bcd115422219c0d48dd3e1c609dff40972b4d1d0",
+  "expected": "Original additive evaluator fails the two-row near-tie accuracy fixture; this is a generated input, not a study outcome."
+}

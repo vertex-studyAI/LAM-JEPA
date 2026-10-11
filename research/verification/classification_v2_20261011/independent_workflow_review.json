@@ -1,0 +1,783 @@
+{
+  "status": "PASS_STACKED_DRAFT_WORKFLOW_BOUNDARY",
+  "reviewer": "/root/repo_execution",
+  "source_commit": "08010fb91df08f480e860029b9454ffc551cd132",
+  "pull_request_base_branch": "codex/paired-statistical-report-20261010",
+  "workflow_files_independently_git_blob_authenticated": 37,
+  "changed_paths_reviewed": [
+    "research/DEVELOPMENT_CLASSIFICATION_V2_20261011.md",
+    "research/RESEARCH_STATE.json",
+    "research/verification/classification_v2_20261011/LAM_Classification_NearTie_Private_20261010.zip",
+    "research/verification/classification_v2_20261011/baseline/classification_v2.py",
+    "research/verification/classification_v2_20261011/current_unit_acceptance.log",
+    "research/verification/classification_v2_20261011/current_unit_acceptance.xml",
+    "research/verification/classification_v2_20261011/current_unit_acceptance_02.log",
+    "research/verification/classification_v2_20261011/current_unit_acceptance_02.xml",
+    "research/verification/classification_v2_20261011/current_unit_acceptance_02_receipt.json",
+    "research/verification/classification_v2_20261011/current_unit_acceptance_receipt.json",
+    "research/verification/classification_v2_20261011/dependency_install_receipt.json",
+    "research/verification/classification_v2_20261011/environment.json",
+    "research/verification/classification_v2_20261011/independent_review.json",
+    "research/verification/classification_v2_20261011/near_tie_baseline_witness.log",
+    "research/verification/classification_v2_20261011/near_tie_baseline_witness_receipt.json",
+    "research/verification/classification_v2_20261011/predecessor_RESEARCH_STATE.json",
+    "research/verification/classification_v2_20261011/source_preservation_audit.json",
+    "research/verification/classification_v2_20261011/upstream_source_manifest.json",
+    "research/verification/classification_v2_20261011/work_plan.json",
+    "src/lam_jepa/eval/classification_v2.py",
+    "tests/unit/test_classification_v2.py",
+    "tests/unit/test_classification_v2_model_integration.py"
+  ],
+  "all_event_types": [
+    "pull_request",
+    "push",
+    "workflow_dispatch"
+  ],
+  "pull_request_target_present": false,
+  "workflow_run_present": false,
+  "schedule_present": false,
+  "eligible_before_skip_marker": [
+    ".github/workflows/research-claim-boundary.yml"
+  ],
+  "eligible_behavior": "Only research-claim-boundary qualifies on the scoped stacked draft. Its commands run a unit guard and verify fixed repository claim metadata; no training, dataset download or protected study command is configured.",
+  "scientific_workflows": "All scientific/ARC/freezer workflows are excluded by actual path and/or base-branch selectors, or manual-only trigger. No workflow is modified.",
+  "skip_marker_scope": "Author proposes [skip ci]; the scientific trigger exclusion above does not depend on that marker. Hosted execution must be reported from actual results, not presumed from the marker.",
+  "future_boundary": "Retargeting to main, editing scientific trigger paths, or dispatching a workflow requires a separate event-scope review. This result applies only to the exact inspected parent, the reviewed additive paths and the stated stacked base branch.",
+  "workflows": [
+    {
+      "path": ".github/workflows/aistats-anonymous-bundle.yml",
+      "blob": "802711f3bf87bb69873074dcab85151a01351e69",
+      "events": [
+        "push",
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "scripts/paper/build_aistats2027_anonymous_bundle.py",
+          "paper/aistats2027_checklist.tex",
+          ".github/workflows/aistats-anonymous-bundle.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/aistats2027-submission.yml",
+      "blob": "ff634e6f0a41a36fbd0c4b3f4c30ca5f87df8d87",
+      "events": [
+        "push",
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "paper/aistats2027_submission.tex",
+          "paper/aistats2027_checklist.tex",
+          "paper/aistats2027_complexity_section.tex",
+          "paper/aistats2027.sty",
+          "paper/references.bib",
+          "publication/AISTATS2027_ABSTRACT_PACKET_2026-09-25.md",
+          ".github/workflows/aistats2027-submission.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-codebook-assignment-falsifier.yml",
+      "blob": "8cccd09bb1837630be1cce4da4f1a8a95db89e71",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "scripts/diagnostics/arc_codebook_assignment_falsifier.py",
+          ".github/workflows/arc-codebook-assignment-falsifier.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-download-transport-ci.yml",
+      "blob": "4a11418a71b2c90c2bf87b9e6fcd739ee18583fb",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "branches": [
+          "main"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "base branch outside branches allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-ema-state-falsifier.yml",
+      "blob": "a9279d0a7d83365304e03fe611a6ce402338bf7f",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "scripts/diagnostics/arc_ema_state_falsifier.py",
+          ".github/workflows/arc-ema-state-falsifier.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-input-serialization-audit.yml",
+      "blob": "04f95d359ccba27ff9f88dde60bc4e791d1d1e22",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "src/lam_jepa/benchmarking/arc_challenge.py",
+          "src/lam_jepa/data.py",
+          "src/lam_jepa/benchmarking/arc_protocol.py",
+          "scripts/data/audit_arc_input_serialization.py",
+          "scripts/ci/verify_arc_input_serialization_audit.py",
+          ".github/workflows/arc-input-serialization-audit.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-matched-baseline.yml",
+      "blob": "c42d57df1dd41134b95cb0404a049d7149bd6c60",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": null,
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no pull_request trigger"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-matched-v3-validation.yml",
+      "blob": "a4e8355f05f92440928afff39c878118f680b742",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": null,
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no pull_request trigger"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-near-continuous-vq-falsifier.yml",
+      "blob": "03526df17882c8a7d8a0e4350a3ffc24709710f4",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "scripts/diagnostics/arc_near_continuous_vq_falsifier.py",
+          ".github/workflows/arc-near-continuous-vq-falsifier.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-pretrained-baseline.yml",
+      "blob": "a294d96a90f424792d1286831b19816ebd853a2c",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": null,
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no pull_request trigger"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-protocol-v2-ci.yml",
+      "blob": "1423d52e7891a41404ebb79a27d8f77bec2e24a4",
+      "events": [
+        "push",
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "branches": [
+          "main"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "base branch outside branches allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-protocol-v3-ci.yml",
+      "blob": "a421607b87039f8088a6e0b0e63852622f6214a6",
+      "events": [
+        "pull_request",
+        "push",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "src/lam_jepa/benchmarking/arc_protocol.py",
+          "scripts/data/audit_arc_protocol_v3_eligibility.py",
+          "scripts/ci/verify_arc_protocol_v3.py",
+          "scripts/ci/verify_arc_protocol_v3_eligibility.py",
+          "scripts/ci/verify_arc_protocol.py",
+          "scripts/ci/verify_arc_protocol_v2.py",
+          "scripts/data/download_arc_challenge.py",
+          "data/manifests/arc_challenge.json",
+          "protocols/arc_challenge_v1.json",
+          "protocols/arc_challenge_v2.json",
+          "protocols/arc_challenge_v3.json",
+          "pyproject.toml",
+          ".github/workflows/arc-protocol-v3-ci.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-protocol-v3-controls.yml",
+      "blob": "a5de1e1208eecfc149402e395a86f6c824087a1e",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": null,
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no pull_request trigger"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-protocol-v3-full-controls-reverify.yml",
+      "blob": "2da28aff36c7d7fb2d7be77e9669e5bacaaf9a19",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "scripts/ci/verify_arc_protocol_v3_full_controls_artifact.py",
+          ".github/workflows/arc-protocol-v3-full-controls-reverify.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-protocol-v3-full-controls-validation.yml",
+      "blob": "c54a3e8a932ae38759f6f4b27594c97f81257ab5",
+      "events": [
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": null,
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no pull_request trigger"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-protocol-v4-runtime.yml",
+      "blob": "c546e3407977b417fcf527ed6fc875f344e00f80",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "protocols/arc_challenge_v4.json",
+          "scripts/data/materialize_arc_protocol_v3_eligible.py",
+          "scripts/benchmark/run_arc_pretrained_v4_deberta.py",
+          "scripts/ci/verify_arc_protocol_v4.py",
+          "scripts/ci/verify_arc_pretrained_v4_deberta.py",
+          ".github/workflows/arc-protocol-v4-runtime.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-quantizer-causal-ablation.yml",
+      "blob": "7c9db2cc85ea785d763eacb710c1976d2ac5ac45",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "src/lam_jepa/model.py",
+          "src/lam_jepa/benchmarking/arc_challenge.py",
+          "scripts/diagnostics/arc_quantizer_causal_ablation.py",
+          "scripts/ci/verify_arc_quantizer_causal_ablation.py",
+          ".github/workflows/arc-quantizer-causal-ablation.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-quantizer-residual-falsifier.yml",
+      "blob": "0e8368bc44b42b6edd8bb991e8fe660f3c6245d8",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "scripts/diagnostics/arc_quantizer_residual_falsifier.py",
+          ".github/workflows/arc-quantizer-residual-falsifier.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-quantizer-update-policy-falsifier.yml",
+      "blob": "b97687137c3b88309625b7d9544e3ba56540e24c",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "scripts/diagnostics/arc_quantizer_update_policy_falsifier.py",
+          ".github/workflows/arc-quantizer-update-policy-falsifier.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-successor-authorization-ci.yml",
+      "blob": "42b6a083cd19bfbda90276df3df2363b2df7cca1",
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "tools/arc_successor_authorization.py",
+          "tests/test_arc_successor_authorization.py",
+          "protocols/arc_successor_v1_draft.json",
+          ".github/workflows/arc-successor-authorization-ci.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-successor-context-target.yml",
+      "blob": "a2449fce78777cfbcb48fda2c3dea384bd87d7b1",
+      "events": [
+        "pull_request",
+        "push",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "branches": [
+          "main"
+        ],
+        "paths": [
+          "protocols/arc_successor_v1_context_target.json",
+          "protocols/arc_successor_v1_draft.json",
+          "tools/arc_successor_context_target.py",
+          "tools/verify_arc_successor_context_target.py",
+          "tools/verify_arc_successor_decision_rules.py",
+          "tests/test_arc_successor_context_target.py",
+          ".github/workflows/arc-successor-context-target.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "base branch outside branches allowlist",
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-successor-decision-rules.yml",
+      "blob": "fad59b17e8aab9e80c540558b4a589aaf8219c84",
+      "events": [
+        "pull_request",
+        "push",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "branches": [
+          "main"
+        ],
+        "paths": [
+          "protocols/arc_successor_v1_draft.json",
+          "protocols/arc_successor_v1_draft.md",
+          "protocols/arc_successor_v1_decision_rules.json",
+          "protocols/confirmatory_dataset_candidates/openbookqa_v1_sep2018.json",
+          "tools/verify_arc_successor_decision_rules.py",
+          "tools/verify_confirmatory_dataset_candidate.py",
+          "tests/test_arc_successor_decision_rules.py",
+          "tests/test_confirmatory_dataset_candidate.py",
+          ".github/workflows/arc-successor-decision-rules.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "base branch outside branches allowlist",
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-successor-development-split-freezer.yml",
+      "blob": "2c7cf3e784c60b104e2b36881fe9d93ab28e99f1",
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "tools/successor_development_split_freezer.py",
+          "tests/test_successor_development_split_freezer.py",
+          "protocols/arc_successor_development_split_template.json",
+          ".github/workflows/arc-successor-development-split-freezer.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-successor-freshness-audit.yml",
+      "blob": "88e272af95bb9b7bebce5194e955082b2d676c9e",
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "DATA_FRESHNESS_AUDIT.md",
+          "protocols/data_freshness_audit_v1.json",
+          "protocols/arc_successor_v1_draft.json",
+          "data/manifests/arc_challenge.json",
+          "CLAIM_LEDGER.md",
+          "scripts/ci/verify_arc_successor_freshness_audit.py",
+          "tests/test_arc_successor_freshness_audit.py",
+          ".github/workflows/arc-successor-freshness-audit.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-trainability-diagnostic.yml",
+      "blob": "963d8bbf2a5847be94f10533a224b8b151806f12",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "src/lam_jepa/model.py",
+          "src/lam_jepa/benchmarking/arc_challenge.py",
+          "src/lam_jepa/benchmarking/arc_protocol.py",
+          "scripts/benchmark/run_arc_matched_baseline.py",
+          "scripts/diagnostics/arc_trainability_overfit.py",
+          "scripts/ci/verify_arc_trainability_overfit.py",
+          ".github/workflows/arc-trainability-diagnostic.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-v5-negative-result-analysis.yml",
+      "blob": "885c9d433e5fe8d74ecdd6c285b5fbfe9cfe0c69",
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "scripts/analysis/analyze_arc_v5_negative_result.py",
+          "tests/test_arc_v5_negative_result_analysis.py",
+          "docs/ARC_V5_NEGATIVE_RESULT_ANALYSIS.md",
+          ".github/workflows/arc-v5-negative-result-analysis.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-v5-quantizer-repair-gate.yml",
+      "blob": "9e04412117e4c8e4320f3a88798d2f69889bfe58",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "src/lam_jepa/benchmarking/arc_v5_repair.py",
+          "scripts/diagnostics/arc_v5_repair_overfit.py",
+          "tests/unit/test_arc_v5_quantizer_repair.py",
+          ".github/workflows/arc-v5-quantizer-repair-gate.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-v5-repaired-validation.yml",
+      "blob": "2db52b3d24edb7d1c3313e6d3a6a166185d9b970",
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "scripts/benchmark/run_arc_v5_repaired_validation.py",
+          "scripts/analysis/analyze_arc_v5_negative_result.py",
+          "scripts/ci/verify_arc_v5_repaired_validation.py",
+          ".github/workflows/arc-v5-repaired-validation.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/arc-v5-validation-protocol-freeze.yml",
+      "blob": "5f4edf1cec2e6343979a2da12babd1267d3eaae5",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "protocols/arc_challenge_v5_repaired_validation.json",
+          "scripts/ci/verify_arc_v5_validation_protocol.py",
+          ".github/workflows/arc-v5-validation-protocol-freeze.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/confirmatory-dataset-freezer.yml",
+      "blob": "196881de6e26bfe42bf124538c7b896a1db15d29",
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "tools/confirmatory_dataset_freezer.py",
+          "tests/test_confirmatory_dataset_freezer.py",
+          "protocols/confirmatory_dataset_manifest_template.json",
+          ".github/workflows/confirmatory-dataset-freezer.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/container-smoke.yml",
+      "blob": "a52e9724a3f7f82f95f37d8f1041a04b35f624b3",
+      "events": [
+        "push",
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "branches": [
+          "main"
+        ],
+        "paths": [
+          "Dockerfile",
+          ".dockerignore",
+          "pyproject.toml",
+          "src/**",
+          ".github/workflows/container-smoke.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "base branch outside branches allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/deterministic-training-replay.yml",
+      "blob": "480d4d3ae0a3393438c656fca6ada439311732a2",
+      "events": [
+        "pull_request",
+        "push",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "branches": [
+          "main"
+        ],
+        "paths": [
+          "scripts/train/train_single.py",
+          "scripts/ci/verify_deterministic_training_replay.py",
+          ".github/workflows/deterministic-training-replay.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "base branch outside branches allowlist",
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/iclr2027-submission.yml",
+      "blob": "41c54424b598decf85b96028f9cb3fb53757f15a",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "paper/iclr2027_submission.tex",
+          "paper/iclr2027_conference.sty",
+          "paper/references.bib",
+          ".github/workflows/iclr2027-submission.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/paper-build.yml",
+      "blob": "3b41dedb7518a7f6410dc03bbbc3a24d781c5341",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "paper/**",
+          "scripts/ci/verify_icdm_teen_submission_source.py",
+          "scripts/ci/verify_reproducible_pdfs.sh",
+          ".github/workflows/paper-build.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/release-artifact-boundary.yml",
+      "blob": "284b5701baa65f8baa5acaa6a85d97a9bf01e734",
+      "events": [
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "paths": [
+          "PAPER_SOURCE_STATUS.md",
+          "paper/ICDM_TEEN_DEADLINE_CLOSURE_20260901.md",
+          "paper/ICDM_TEEN_SUBMISSION_PACKET_20260829.md",
+          "tests/test_release_artifact_boundary.py",
+          ".github/workflows/release-artifact-boundary.yml"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "no changed path matches paths allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/reproducibility-ci.yml",
+      "blob": "0310ac5e40bac5ff0f59c5cc759f06754f1f9641",
+      "events": [
+        "push",
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "pull_request_selector": {
+        "branches": [
+          "main"
+        ]
+      },
+      "matches_actual_stacked_pr_before_any_skip_marker": false,
+      "blocking_selectors": [
+        "base branch outside branches allowlist"
+      ]
+    },
+    {
+      "path": ".github/workflows/research-claim-boundary.yml",
+      "blob": "2417a1a915126f40861dd421937d84169c3394ca",
+      "events": [
+        "pull_request",
+        "push"
+      ],
+      "pull_request_selector": "",
+      "matches_actual_stacked_pr_before_any_skip_marker": true,
+      "blocking_selectors": []
+    }
+  ],
+  "push_event_boundary": {
+    "workflows_with_push_event": 16,
+    "all_allow_only_main_branch": true,
+    "new_review_branch_matches": false
+  },
+  "eligible_guard_source_review": {
+    "tests/test_research_claim_boundary.py": "0486cc2a89eb098244972806af89e60341eb38e7",
+    "scripts/ci/verify_research_claim_boundary.py": "b8beb02021d6df2809d786b348e3ebf2deb80456",
+    "finding": "Exact-source fetched guard only uses constructed strings and reads RESEARCH_STATUS.md/README.md; asserts negative/inconclusive claim and denies confirmatory rescue. No dataset/model/study calls."
+  }
+}

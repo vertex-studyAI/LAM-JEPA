@@ -1,0 +1,20 @@
+{
+  "python": "3.12.14",
+  "implementation": "CPython",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+  "packages": {
+    "torch": "2.14.1+cpu",
+    "pytest": "9.1.1",
+    "numpy": "2.3.5",
+    "tqdm": "4.70.1",
+    "scipy": "1.17.0",
+    "sympy": "1.14.0",
+    "scikit-learn": "1.8.0",
+    "matplotlib": "3.10.8",
+    "pandas": "2.2.3"
+  },
+  "numeric_threads": 1,
+  "device": "CPU",
+  "third_party_pytest_autoload": false,
+  "dependency_isolation": "Only tqdm added in lam_execution/deps; pre-existing FIM runtime reused without mutation."
+}

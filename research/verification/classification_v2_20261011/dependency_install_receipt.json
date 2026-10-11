@@ -1,0 +1,18 @@
+{
+  "timestamp_UTC": "2026-10-11T03:19:43.858813+00:00",
+  "command": [
+    "/workspace/scratch/b44aa5e56ef8/repo_execution/fim_runtime/bin/python",
+    "-m",
+    "pip",
+    "install",
+    "--disable-pip-version-check",
+    "--no-input",
+    "--target",
+    "/workspace/scratch/b44aa5e56ef8/lam_execution/deps",
+    "tqdm>=4.66"
+  ],
+  "exit_code": 0,
+  "result": "Installed tqdm 4.70.1 in an isolated local target; shared FIM environment was not changed.",
+  "reason": "First full unit collection failed importing the project-declared tqdm dependency.",
+  "installed_package_metadata_sha256": "a5da70b966afea3a759716041bad7187f2ece02c22348cf9e7c0a512bbf15f57"
+}
