@@ -1,0 +1,752 @@
+{
+  "archive_bytes": 143225,
+  "archive_sha256": "2e48c739df51acff2eea0c20974b57fc4d9306f5ef5959a2b382809abf800714",
+  "generator_revision": "328d33f5d2e49a72ebdaf042cec318798c606563",
+  "generator_source_sha256": "31b098bf6c7e1b500d9bfd6f39c581ac0ee3b72075e54e3400b6ee544cb0b510",
+  "member_count": 147,
+  "members": {
+    "BUNDLE_MANIFEST.json": {
+      "bytes": 23094,
+      "scientific_git_blob": null,
+      "sha256": "139f52ee8206e7b22f5caab8dcf2d63d5744588e534c2bc1e4519e1c485f78c5"
+    },
+    "EXPECTED_RESULTS.json": {
+      "bytes": 581,
+      "scientific_git_blob": null,
+      "sha256": "00e1c5f00db11d5bd29735813036a4e13fbf9f8da510c4096d624b55bc8a970e"
+    },
+    "README.md": {
+      "bytes": 4151,
+      "scientific_git_blob": null,
+      "sha256": "c977761e8d6b94700ae0d3742a1687243dca87e134558e3cabc2caa04a7b79db"
+    },
+    "data/manifests/arc_challenge.json": {
+      "bytes": 1819,
+      "scientific_git_blob": "8253b8d2abcc442b7cc7d0980b399c9f88232d23",
+      "sha256": "3f58b3d134eca74b0cdd2ae6210463fd69d46739be918c4d4f12c69a543e7d01"
+    },
+    "protocols/arc_challenge_v3.json": {
+      "bytes": 9416,
+      "scientific_git_blob": "9361aa3f580559ea7758e9a15fa51a29c081ca70",
+      "sha256": "3e6ef1b9847b67ea623b0a22e9193322fc099eb1ab349070370d7f845fc82ff7"
+    },
+    "pyproject.toml": {
+      "bytes": 717,
+      "scientific_git_blob": "e2e46f3fe7afbddb8ecb53f2d339c17d0df95e08",
+      "sha256": "a0b0e3460aab4d30801fca27f56d392c80541c2d62b9f65472d4d05891e7e7de"
+    },
+    "scripts/benchmark/run_arc_matched_baseline.py": {
+      "bytes": 18401,
+      "scientific_git_blob": "ade42100f06df022ddda3a1c27d8551f00f4208e",
+      "sha256": "a31fa50da7867d28f6367526745825533dc464059a2c4e44bb0d8c548a717c99"
+    },
+    "scripts/benchmark/run_arc_matched_baseline_v3.py": {
+      "bytes": 5316,
+      "scientific_git_blob": "a30a7f743660c56b4315cf59ff3ae2bb9fa3c56c",
+      "sha256": "b0c6c14f20fd783850a861a47cf2d0b1fae505175c4185483e8e5360fa4f7bbc"
+    },
+    "scripts/benchmark/run_arc_protocol_v3_controls.py": {
+      "bytes": 17714,
+      "scientific_git_blob": "040ef4b9a2403e5418c2ff2e81e98e6e8d96cd6c",
+      "sha256": "6db1db7700beeb326aa76ddd8fb0ff5b9854cea9e2b8602b73b3a010ec2b082c"
+    },
+    "scripts/ci/measure_arc_gradient_capacity.py": {
+      "bytes": 5659,
+      "scientific_git_blob": "3ec16fa15d1545f48112d3328f1a0677782733bc",
+      "sha256": "bbfba6974ca5def0f690ab1948f2974fa8466566b918f667ca987f7a0fac257d"
+    },
+    "scripts/ci/verify_arc_matched_baseline.py": {
+      "bytes": 14143,
+      "scientific_git_blob": "2cef84009b7191815a50df202a14c354f77afc07",
+      "sha256": "5cc81dda8f514235ca94df25336df14dede15a7d54df1732bb6133320d3c73d8"
+    },
+    "scripts/ci/verify_arc_matched_baseline_v3.py": {
+      "bytes": 8966,
+      "scientific_git_blob": "7896a1cf1242330bb166718c1d557817e12a3541",
+      "sha256": "61a18fd12fe2d1ca836c2c45dfea22bdae69e27f44c8a59f8e97694260420d9f"
+    },
+    "scripts/ci/verify_arc_protocol_v3.py": {
+      "bytes": 9298,
+      "scientific_git_blob": "653cefb2941d1fd886668b7dc39fe4012fffa690",
+      "sha256": "120613926aafa813602620446676175c839df271ccc7130db22ade3101997d89"
+    },
+    "scripts/ci/verify_arc_protocol_v3_controls.py": {
+      "bytes": 17400,
+      "scientific_git_blob": "fadbb43f9b6345a6a58b533007bd1841ff919819",
+      "sha256": "9ff0478c50b49a2455b42a1f52dfdc606c911541f0be2acbba369c647d353af0"
+    },
+    "scripts/ci/verify_arc_protocol_v3_full_controls.py": {
+      "bytes": 8891,
+      "scientific_git_blob": "3549cb667bebf638f55d33d42e9c6f5230706b54",
+      "sha256": "2297818451094b94828427eccb28ff52827f753d9b8b131a32d0530e641d0260"
+    },
+    "scripts/data/download_arc_challenge.py": {
+      "bytes": 2538,
+      "scientific_git_blob": "a6b7431198c3518073ef57c6f4799ea626f74831",
+      "sha256": "3cc3662834f3afc8c5471f087a46e249fcca55dc1bb40763eae05fbf47998e1a"
+    },
+    "src/lam_jepa/__init__.py": {
+      "bytes": 487,
+      "scientific_git_blob": "046a3228302bbc4b0911aad082bae911d22ff99e",
+      "sha256": "ed2e08585b6bb17036590a7a93fbf95f3a0d763185ef0f8f3cb2e6d7f1896949"
+    },
+    "src/lam_jepa/__main__.py": {
+      "bytes": 63,
+      "scientific_git_blob": "3a493b8d1a96e1e10ae7beb433c60014563ba9f0",
+      "sha256": "58ed838b115e569899a127ab7c3fa5dc95b71e825dc69af3cb94b92fde0b82bd"
+    },
+    "src/lam_jepa/agents/__init__.py": {
+      "bytes": 141,
+      "scientific_git_blob": "5ee23d717b84eabb7a3880db7d40ba8c5c3e47dd",
+      "sha256": "824178bce599e54ea82e470c7561e8e4b440c34b893ef3f394819314b90c5b10"
+    },
+    "src/lam_jepa/agents/controller/__init__.py": {
+      "bytes": 152,
+      "scientific_git_blob": "7645fe3eb578307bf6d97a93a7fee19ea2b4e07e",
+      "sha256": "8d0c4bf56c0d5a22e6f4dfd360d573a56987b117b74cca261f7ad3919c629fa8"
+    },
+    "src/lam_jepa/agents/planner/__init__.py": {
+      "bytes": 149,
+      "scientific_git_blob": "d405737ba7e3efca6f33ab982d580bd48b08db95",
+      "sha256": "971adc1f54cbb11409324a5fb4b16fcc3660e491b1a4431005d79fb6cef7bdcf"
+    },
+    "src/lam_jepa/agents/policy/__init__.py": {
+      "bytes": 148,
+      "scientific_git_blob": "f9ddd677397184e469bfe4012fa42606906104ed",
+      "sha256": "bc90cc362ec58464bce77bb96862e10ca9473a105fe1d7810edf4ca436f8114a"
+    },
+    "src/lam_jepa/amp.py": {
+      "bytes": 897,
+      "scientific_git_blob": "5a2bcc67a65e98c2cd58d2d92b747c3ee6cccd27",
+      "sha256": "b15e66ee53bf96948145e0b9530f5b4f1a5d97cb494f9e7d772d3afa3c21753a"
+    },
+    "src/lam_jepa/analysis/calibration/reliability.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/analysis/failure_modes/error_clusters.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/analysis/latent/trajectory_analysis.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/analysis/statistics.py": {
+      "bytes": 2861,
+      "scientific_git_blob": "411f96891cd32f3a7f039dac971e2c3c445a8ed3",
+      "sha256": "867ff405d5ee3417ccf9354163789a54fd137b0b232c16cc6dce2c23d9bb530f"
+    },
+    "src/lam_jepa/analysis/trajectory/__init__.py": {
+      "bytes": 154,
+      "scientific_git_blob": "d85c72b89eab643fcf930f31b18a86268b36fe15",
+      "sha256": "bc99e952b838f90f346a855a3c4ed1b9a73090565a3ba434a12b4b945da71e7f"
+    },
+    "src/lam_jepa/benchmarking/__init__.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/benchmarking/ablations/__init__.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/benchmarking/ablations/memory_ablation.py": {
+      "bytes": 264,
+      "scientific_git_blob": "f0d977ccf18fa1c530e0f68ee8c05eebf58d6f69",
+      "sha256": "6b51018b67e01c9a61e6a7698397a26049fa21075184877427db97c49d15aeac"
+    },
+    "src/lam_jepa/benchmarking/ablations/planner_ablation.py": {
+      "bytes": 224,
+      "scientific_git_blob": "f3f1136b97a79f7e14226be5e2e829cbc33fa377",
+      "sha256": "3334d66e58188f3a46ac7139b76829fe96d734767abe511b71a053a6096964cf"
+    },
+    "src/lam_jepa/benchmarking/arc_challenge.py": {
+      "bytes": 18648,
+      "scientific_git_blob": "e48c06c1c362a8fd2fbcd311ce5123aceaecdd83",
+      "sha256": "fd632fe3ae7066fe2253614784366f9635fb39c17650620bf977db4d1cbc6b1d"
+    },
+    "src/lam_jepa/benchmarking/arc_protocol.py": {
+      "bytes": 2339,
+      "scientific_git_blob": "19a598a1dfb0fc19f2d4c7786dae59c0215982cf",
+      "sha256": "943ad844b45cedae2fe43b9b750fcd81c4baacc19d2b0ad48b4114184d3a8ef6"
+    },
+    "src/lam_jepa/benchmarking/arc_v5_repair.py": {
+      "bytes": 3298,
+      "scientific_git_blob": "793fc17dffc9dc2637eb792c5a55404b94b918ad",
+      "sha256": "81c2aa7cbc1e21b84beb31b0e133bb3c5d6dd043fc8a8590b238c429dce23663"
+    },
+    "src/lam_jepa/benchmarking/baselines/__init__.py": {
+      "bytes": 3439,
+      "scientific_git_blob": "13748f1999ea08a8c6cd1242459dce7968b6c6eb",
+      "sha256": "ab687000b47f496d984e1be685a4a796b5ec9c89fc23661ec5c1de577bb0470d"
+    },
+    "src/lam_jepa/benchmarking/baselines/gru.py": {
+      "bytes": 536,
+      "scientific_git_blob": "3abe54ca4546e730f4a6f1c48661fad4038adcad",
+      "sha256": "7ec32ac9a0fac48427ba9de22505e0c3f768cd4b557c839e4118108274eabab0"
+    },
+    "src/lam_jepa/benchmarking/baselines/mlp.py": {
+      "bytes": 503,
+      "scientific_git_blob": "3fa62578a5738fa31aa12b32cb9492dce84a1a3a",
+      "sha256": "580371650c3b633ef33bbf72b9fa2552e72e744d2067f10f5c09adf1a12007e7"
+    },
+    "src/lam_jepa/benchmarking/baselines/transformer.py": {
+      "bytes": 688,
+      "scientific_git_blob": "051e1fb30797b09cf73b5126405fe707f7280095",
+      "sha256": "c4035cea563c8efcfe90988964382a3fc41ec65e52efc6e631931c54b21f912e"
+    },
+    "src/lam_jepa/benchmarking/edtech_suite.py": {
+      "bytes": 15246,
+      "scientific_git_blob": "98cd5835b0dd6eff4867b9acb2ed673bdff62eaf",
+      "sha256": "32422413915eb7f2e513b2608f6aa3aa9ebf2778b6f20a590ad37b59d0828ca6"
+    },
+    "src/lam_jepa/benchmarking/evaluation_sampling.py": {
+      "bytes": 6250,
+      "scientific_git_blob": "bd2cd5eb59984ecc75a7b8b5f6df57569f4b1e69",
+      "sha256": "4ebfee5004492dc76a91e36452ebbfe88b9ffda051890a41d6c2cf903f39032c"
+    },
+    "src/lam_jepa/benchmarking/leaderboards/__init__.py": {
+      "bytes": 160,
+      "scientific_git_blob": "53c62ad7109552d783fe96623f779b3eab05dfa5",
+      "sha256": "e1bf8799e5cd7dc84867e42a2ee48f79fda6bde2662ec42d4c492d71ea772922"
+    },
+    "src/lam_jepa/benchmarking/runner.py": {
+      "bytes": 1517,
+      "scientific_git_blob": "96bbf77c20ab3e94a3da4899eabfa79101951a6a",
+      "sha256": "3da4c48f4989e1b460ee3c2069e89beddfa43d350db7a83631d353b8433304f6"
+    },
+    "src/lam_jepa/benchmarking/tasks/__init__.py": {
+      "bytes": 153,
+      "scientific_git_blob": "b56c44446f0d3bc274a3986aa5c2863f1b5c9e65",
+      "sha256": "a0aa97561a2c5d0520b0316fa363aa1b1ebfbd57cf709a22e7808a7d139e1f3e"
+    },
+    "src/lam_jepa/callbacks/__init__.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/callbacks/checkpointing/__init__.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/callbacks/checkpointing/load.py": {
+      "bytes": 1263,
+      "scientific_git_blob": "ca9eb85e7b33a6e2331079cce2a14232f91fcdf8",
+      "sha256": "c340d854497f84b81526542eee442dd1bce37110fcbf19723c3683fa212aedd9"
+    },
+    "src/lam_jepa/callbacks/checkpointing/save.py": {
+      "bytes": 1351,
+      "scientific_git_blob": "e1c8ef78df6e71ffcf24b6e990359ed34d5dccf0",
+      "sha256": "87b40b3e56d900984ccc74a1b71a622b1dd11967a02c703449a8fb317c00f867"
+    },
+    "src/lam_jepa/callbacks/early_stop.py": {
+      "bytes": 481,
+      "scientific_git_blob": "48651ae10fdf3d55b76c0c442c38c188f99ef22d",
+      "sha256": "dbeb79b420496246d7f01e26ada50803534abfd2b70600065e6eb146844c2ff3"
+    },
+    "src/lam_jepa/callbacks/early_stop/__init__.py": {
+      "bytes": 482,
+      "scientific_git_blob": "993c6c91719f10090684cb69ce11434aff59b448",
+      "sha256": "269d58169c726867071cb16d4b2e363cfb5de3cb3c4ad7f5562f7fe527646541"
+    },
+    "src/lam_jepa/callbacks/ema.py": {
+      "bytes": 740,
+      "scientific_git_blob": "f048d795bd3dae7e9e2279c26f6a4e4e3f587699",
+      "sha256": "5eb97f25fea0c23d071f395910120b8d05d409543349467966ed168ffdf9a989"
+    },
+    "src/lam_jepa/callbacks/ema/__init__.py": {
+      "bytes": 687,
+      "scientific_git_blob": "0654b331b06a7081a6aaaa6f75107a46e7fa8cf4",
+      "sha256": "2aaec2f09a85daf844a5a13226449fe21cbbb877d6c33600acee10a25b02a4f6"
+    },
+    "src/lam_jepa/callbacks/logging/__init__.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/callbacks/logging/logger.py": {
+      "bytes": 515,
+      "scientific_git_blob": "159388e75581ed478e8bb2172dfc5d5bff106212",
+      "sha256": "5f6e99b9674b72743b35a4280a9f838ff2b15853686f4c1f6c236183ab21a3d4"
+    },
+    "src/lam_jepa/data.py": {
+      "bytes": 7882,
+      "scientific_git_blob": "adc4b534e27326f63eb0fa83e60db35775259d3a",
+      "sha256": "6621818aa1233c5379918ff016bbb931e1e902835f0f6c6bde7260fdfec07268"
+    },
+    "src/lam_jepa/data/__init__.py": {
+      "bytes": 12770,
+      "scientific_git_blob": "7fbe5e50bc8593edad18071a10f9eca3c445a148",
+      "sha256": "5b089878e8eb1328a4ce66ae2842b8bfb011779f8ecdf94d817564cb67196e5f"
+    },
+    "src/lam_jepa/data/procedural_reasoning_generator.py": {
+      "bytes": 5027,
+      "scientific_git_blob": "5a4c2335702f644ae530685b4c0320567ecf24ba",
+      "sha256": "23347af64c580d71e74dccf8673c9b78813bc201a37436ad1d5d3105312d3d42"
+    },
+    "src/lam_jepa/data/student_simulator.py": {
+      "bytes": 4265,
+      "scientific_git_blob": "dbbd33355f0becba0465c78f6702beb5cff14a1b",
+      "sha256": "a4ca57d694c4cef7fc0efc77df0cf03e32cd4fdd454f410ec46dd1f0a46f27da"
+    },
+    "src/lam_jepa/edtech/__init__.py": {
+      "bytes": 690,
+      "scientific_git_blob": "4e7210382ad73873043750b71967eea57b96d7c1",
+      "sha256": "6f9374ef81fe5bc0ab1f98d2b3d378d42238fd91a840c796af79708fca61af44"
+    },
+    "src/lam_jepa/edtech/curriculum_engine.py": {
+      "bytes": 4757,
+      "scientific_git_blob": "4e8a975250d2f9c2cba0fec5988348659fb0979f",
+      "sha256": "45d1a0bd7f995d2da7fc1938a55013c5115e49a480b313fbb720ab2c45bf0a25"
+    },
+    "src/lam_jepa/edtech/intervention_selector.py": {
+      "bytes": 3389,
+      "scientific_git_blob": "61144f0f2dbc9ad8ab616431ea38f8a40da461dd",
+      "sha256": "4d6ce73289ca619a5d16bcd53ddb02e1bbca6930aa652b1e320da3f33c502aaf"
+    },
+    "src/lam_jepa/edtech/mastery_tracker.py": {
+      "bytes": 4608,
+      "scientific_git_blob": "c5eb26434419a0bdc54d8472ed79c7eb074fce99",
+      "sha256": "4241ee4541e3a80fbdb04a45206cdb50b9a6458f55cfc1c21c4751e4ec4df229"
+    },
+    "src/lam_jepa/edtech/misconception_model.py": {
+      "bytes": 6929,
+      "scientific_git_blob": "3507a9ccb1b074d03ba033366633c50cdca9f318",
+      "sha256": "6c3a42e4d86e73435738279339312744be7d69e68096ef01288b0e06fd1603ff"
+    },
+    "src/lam_jepa/edtech/student_model.py": {
+      "bytes": 8606,
+      "scientific_git_blob": "520dcf8334df59a9661db841bbf8aec958d6e82d",
+      "sha256": "f7e811f656a3b9df612946903fb2e95b472a06d3fcedb864c3b07f95ea31f6ea"
+    },
+    "src/lam_jepa/edtech/tasks.py": {
+      "bytes": 7397,
+      "scientific_git_blob": "d041a31809a8a3f0e9738f4a2c336dff09e30752",
+      "sha256": "5bb510537caf01396e88c1f069fc5dd220073229069a3dd7dc061771a1925bde"
+    },
+    "src/lam_jepa/edtech/tutor_policy.py": {
+      "bytes": 5246,
+      "scientific_git_blob": "4c4164f411a8ae1c30ab567cf18fd8067321891c",
+      "sha256": "7e3b9bc9e03b59087b0ecc728cb98873aeb3b0e75d508986adc788a642c1b19e"
+    },
+    "src/lam_jepa/eval.py": {
+      "bytes": 1101,
+      "scientific_git_blob": "bfb876802193a943c3d92b1946fb3a8205e8b215",
+      "sha256": "a4cbb17276edce5ca3c504b974dc917d7ec78a9760628cbae46910319e360aa4"
+    },
+    "src/lam_jepa/eval/__init__.py": {
+      "bytes": 2021,
+      "scientific_git_blob": "2907db7e93fd019c5ace1bf09406d18560d9a2b8",
+      "sha256": "2be4ff461495fa50a00dfa1e0055dcb1e54e57e2ce1ba04d266788a07891c6d2"
+    },
+    "src/lam_jepa/eval/ood_benchmark.py": {
+      "bytes": 2617,
+      "scientific_git_blob": "0554cfff2ab064777c03fa96d635d1ce150a1fef",
+      "sha256": "b6a87e1a3cc9ca0fc95fee5437bc4a9b483710d9abd43975515e56269a235619"
+    },
+    "src/lam_jepa/eval/statistical_eval.py": {
+      "bytes": 2934,
+      "scientific_git_blob": "01cb5a39962686b69543341eba1a441e56a946ca",
+      "sha256": "77c3011392dbda940f1674f6a44cbd149098c0cba3de09ad4073f7143a2a83aa"
+    },
+    "src/lam_jepa/eval/trajectory_eval.py": {
+      "bytes": 2329,
+      "scientific_git_blob": "6afd5a2331d8d442e46212fa6e43e7685122e8ba",
+      "sha256": "c1011ab7ee526666c6bdfceb96bad8e8dfa6a8c4575c2e0a374627badcfccf2a"
+    },
+    "src/lam_jepa/inference/__init__.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/inference/apis/server.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/inference/explain.py": {
+      "bytes": 498,
+      "scientific_git_blob": "8901f4fe29bf0a98910ff02e99206087177de8d0",
+      "sha256": "90cc8e491548c9bd789582f145e3ba78d644004cf4bc6e3bd7868191c80d819b"
+    },
+    "src/lam_jepa/inference/predict.py": {
+      "bytes": 1035,
+      "scientific_git_blob": "52e9c11657d3d49c417e6be0a9f469ccca0c58a1",
+      "sha256": "30c458502692de72818991d71f7be306279db4f350ee578d8cf0d933d47a09ce"
+    },
+    "src/lam_jepa/inference/rollout.py": {
+      "bytes": 276,
+      "scientific_git_blob": "9e7a532800d1fcdc67722949231bc7e69648c89c",
+      "sha256": "8e916e1cc9dfaa84465798a9ee077caea056937b1a90234ea3a3489d072726e6"
+    },
+    "src/lam_jepa/inference/serving/__init__.py": {
+      "bytes": 152,
+      "scientific_git_blob": "d8ef9d201bbc84b91097a7290ddd9475edcd24ff",
+      "sha256": "350c21dc6d7bd81656ecce4714651f97c4ff7d343392dbc907024eeb10e9a6ac"
+    },
+    "src/lam_jepa/interpretability/__init__.py": {
+      "bytes": 151,
+      "scientific_git_blob": "a8480fe39d39ed1eb72213e45a8891c1398a369c",
+      "sha256": "aba8171bc35cac7bd9dc55e118eed1cf8e18948085c214abd44412e9ddc1b992"
+    },
+    "src/lam_jepa/logging/__init__.py": {
+      "bytes": 142,
+      "scientific_git_blob": "fe0f0f73ae1f0bac1f975a20807ccf76168fd293",
+      "sha256": "852e1b6fe0837b5e53af0d37d8e7bd96240b734fb48cb3b0d05d85abbf12ee53"
+    },
+    "src/lam_jepa/losses.py": {
+      "bytes": 3461,
+      "scientific_git_blob": "042947824430e680860159e12835564fba72dea3",
+      "sha256": "151407774f2ab9e245fe1a66978fb328960672ac2c7db307d8792fc50163181b"
+    },
+    "src/lam_jepa/losses/__init__.py": {
+      "bytes": 3462,
+      "scientific_git_blob": "41ab6633a728eca2774ebc3bde3dec5f38bb9731",
+      "sha256": "5e321af4792febd1b176769a10e95725698aacd3e324cfbece497e2e14e82810"
+    },
+    "src/lam_jepa/memory.py": {
+      "bytes": 2157,
+      "scientific_git_blob": "35a82f7c4ce518366ecd7a519809737b106dca1d",
+      "sha256": "490e10c3d5935fea5dafba7b6958343aa02cc910ebfb19df18b665c766adc355"
+    },
+    "src/lam_jepa/memory/__init__.py": {
+      "bytes": 2145,
+      "scientific_git_blob": "4bcbf13657b33f293a4461ff7e0b72f977789494",
+      "sha256": "cdda8090cda2308084ade855f4453217b7e8c8246bbf5c709819342592a65b77"
+    },
+    "src/lam_jepa/metrics/__init__.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/metrics/calibration.py": {
+      "bytes": 1344,
+      "scientific_git_blob": "1f384cfc325bbc54fd9d6261b2856cc1b3980696",
+      "sha256": "5a83855cd2a0e744a3c959605e66a738da9d39c87771092e1c51a381fdfd5762"
+    },
+    "src/lam_jepa/metrics/ece.py": {
+      "bytes": 167,
+      "scientific_git_blob": "7e0de9ed156b1be094f1f94786abc23dda2a3be9",
+      "sha256": "d249b70a6972825b4141d80c734c4f9768c6f5d9a75091cf4d83e826ce37851d"
+    },
+    "src/lam_jepa/metrics/grokking.py": {
+      "bytes": 591,
+      "scientific_git_blob": "a3ce6f7ac6a431683f3d75b5f5a04ffa6aeefa86",
+      "sha256": "abaf2a5c318065d213401967206a4c9bc82c2a206d4a01b6e8055a4723dc41dd"
+    },
+    "src/lam_jepa/metrics/ood.py": {
+      "bytes": 373,
+      "scientific_git_blob": "6e360e015b4d67f376814f84fdb3af190c313105",
+      "sha256": "875d240f9c2479b5f001ad29afa4cbcd92927a8469a187d1ac46c3c4aeea39a9"
+    },
+    "src/lam_jepa/metrics/ood/__init__.py": {
+      "bytes": 374,
+      "scientific_git_blob": "9a0cb597b44b8a5db328c9eebb48bdef697ff4fb",
+      "sha256": "e4723f80040524ef80042b6afbf68660e793f088a65a34fb3bde855b7f1e6e16"
+    },
+    "src/lam_jepa/metrics/reasoning/__init__.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/metrics/reasoning/planning_score.py": {
+      "bytes": 250,
+      "scientific_git_blob": "59f5ee02f7b7ab5dd61ecf03582e4bfd7754664e",
+      "sha256": "9608656972bcedec7b162da88f4b43358903c93d0ecb0f9dce294816a4d7f8dd"
+    },
+    "src/lam_jepa/metrics/representation/__init__.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/metrics/representation/cka.py": {
+      "bytes": 480,
+      "scientific_git_blob": "e0662a0820beee09d0a93aafba0f1bac549a220f",
+      "sha256": "3f210c5e0ca5649d96a72933405151beb9acd44ecafc37b528823cf31d4b2d12"
+    },
+    "src/lam_jepa/metrics/representation/collapse.py": {
+      "bytes": 240,
+      "scientific_git_blob": "29f3e37ce88f2cd2c86db34ef9542773bd19b685",
+      "sha256": "0983efabd67a7dc87d053253144befdc78325a9589a9884d7af92ed7fdfefb7a"
+    },
+    "src/lam_jepa/metrics/uncertainty/__init__.py": {
+      "bytes": 154,
+      "scientific_git_blob": "7a99f889d9db758164650d98c86926193950d6fb",
+      "sha256": "75d8d1a57fd1c6b89bee89c4b9f85712d4c5dd109361ee9f8f2c6ff608eef68f"
+    },
+    "src/lam_jepa/model.py": {
+      "bytes": 16614,
+      "scientific_git_blob": "a98e1c6b5aaf97979b73fd0f8e623482a341d7bd",
+      "sha256": "bd830bbfa4a19aec4a809faa1099c8162586737a8aa14fceb1d92097ba23359e"
+    },
+    "src/lam_jepa/models/__init__.py": {
+      "bytes": 994,
+      "scientific_git_blob": "cc11491337761bac0ebf465a8da46c53f500b0f2",
+      "sha256": "5a09b9d87adfa3dbcac518d6e9371cb88c207467a0b24de7cf9d65562b1d868c"
+    },
+    "src/lam_jepa/models/common.py": {
+      "bytes": 1906,
+      "scientific_git_blob": "1e63363d446386e66d1ce415ed9870a554b4e87e",
+      "sha256": "de0af724a758c22d8d48ac272cc131d38d94bc5712fe2eec46bf234b6b5823f5"
+    },
+    "src/lam_jepa/models/counterfactual_engine.py": {
+      "bytes": 3658,
+      "scientific_git_blob": "dea87e7eb0875ec863a0fe1932185704f08e5ab9",
+      "sha256": "031ab3ed67bed2be0da6b821c85d4af29adec65cc64aa0261f91c01dcd5a4db7"
+    },
+    "src/lam_jepa/models/hierarchical_planner.py": {
+      "bytes": 6341,
+      "scientific_git_blob": "3687baeafdf1cab1ca51e163c8f1bd291baa026f",
+      "sha256": "10aa12d98001102a8a1eb27267c7a092ba7a6f81ef35eaea0021984f295ff5ac"
+    },
+    "src/lam_jepa/models/latent_world_model.py": {
+      "bytes": 10386,
+      "scientific_git_blob": "dafb02e12296054bb2ea244be0f66e5d47ea72fe",
+      "sha256": "1d66f5b847c49730531e3f2b236ba4a6356bae742d2092ac301f54df18bddd40"
+    },
+    "src/lam_jepa/models/memory_router.py": {
+      "bytes": 5404,
+      "scientific_git_blob": "880d887b89cd1c65b5e79442d81eb1dc244e9743",
+      "sha256": "be056ec854d856348fbe6149e9b72eaa4504c9dd16bec9a67e974fc6dae3c210"
+    },
+    "src/lam_jepa/models/student_state_space.py": {
+      "bytes": 4481,
+      "scientific_git_blob": "fa1fb42655f1dad0f6d64918829b34e67ec6dfc7",
+      "sha256": "7c3b6727618489151c8d320509eaebc77ff22d130b0b0038141fa46f7d904955"
+    },
+    "src/lam_jepa/optim/__init__.py": {
+      "bytes": 140,
+      "scientific_git_blob": "c8472a41c10fc77200c8a9c3468aa072c8c01d01",
+      "sha256": "d89358404ecb8aac04775bffb786ce7f12155c9c5c5fa5a9bf8d3381cc78ddf9"
+    },
+    "src/lam_jepa/optim/adamw/__init__.py": {
+      "bytes": 146,
+      "scientific_git_blob": "96dd0e173c9d2fa501546ffd97714d5a858e7eed",
+      "sha256": "b7629330d7d897983f6111921ee518da62938369f2600c527864349543b0b175"
+    },
+    "src/lam_jepa/optim/lion/__init__.py": {
+      "bytes": 145,
+      "scientific_git_blob": "ffb58fc2c45e49203155892d902c66f2dc418442",
+      "sha256": "5c310ba8423c38fe3eb11de481dcc62b97496812ee617e3a30bdcecb51ad9a07"
+    },
+    "src/lam_jepa/optim/sam/__init__.py": {
+      "bytes": 144,
+      "scientific_git_blob": "80ac20b944c47b5f22355b159db8029b9a0b501f",
+      "sha256": "1832374112c0db3e11d435210d297a94d1fa26cb111a6607856417b0b69e9868"
+    },
+    "src/lam_jepa/planner.py": {
+      "bytes": 1345,
+      "scientific_git_blob": "b5b1bda05b24871fa369c8d99df8d31aaf91984c",
+      "sha256": "8026cdee8d00ce5b2a811703d958737319690cef5148935378a99ccdaaf6f1b8"
+    },
+    "src/lam_jepa/planning/__init__.py": {
+      "bytes": 143,
+      "scientific_git_blob": "07ac6617faad224fb8d42020323224ce92d5193f",
+      "sha256": "a908bd00afe66921743dec1327ee80890538e04fc47aa68c2b99ac2376fd6ab1"
+    },
+    "src/lam_jepa/profiling/__init__.py": {
+      "bytes": 144,
+      "scientific_git_blob": "0b3f0f0404297ba84802165ebcda0dba5570173f",
+      "sha256": "b37309c259cdac84c3ffb9ca6407bde94a298b7c060114b91a5ff8b3a5d9ced7"
+    },
+    "src/lam_jepa/reasoning/__init__.py": {
+      "bytes": 144,
+      "scientific_git_blob": "e50bfbad2a1449e394712cc16462f578e9e2ffb1",
+      "sha256": "dafea46fd2d56259fdec348d60b3ce12dade079abde3f652399c8dbdb9bd0263"
+    },
+    "src/lam_jepa/reasoning/planning/__init__.py": {
+      "bytes": 153,
+      "scientific_git_blob": "59dff89bb9228ca98dcc1bdd2ab6d8591350c4fe",
+      "sha256": "4dd9e9e3faaad509278688075c9563a004a336a371a9e17e913ff941073449e7"
+    },
+    "src/lam_jepa/reasoning/search/__init__.py": {
+      "bytes": 151,
+      "scientific_git_blob": "997ebbf2468e59f327eef262cbba69e4c00d9071",
+      "sha256": "4f7ee3c05a70599b1ad9f7168f6d73b78c56019c7a3b65b258725da062ee55a2"
+    },
+    "src/lam_jepa/reasoning/symbolic/__init__.py": {
+      "bytes": 153,
+      "scientific_git_blob": "d567eba3e65617d950f5216068ecc4e299779480",
+      "sha256": "fc481fa508564b98da426ade837a5050e3bd980f145d8f841ca7967e84d5584a"
+    },
+    "src/lam_jepa/rl/__init__.py": {
+      "bytes": 137,
+      "scientific_git_blob": "04e2209bd62fc78b93cbd642fbb3c343eb8292b1",
+      "sha256": "e718d01b9f0e91933a11f7fedb453a53368885ac6814fb77868e4b82a1460614"
+    },
+    "src/lam_jepa/rl/envs/__init__.py": {
+      "bytes": 142,
+      "scientific_git_blob": "f7044013218f9a3a80b07bebbcd83c6df61bf1d3",
+      "sha256": "50d7988c05542e6479d8346083c9aa420bb03559a401c1a112cd48512b1a3d10"
+    },
+    "src/lam_jepa/rl/rewards/__init__.py": {
+      "bytes": 145,
+      "scientific_git_blob": "d6bdb6dab41a6133266820c9757757324072d07c",
+      "sha256": "abd12cd28adb005417d10e9d2603be0b246caa036c3a76863904aaf60c8bd414"
+    },
+    "src/lam_jepa/schedulers/__init__.py": {
+      "bytes": 145,
+      "scientific_git_blob": "3f2e47ebfb796228ae3bc8b1a3adbc36fa873bdf",
+      "sha256": "f1de1a767eea97e0faa38a9fcfd376053137f99cb0f0bd63cc0d69b0a350972a"
+    },
+    "src/lam_jepa/schedulers/cosine/__init__.py": {
+      "bytes": 152,
+      "scientific_git_blob": "9b013299e3237b76dfc70bcc852cdd05ea823da1",
+      "sha256": "184ac4a80413bdb2c23ba8ad0ccdfb89681a06f498d6263333d8dffde697a25a"
+    },
+    "src/lam_jepa/schedulers/onecycle/__init__.py": {
+      "bytes": 154,
+      "scientific_git_blob": "5e2550f098fa8e65d09758f0ec9f581face1fa08",
+      "sha256": "eaf644b2249f6b2adef1fde2c54ae5b293499913a2bc04212114a4b82d3441ac"
+    },
+    "src/lam_jepa/schedulers/warmup/__init__.py": {
+      "bytes": 152,
+      "scientific_git_blob": "9a313ccf7f125354d5cb102e3ecca77e78bbe10f",
+      "sha256": "8741c46bc2de7cb83bee3d0451b9241ed59f36fa01c4850fc0c007d30e392928"
+    },
+    "src/lam_jepa/train.py": {
+      "bytes": 3170,
+      "scientific_git_blob": "9b49bcac6d06d02aa102062c117bde31e3597d97",
+      "sha256": "46d1eb2fc68f74531cdce148182838057d1917d089716805dc8d6bee3af6cad6"
+    },
+    "src/lam_jepa/trainers/__init__.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/trainers/curriculum_trainer.py": {
+      "bytes": 110,
+      "scientific_git_blob": "593a88fead239cc536d6243ab43f7b5aeea7e1e8",
+      "sha256": "af157df20432e2b3d152f5f5afc666e2cfb41c75c98e95612e7aa2e28c2015f1"
+    },
+    "src/lam_jepa/trainers/mixins/__init__.py": {
+      "bytes": 150,
+      "scientific_git_blob": "b6f82ab03026cfb811fbc36f0d643e3e57794ab0",
+      "sha256": "9ab210ac1fa1c9b3f722d27552f9974000a61c5d396ee5044fa341d3b2ce534d"
+    },
+    "src/lam_jepa/trainers/multitask_trainer.py": {
+      "bytes": 454,
+      "scientific_git_blob": "98cb38bdf49e8a2ff4b31dee5701a71a018167a7",
+      "sha256": "04fee3b0218f2294258bceed9410f5908d44e36aa8100a2b9a5dc9f3436e7163"
+    },
+    "src/lam_jepa/trainers/strategies/__init__.py": {
+      "bytes": 154,
+      "scientific_git_blob": "68d86f6b31630160aca3d42431e37499544a0f1a",
+      "sha256": "17bcbc7895dd5974a46b44f4d8249887b1998eeda665d4b41ff5ff0e333d0ace"
+    },
+    "src/lam_jepa/trainers/trainer.py": {
+      "bytes": 6521,
+      "scientific_git_blob": "54635f9e4b24a43fdefb035fa977ffcab9ff06c6",
+      "sha256": "00238faec5c20aff5ed2ae5ed6b678c7474ddbeaf7eb8ea72ce6f965637f6319"
+    },
+    "src/lam_jepa/training/__init__.py": {
+      "bytes": 157,
+      "scientific_git_blob": "aee118bf23d535164a61b4766e8c8e0ce301f672",
+      "sha256": "ae731a4b392f4b34c883c1011a25ca863632f00fc5a140da9c79b2a3018a71ff"
+    },
+    "src/lam_jepa/training/losses.py": {
+      "bytes": 4982,
+      "scientific_git_blob": "2009e1411031180ed656dc102abebd97119d344f",
+      "sha256": "d98d41152e9ea6258991a0dad344f6b84817376c9f022e7b9882793806b8a61d"
+    },
+    "src/lam_jepa/training/trainer.py": {
+      "bytes": 7998,
+      "scientific_git_blob": "5b0e7c5dc85daab4090d6dcad16f9e9f0651a9a4",
+      "sha256": "d30e2cfa8056a5ede902dc2b21e87d407c1b611f1085c69f1990927adee6a55e"
+    },
+    "src/lam_jepa/utils.py": {
+      "bytes": 780,
+      "scientific_git_blob": "fd69dfbba76209b2fe3f472dd4732ecd481e1c2b",
+      "sha256": "ef898c9d7746ef2112596fb542cbb59e0e8783ffed0146ef0daa018507867cb3"
+    },
+    "src/lam_jepa/utils_ext/__init__.py": {
+      "bytes": 144,
+      "scientific_git_blob": "f752a0319d43ed5ec15e331200c4bf5be6a2c1a8",
+      "sha256": "08780dad453733f1bc29eb0f58f5643f764b533345e39b9a08273bebb84d1ceb"
+    },
+    "src/lam_jepa/utils_ext/distributed/__init__.py": {
+      "bytes": 156,
+      "scientific_git_blob": "0ea281dc4911e11c6ea8e69736dea3958b73ed0d",
+      "sha256": "67221356f014d3edda739fcad387c065f59b546a670964494a7cf0aa78cce374"
+    },
+    "src/lam_jepa/utils_ext/seed/__init__.py": {
+      "bytes": 149,
+      "scientific_git_blob": "8e8c26def9899471c4ad4d543757f1419102ab53",
+      "sha256": "876d21d7538101f0524af60c9131be4f4638a538b4283fbcb805f9b884996e82"
+    },
+    "src/lam_jepa/utils_ext/serialization/__init__.py": {
+      "bytes": 158,
+      "scientific_git_blob": "bee473581b5046ab012cc4d18651022147dfeb5d",
+      "sha256": "9081e569b115481992c24426468dfdbbd8774d8e21995c4c62c7bab9f2a4f034"
+    },
+    "src/lam_jepa/visualization/__init__.py": {
+      "bytes": 172,
+      "scientific_git_blob": "61a9a5134b3141615c0f2a606a3dd1cdc990d56a",
+      "sha256": "1b0f5343c9095745419ebf0e243f1cdee52d1a9a0be4b5ddd42f5ba854c714b9"
+    },
+    "src/lam_jepa/visualization/animations/planner_rollout.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/visualization/dashboards/__init__.py": {
+      "bytes": 159,
+      "scientific_git_blob": "919e06b4d34f662b915d10bbe8ab0fa4fded0e54",
+      "sha256": "be7cceabf8e94de617c659f79413e28cd2ee5eb4c602782a3821008b7e27aade"
+    },
+    "src/lam_jepa/visualization/latent_manifold.py": {
+      "bytes": 2205,
+      "scientific_git_blob": "07119635ce2a66598b4fe2f02da28d74cd4ba7e5",
+      "sha256": "5fc0ccd7c3ec0edda2c04490dc52033044a261ddfbde9d932c07a07a384f1ac6"
+    },
+    "src/lam_jepa/visualization/plots/confusion.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/visualization/plots/latent_umap.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/visualization/plots/training_curves.py": {
+      "bytes": 0,
+      "scientific_git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src/lam_jepa/world_model/__init__.py": {
+      "bytes": 146,
+      "scientific_git_blob": "3d0c40f1b3e4aea0175a9831935e920930c58804",
+      "sha256": "9dafcd614b986ad09fb6fdfb07dd720da99d5abde1ddcfb7a52555864030a912"
+    },
+    "src/lam_jepa/world_model/dynamics/__init__.py": {
+      "bytes": 155,
+      "scientific_git_blob": "891f2ece527387c56fcb46c80eb9444492398682",
+      "sha256": "94e686c769cfb12e2dd5f547993e194d6baddc1f0c907be613b09bcd3186ffaf"
+    },
+    "src/lam_jepa/world_model/predictive/__init__.py": {
+      "bytes": 157,
+      "scientific_git_blob": "c643bf8b971ac1525fc8289c9e3125091a082cd3",
+      "sha256": "4e58d579eddf1a74e94ef958ae91fd90d1c2e102e8301b40f694127bb4315a48"
+    },
+    "src/lam_jepa/world_model/transition/__init__.py": {
+      "bytes": 157,
+      "scientific_git_blob": "7157db47224e7f52ee28609b74060b16b0f41741",
+      "sha256": "502f8cccd2d0295699b6542fa1dc1993ec146ba5a9e9df0af7b92ab99c20b52b"
+    }
+  },
+  "scientific_evaluation_performed": false,
+  "scientific_revision": "760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb",
+  "scope": "Exact uncompressed package identity to the two pinned Git inputs only.",
+  "source_file_count": 144,
+  "status": "FROZEN_SUPPLEMENT_SOURCE_VERIFIED",
+  "uncompressed_bytes": 393813,
+  "verifier_source_sha256": "f44fc3d2123b3533dbcaaf2fc6c1a01d069ab1ea0993f88a1692ab461d46a120",
+  "verifier_version": 1
+}

@@ -1,0 +1,22 @@
+{
+  "project": "lam",
+  "title": "When compact latents collapse: a retained negative ARC evaluation",
+  "question": [
+    "Does adding quantization, memory and a latent planner produce useful representation compression under a frozen comparison?"
+  ],
+  "method": [
+    "Hashed token embeddings, mean pooling, a 32-code quantizer, sparse memory and one latent action step; same input target alignment. This is not a Transformer or canonical context to distinct target prediction.",
+    "Five fixed seeds; 1,117 training and 295 validation items; gradient active parameters matched within 1%. Report arithmetic is rechecked here; no training or checkpoint replay."
+  ],
+  "lesson": [
+    "Compression and collapse are different. Inspect code use, input dependence, task accuracy and positive controls together. A mechanism ablation inside a collapsed full model cannot establish a general verdict on planning or target alignment."
+  ],
+  "result": [
+    "Full minus matched accuracy: -0.0115, below the declared +0.02 practical gain. The superiority gate failed. Planner and target attribution gates also failed.",
+    "Retained review describes single-code quantizer use and constant predictions. Disabling quantization restored input dependence without establishing above chance accuracy."
+  ],
+  "limits": [
+    "A later trainability repair remained negative or inconclusive. The protected confirmatory test stays unopened for this failed hypothesis."
+  ],
+  "source_line": "Evidence: retained matched reproduction and independent artifact audit. Scientific source 760aa7f9a73a; presentation input commit c6ee9d1dcfdf. Source links and hashes accompany this poster."
+}

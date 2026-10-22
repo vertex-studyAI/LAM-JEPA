@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-22",
+  "repository": "vertex-studyAI/LAM-JEPA",
+  "base_main": "7bce886de537186f0d71aab06cb4680419e4cce7",
+  "target_pr": 206,
+  "integrated_prs": [
+    191,
+    200,
+    201,
+    202,
+    203,
+    204,
+    205,
+    206
+  ],
+  "parents": [
+    "248a6e23f4edc085b0e21627922466502d87064b",
+    "ac7cb843d4772a5d845756cdd4ae40fc9bf0aad6",
+    "328d33f5d2e49a72ebdaf042cec318798c606563",
+    "c62713762ea4797f26fc5e2b1a8fc9c69fb4e23b",
+    "a0ed9e1877321057076299b99a37def67cb9dde2",
+    "5507a426ab91cadbd40ebcd0bcbe30b591a26b1f",
+    "1c24ef69b18d7f6bec56b607b9ad5a45dcf67e1d",
+    "7bce886de537186f0d71aab06cb4680419e4cce7"
+  ],
+  "reviewed_scope": [
+    "Trusted checkpoint loading and deterministic inference mode restoration",
+    "Opt-in bounded beam planner with stable ties and finite arithmetic",
+    "Paired statistical estimand and scale-stable reductions",
+    "Float64 overflow-resistant linear CKA",
+    "Sample-weighted opt-in classification with logits ordering",
+    "Independent immutable Git-source supplement verification and preserved adverse artifacts",
+    "Pinned retained-poster arithmetic and historical quantizer witness"
+  ],
+  "integration_defect": {
+    "baseline_log": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_______ test_near_tie_prediction_matches_explanation_and_rollout_logits ________\n\n    def test_near_tie_prediction_matches_explanation_and_rollout_logits():\n        class NearTieModel(torch.nn.Module):\n            def forward(self, tokens, numeric_x=None, steps=0, sample_rollout=False):\n                assert not self.training\n                assert not sample_rollout\n                return {\n                    \"logits\": torch.tensor([[0.0, 1e-9]], dtype=torch.float32),\n                    \"confidence\": torch.ones(1, 1),\n                    \"verifier\": torch.ones(1, 1),\n                    \"rubric\": torch.zeros(1, 2),\n                    \"actions\": torch.zeros(1, 0, dtype=torch.long),\n                    \"traj\": torch.zeros(1, 1, 2),\n                }\n    \n        model = NearTieModel().train()\n        tokens = torch.tensor([[1]])\n        prediction = predict(model, tokens)\n        explanation = explain(model, tokens, steps=0)\n        _, _, logits = rollout(model, tokens, steps=0)\n        assert torch.equal(prediction[\"probabilities\"], torch.tensor([[0.5, 0.5]]))\n>       assert prediction[\"pred\"].item() == explanation[\"prediction\"].item() == 1\nE       assert 0 == 1\nE        +  where 0 = <built-in method item of Tensor object at 0x7f4719dcc230>()\nE        +    where <built-in method item of Tensor object at 0x7f4719dcc230> = tensor([0]).item\nE        +  and   1 = <built-in method item of Tensor object at 0x7f4719dcc410>()\nE        +    where <built-in method item of Tensor object at 0x7f4719dcc410> = tensor([1]).item\n\ntests/unit/test_inference_contracts.py:37: AssertionError\n=========================== short test summary info ============================\nFAILED tests/unit/test_inference_contracts.py::test_near_tie_prediction_matches_explanation_and_rollout_logits\n1 failed in 1.15s\n",
+    "fix": "pred = out[\"logits\"].argmax(dim=-1)",
+    "corrected_suite": {
+      "exit_code": 0,
+      "output": "191 passed in 4.81s",
+      "tests": 191,
+      "seconds": 4.81,
+      "source": "Completed unified exec session81524; generated unit/planner fixtures only"
+    }
+  },
+  "local_environment": {
+    "python": "3.12",
+    "torch": "2.14.1+cpu",
+    "threads": 1
+  },
+  "changed_source_sha256": {
+    "src/lam_jepa/inference/predict.py": "0cd0830113938eda83ef5e32d8109eeaf3f9f449224e84dc7b7a6751e88504ea",
+    "tests/unit/test_inference_contracts.py": "d8ff6d5b4a4588898c8fff7e6eae0f40003d31b25d79942794b6a95454fa7e6c",
+    "research/GITHUB_INTEGRATION_CONTRACT_20261022.md": "6f1878b2bf7f18a51defcd9e62f572eabfa53b6534b2c92dddd838ab4f667541"
+  },
+  "latest_main_changes": "Two independent evidence-receipt validator/test additions at7bce886... are preserved byte-for-byte. They were discovered after the local191-case affected suite and rely on the fresh hosted full gate.",
+  "frozen_scientific_source": "760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb",
+  "scientific_disposition": "NEGATIVE_CLOSED",
+  "protected_test_opened": false,
+  "local_new_scientific_runs": 0,
+  "local_optimizer_updates": 0,
+  "hosted_workflow_scope": "Existing bounded train/validation/generated-data fitting smokes may run. No locked ARC confirmatory evaluation or manually dispatched scientific campaign is authorized.",
+  "hosted_final_head_checks": "REQUIRED_PENDING",
+  "canonical_history": "Exact203–206 state snapshots retained; additive maintenance/session arrays merged; all original Git histories retained.",
+  "review": "Coordinator source and integration review complete; this is engineering evidence, not scientific peer review."
+}

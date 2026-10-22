@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "scope": "ENGINEERING_ONLY_FROZEN_PACKAGE_SOURCE_IDENTITY",
+  "parent_commit": "d40a4c4a3a9490a252265b1c54229506dd6a7b3a",
+  "final_source_sha256": {
+    "scripts/paper/verify_frozen_supplement.py": "f44fc3d2123b3533dbcaaf2fc6c1a01d069ab1ea0993f88a1692ab461d46a120",
+    "tests/test_frozen_supplement_source.py": "2a8aa08c9182128a1445d21fd0bdbe731de8e7afeec024f1fdd53701b6b377ce"
+  },
+  "final_tests": {
+    "passed": 34,
+    "new_source_verifier_cases": 27,
+    "existing_release_and_claim_boundary_cases": 7,
+    "raw_output": "final-tests.txt",
+    "command_receipt": "final-test-command.json",
+    "warnings": "errors"
+  },
+  "previous_bounded_checks": [
+    {
+      "passed": 25,
+      "failed": 0,
+      "scope": "initial new verifier cases"
+    },
+    {
+      "passed": 32,
+      "failed": 0,
+      "scope": "initial verifier plus existing boundaries"
+    },
+    {
+      "passed": 32,
+      "failed": 2,
+      "scope": "first Git-corruption regression fixtures; fixture PermissionErrors retained below"
+    },
+    {
+      "passed": 34,
+      "failed": 0,
+      "scope": "repaired corruption fixtures before final payload-first error reporting",
+      "raw_output": "targeted-tests.txt"
+    }
+  ],
+  "failures_and_repairs": [
+    {
+      "kind": "INDEPENDENT_REVIEW_VALIDITY_DEFECT",
+      "observation": "A coherently rewritten loose Git object and archive passed the first implementation because git cat-file reports the requested object ID without rehashing its bytes.",
+      "fixture_requested_blob": "95cd69154344ef8570ea95a228419bc85e3c7443",
+      "fixture_effective_changed_blob": "f3aa0a06b6bdf6d6dfc548cb012f9ae1dd3ed582",
+      "cause": "The first implementation trusted Git object names and ls-tree path output.",
+      "repair": "Authenticate both pinned commits, every traversed raw tree, and every selected blob with its Git header and bytes before using it.",
+      "evidence": "test_corrupt_git_object_cannot_authenticate_a_coherently_changed_archive[blob/tree]"
+    },
+    {
+      "kind": "ENGINEERING_TEST_FIXTURE_FAILURE",
+      "failed_tests": 2,
+      "passed_tests": 32,
+      "wall_seconds_reported_by_pytest": 17.8,
+      "cause": "The initial corruption tests attempted to write a read-only loose object in a disposable test repository. Both raised PermissionError before reaching the verifier.",
+      "repair": "Make only the disposable fixture object writable and restore its original bytes and permissions in finally.",
+      "scientific_evidence_affected": false
+    }
+  ],
+  "independent_review": {
+    "reviewer": "independent finance_space agent",
+    "status": "COMPLETED_AFTER_CORRECTION",
+    "scope": "source identity and actual corrupt-object/NUL-name witnesses; not human peer review"
+  },
+  "real_artifact_audit": "audit-receipt.json",
+  "canonical_archive_sha256": "2e48c739df51acff2eea0c20974b57fc4d9306f5ef5959a2b382809abf800714",
+  "two_canonical_builds_byte_identical": true,
+  "source_files": 144,
+  "archive_members": 147,
+  "retained_invalid_witnesses": [
+    "INVALID-coherent-model.zip",
+    "INVALID-coherent-expected-results.zip"
+  ],
+  "bounded_distinct_cases": {
+    "automated_regression_cases": 27,
+    "independent_NUL_alias_case": 1,
+    "real_coherent_rewrite_cases": 2,
+    "total": 30
+  },
+  "training_runs": 0,
+  "protected_outcome_accesses": 0,
+  "protected_runs": 0,
+  "paid_compute": 0,
+  "unchanged_parent_bindings": {
+    "src/lam_jepa/model.py": "bd830bbfa4a19aec4a809faa1099c8162586737a8aa14fceb1d92097ba23359e",
+    "src/lam_jepa/eval/statistical_eval.py": "0f1dd936ce54d3831cddd6fb7e747fdc175343de843d0cc184b329c313044512",
+    "scripts/paper/build_aistats2027_anonymous_bundle.py": "7b9cbf4cef76afa2bcbde1e388bc8d8d0f522d802f3226803d4c49fdf8c71074",
+    "protocols/arc_challenge_v3.json": "3e6ef1b9847b67ea623b0a22e9193322fc099eb1ab349070370d7f845fc82ff7",
+    "data/manifests/arc_challenge.json": "3f58b3d134eca74b0cdd2ae6210463fd69d46739be918c4d4f12c69a543e7d01",
+    "FINAL_STATUS_2026-09-30.md": "7f9d24d56bb5a6261c921b7a596f0689c2cdf36d4611e097b304b50ebd3becbb",
+    "REPRODUCE.md": "e66ed9d21cda5d3207e6095720b4be34fc0031ae6b4c2cc0b4140b0a42fc00be",
+    "paper/README.md": "e7cf27bdd16a771bae500193491e5c3bf483f4dc41101871b19280c5b0e74743"
+  },
+  "scientific_disposition": "NEGATIVE, unchanged",
+  "scientific_checkpoint_change": "None",
+  "limitations": [
+    "Exact package-source identity is not independent scientific-result verification.",
+    "Anonymity, manuscript, licensing, authorship and venue approval remain separate release gates.",
+    "Both pinned Git revisions and required objects must be available locally; verification does not fetch them.",
+    "The retained ZIP container identity is bound to the exact checked snapshot; supported container formatting differences can preserve payload identity."
+  ],
+  "publication": {
+    "branch": "codex/lam-frozen-supplement-verification-20261010",
+    "target_branch": "codex/paired-statistical-report-20261010",
+    "merge_status": "NOT_MERGED",
+    "ci_policy": "Dedicated source-only test workflow on the stacked branch; scientific training and protected evaluation are not invoked.",
+    "pull_request": "https://github.com/vertex-studyAI/LAM-JEPA/pull/205",
+    "implementation_commit": "903a74d08c8e11b1f1dcbaadf4878fddbaf9a9dc",
+    "implementation_tree": "a538508f0f6d167f2e5de98f53774838c4c13ace",
+    "verified_leaf_entries": 682,
+    "tree_mismatches": 0,
+    "implementation_head_ci": [
+      {
+        "run_id": 38026186617,
+        "name": "Frozen supplement source identity",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 38026186487,
+        "name": "Research claim boundary",
+        "conclusion": "success"
+      }
+    ],
+    "metadata_note": "This follow-up commit records publication only; verifier, tests, workflow and retained artifacts match the implementation commit."
+  }
+}

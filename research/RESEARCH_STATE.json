@@ -1,23 +1,29 @@
 {
   "schema_version": 1,
-  "updated_on": "2026-10-11",
+  "updated_on": "2026-10-22",
   "purpose": "Canonical session entry point. Referenced historical records remain authoritative and are retained in their original versions.",
   "initialization_note": "Reconstructed from existing repository evidence after bounded defect discovery. This is not retrospective preregistration and makes no claim that a new scientific protocol was frozen before exploratory checks.",
   "session_rule": "Read this state and the applicable historical truth/protocol before work. Update actual decisions, evidence, failures and open gates before finishing. Append history; never erase adverse results.",
   "repository": "vertex-studyAI/LAM-JEPA",
-  "base_commit": "3a6462753de89b85d5867c8e67fa87fa1eb2b13d",
-  "development_branch": "codex/paired-statistical-report-20261010",
+  "base_commit": "7bce886de537186f0d71aab06cb4680419e4cce7",
+  "development_branch": "codex/lam-classification-v2-integration-20261011",
   "phase": "ENGINEERING_MAINTENANCE_OF_CLOSED_STUDY",
   "research_question": "Did the frozen LAM-JEPA configuration support architecture superiority or its preregistered planner and target-path mechanisms on ARC-Challenge?",
   "scientific_objective": "Preserve the completed negative study and maintain statistically coherent utilities for separately versioned future work.",
   "current_hypothesis": "The tested architecture-superiority and planner/target mechanism claims were not supported; the locked test cannot be used to rescue them.",
-  "intended_contribution_this_revision": "Correct the reusable paired report so its mean, confidence interval and randomization test concern the same A-minus-B estimand.",
+  "intended_contribution_this_revision": "Integrate reviewed inference, opt-in planner/statistical/classification/CKA utilities and frozen-artifact integrity work; preserve the closed negative study and all parent evidence.",
   "scope": {
     "code_paths": [
+      "src/lam_jepa/inference/_evaluation.py",
+      "src/lam_jepa/inference/explain.py",
+      "src/lam_jepa/inference/predict.py",
+      "src/lam_jepa/inference/rollout.py",
+      "src/lam_jepa/planner_v2.py",
       "src/lam_jepa/eval/statistical_eval.py",
-      "tests/unit/test_paired_statistical_report.py"
+      "src/lam_jepa/metrics/representation/cka.py",
+      "src/lam_jepa/eval/classification_v2.py"
     ],
-    "study_outcome": "No new study outcome produced"
+    "study_outcome": "No new study outcome produced; existing hosted bounded engineering fitting smokes remain separately scoped."
   },
   "historical_disposition": "Closed as a reproducible negative / failure-mechanism study; scope is the frozen tested configuration.",
   "terminal_research_disposition": "NEGATIVE",
@@ -84,6 +90,13 @@
       "raw_artifact": "research/verification/classification_v2_20261011/current_unit_acceptance_02.xml",
       "analysis": "Exact assertions and numerical tolerances specified in hashed tests",
       "figure_or_table": "No new scientific figure/table; development note reports engineering counts"
+    },
+    {
+      "claim": "Authenticate the complete frozen supplement against independently pinned Git commits, trees, source blobs and generated package literals.",
+      "evidence_scope": "Engineering source identity only",
+      "raw_artifact": "research/verification/frozen_supplement_source_20261010/audit-receipt.json",
+      "analysis": "Two genuine canonical builds, coherent model/result rewrite witnesses, raw Git object corruption regressions, and independent source review",
+      "figure_or_table": "Per-member hash records and test receipts; no new scientific figure"
     }
   ],
   "independent_review": {
@@ -140,37 +153,262 @@
       "historical_result": "NEGATIVE_CLOSED remains unchanged; ARC protected confirmatory test remains unopened; submission disposition is not advanced.",
       "scientific_checkpoint_change": "None",
       "next_action": "Review the optional utility and its current-source compatibility. Any future architecture claim requires a separately versioned successor hypothesis and protected protocol."
+    },
+    {
+      "date": "2026-10-22",
+      "type": "GITHUB_ENGINEERING_INTEGRATION",
+      "prs": [
+        191,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206
+      ],
+      "parents": [
+        "248a6e23f4edc085b0e21627922466502d87064b",
+        "ac7cb843d4772a5d845756cdd4ae40fc9bf0aad6",
+        "328d33f5d2e49a72ebdaf042cec318798c606563",
+        "c62713762ea4797f26fc5e2b1a8fc9c69fb4e23b",
+        "a0ed9e1877321057076299b99a37def67cb9dde2",
+        "5507a426ab91cadbd40ebcd0bcbe30b591a26b1f",
+        "1c24ef69b18d7f6bec56b607b9ad5a45dcf67e1d",
+        "7bce886de537186f0d71aab06cb4680419e4cce7"
+      ],
+      "record": "research/GITHUB_INTEGRATION_REVIEW_20261022.json",
+      "contract": "research/GITHUB_INTEGRATION_CONTRACT_20261022.md",
+      "baseline": "One constructed near-tie regression fails unchanged predict: class0 versus logits/explanation class1.",
+      "correction": "Select logits argmax in predict; retain identical probabilities and model training modes.",
+      "local_acceptance": "191 affected unit/planner cases passed in4.81s. Baseline1expected failure in1.15s retained.",
+      "hosted_acceptance": "Pending after publication; exact combined-head checks required before merge.",
+      "scientific_checkpoint_change": "None; NEGATIVE_CLOSED and unopened ARC confirmatory test retained."
     }
   ],
   "current_maintenance_revision": {
-    "id": "lam.classification-summary.v2/near-tie-20261011",
-    "source_anchor": "08010fb91df08f480e860029b9454ffc551cd132",
-    "intended_contribution": "Admit the existing opt-in sample-weighted classification evaluator against the actual current package, preserving represented-logit winners under rounded probabilities.",
-    "scope": [
-      "src/lam_jepa/eval/classification_v2.py",
-      "tests/unit/test_classification_v2.py",
-      "tests/unit/test_classification_v2_model_integration.py"
-    ],
-    "development_note": "research/DEVELOPMENT_CLASSIFICATION_V2_20261011.md",
-    "verification_directory": "research/verification/classification_v2_20261011",
-    "independent_review": {
-      "status": "PASS_NO_SCOPED_BLOCKER",
-      "receipt": "research/verification/classification_v2_20261011/independent_review.json",
-      "workflow_status": "PASS_STACKED_DRAFT_WORKFLOW_BOUNDARY",
-      "workflow_receipt": "research/verification/classification_v2_20261011/independent_workflow_review.json",
-      "scope": "Independent source and retained acceptance review, with separate immutable workflow-boundary review; no independent test rerun or scientific efficacy claim."
-    },
+    "id": "lam.github-integration.20261022",
+    "source_anchor": "7bce886de537186f0d71aab06cb4680419e4cce7",
+    "intended_contribution": "Integrate reviewed inference, opt-in planner/statistical/classification/CKA utilities and frozen-artifact integrity work; preserve the closed negative study and all parent evidence.",
+    "record": "research/GITHUB_INTEGRATION_REVIEW_20261022.json",
     "budget": {
+      "new_constructed_cases": 1,
+      "local_suite_commands": 2,
       "numeric_threads": 1,
-      "per_suite_wall_limit_seconds": 180,
-      "model_fits": 0,
+      "local_model_fits": 0,
       "paid_compute": 0,
       "protected_outcome_accesses": 0
     },
     "gates": {
-      "code_acceptance": "89 unit tests passed",
+      "local_affected_code_acceptance": "191passed",
+      "hosted_combined_head": "REQUIRED_PENDING",
       "scientific_checkpoint_advance": false,
       "scientific_outcome": "NEGATIVE_CLOSED_UNCHANGED"
     }
-  }
+  },
+  "maintenance_updates": [
+    {
+      "id": "cka_scale_20261010",
+      "date": "2026-10-10",
+      "phase": "PROSPECTIVE_ENGINEERING_REPAIR_VERIFIED",
+      "parent_commit": "d40a4c4a3a9490a252265b1c54229506dd6a7b3a",
+      "development_branch": "codex/cka-scale-invariance-20261010",
+      "dependent_pr": 203,
+      "contribution": "Scale-invariant finite linear CKA with explicit undefined-input errors",
+      "code_paths": [
+        "src/lam_jepa/metrics/representation/cka.py",
+        "tests/unit/test_linear_cka_contract.py"
+      ],
+      "development_note": "research/DEVELOPMENT_CKA_SCALE_20261010.md",
+      "verification_receipt": "research/verification/cka_scale_20261010/receipt.json",
+      "baseline_regressions": {
+        "failed": 27,
+        "passed": 4
+      },
+      "verified_tests": {
+        "passed": 31,
+        "failed": 0,
+        "skipped": 0
+      },
+      "scientific_checkpoint_change": "None; prior hypotheses, frozen evidence, outcomes and execution gates remain unchanged.",
+      "independent_review": "Not claimed for this revision; earlier top-level review concerns the previous maintenance entry only.",
+      "limits": "CPU-only artificial fixtures. No training, scientific dataset, protected outcomes, paid compute, or efficacy claim. Explicit error behavior requires compatibility review.",
+      "next_action": "Review the prospective numerical contract and stacked dependency; do not merge or advance a scientific gate based on these tests alone."
+    }
+  ],
+  "latest_maintenance_update_id": "cka_scale_20261010",
+  "maintenance_metadata_integrations": [
+    {
+      "date": "2026-10-10",
+      "kind": "state_integration",
+      "implementation_parent": "13772341f8bb462c1cea0bcb558e09283ad53fff",
+      "canonical_parent": "08010fb91df08f480e860029b9454ffc551cd132",
+      "record": "research/DEVELOPMENT_CKA_SCALE_20261010.md",
+      "status": "Both parent state records retained without replacing any prior field; implementation/test/failure blobs unchanged; existing draft #204 awaits integration.",
+      "scientific_outcomes_created": false
+    },
+    {
+      "date": "2026-10-10",
+      "kind": "canonical_dependency_reconciliation",
+      "supplement_parent": "c7ee6e8a08aedfb26d1471f8b929151b8d94bfd8",
+      "canonical_parent": "08010fb91df08f480e860029b9454ffc551cd132",
+      "preserved_canonical_delta": "session_history links opt-in planner PR202 and its closed-study boundary",
+      "source_and_test_changes": 0,
+      "scientific_runs": 0,
+      "protected_outcomes": 0,
+      "verification": "All original supplement state values retained; all canonical delta values retained; all 681 other parent files/modes unchanged.",
+      "scientific_disposition": "NEGATIVE unchanged; protected ARC confirmation unopened",
+      "next_action": "Review existing supplement draft with current canonical parent; no PR merge or new scientific checkpoint."
+    }
+  ],
+  "engineering_sessions": [
+    {
+      "id": "frozen_supplement_source_20261010",
+      "status": "PUBLISHED_REVIEWED_ENGINEERING_DRAFT",
+      "started_at_utc": "2026-10-10T04:47:04Z",
+      "authorization": "Renewed attached individual research project pipeline instruction, 2026-10-10",
+      "parent_commit": "d40a4c4a3a9490a252265b1c54229506dd6a7b3a",
+      "branch": "codex/lam-frozen-supplement-verification-20261010",
+      "contract": "research/FROZEN_SUPPLEMENT_SOURCE_CONTRACT_20261010.md",
+      "observation": "An internal checksum manifest cannot independently establish identity to the frozen scientific source.",
+      "proposed_change": "Compare the complete supplement to scientific Git revision 760aa7f9a73a177d5ff4ba7eb470f7e68ace63cb and package literals at producer revision 328d33f5d2e49a72ebdaf042cec318798c606563.",
+      "budget": {
+        "maximum_crafted_cases": 30,
+        "maximum_canonical_builds": 2,
+        "maximum_cpu_minutes": 10,
+        "new_training_runs": 0,
+        "protected_runs": 0,
+        "protected_outcome_accesses": 0,
+        "paid_compute": 0
+      },
+      "scientific_disposition": "NEGATIVE, unchanged",
+      "concurrent_work_preserved": "PR #200 owns supplement anonymity and structure hardening; this change adds external source identity verification.",
+      "results": {
+        "receipt": "research/verification/frozen_supplement_source_20261010/receipt.json",
+        "tests_passed": 34,
+        "new_regression_cases": 27,
+        "canonical_builds": 2,
+        "canonical_builds_byte_identical": true,
+        "source_files": 144,
+        "archive_members": 147,
+        "coherent_rewrites_rejected": 2,
+        "independent_review": "Completed after raw Git object authenticity repair",
+        "new_training_runs": 0,
+        "protected_outcome_accesses": 0,
+        "paid_compute": 0
+      },
+      "completed_at_utc": "2026-10-10T05:00:20.257236+00:00",
+      "decisions": [
+        {
+          "observation": "A coherently rewritten loose Git object and archive passed the first implementation because git cat-file reports the requested object ID without rehashing its bytes.",
+          "cause": "The first implementation trusted Git object names and ls-tree path output.",
+          "change": "Authenticate both pinned commits, every traversed raw tree, and every selected blob with its Git header and bytes before using it.",
+          "predicted_consequence": "Corruption under a preexisting Git object name cannot authenticate a matching rewritten archive.",
+          "discriminating_experiment": "Changed blob and intermediate tree in isolated disposable Git repositories, with matching changed archive and recomputed internal checksums.",
+          "result": "Both corruption cases are rejected in the final 34-test gate."
+        },
+        {
+          "observation": "The pinned PR #200 producer accepts coherently changed planner defaults and expected accuracy declarations after their internal manifest is recomputed.",
+          "change": "Compare all payloads to authenticated frozen source and generated documents before checking the internal manifest.",
+          "result": "Two genuine builds share the same ZIP hash; both altered archives are rejected at their changed member."
+        }
+      ],
+      "failures_preserved": [
+        {
+          "kind": "INDEPENDENT_REVIEW_VALIDITY_DEFECT",
+          "observation": "A coherently rewritten loose Git object and archive passed the first implementation because git cat-file reports the requested object ID without rehashing its bytes.",
+          "fixture_requested_blob": "95cd69154344ef8570ea95a228419bc85e3c7443",
+          "fixture_effective_changed_blob": "f3aa0a06b6bdf6d6dfc548cb012f9ae1dd3ed582",
+          "cause": "The first implementation trusted Git object names and ls-tree path output.",
+          "repair": "Authenticate both pinned commits, every traversed raw tree, and every selected blob with its Git header and bytes before using it.",
+          "evidence": "test_corrupt_git_object_cannot_authenticate_a_coherently_changed_archive[blob/tree]"
+        },
+        {
+          "kind": "ENGINEERING_TEST_FIXTURE_FAILURE",
+          "failed_tests": 2,
+          "passed_tests": 32,
+          "wall_seconds_reported_by_pytest": 17.8,
+          "cause": "The initial corruption tests attempted to write a read-only loose object in a disposable test repository. Both raised PermissionError before reaching the verifier.",
+          "repair": "Make only the disposable fixture object writable and restore its original bytes and permissions in finally.",
+          "scientific_evidence_affected": false
+        }
+      ],
+      "publication": {
+        "branch": "codex/lam-frozen-supplement-verification-20261010",
+        "target_branch": "codex/paired-statistical-report-20261010",
+        "merge_status": "NOT_MERGED",
+        "ci_policy": "Dedicated source-only test workflow on the stacked branch; scientific training and protected evaluation are not invoked.",
+        "pull_request": "https://github.com/vertex-studyAI/LAM-JEPA/pull/205",
+        "implementation_commit": "903a74d08c8e11b1f1dcbaadf4878fddbaf9a9dc",
+        "implementation_tree": "a538508f0f6d167f2e5de98f53774838c4c13ace",
+        "verified_leaf_entries": 682,
+        "tree_mismatches": 0,
+        "implementation_head_ci": [
+          {
+            "run_id": 38026186617,
+            "name": "Frozen supplement source identity",
+            "conclusion": "success"
+          },
+          {
+            "run_id": 38026186487,
+            "name": "Research claim boundary",
+            "conclusion": "success"
+          }
+        ],
+        "metadata_note": "This follow-up commit records publication only; verifier, tests, workflow and retained artifacts match the implementation commit."
+      },
+      "remaining_gates": [
+        "Separate PR #200 anonymity and structure check",
+        "Manuscript, authorship, licensing and venue review",
+        "Any new scientific mechanism requires a successor hypothesis and protocol"
+      ],
+      "status_history": [
+        {
+          "status": "CONTRACT_RECORDED_BEFORE_IMPLEMENTATION",
+          "at_utc": "2026-10-10T04:47:04Z"
+        },
+        {
+          "status": "IMPLEMENTED_VERIFIED_READY_FOR_SEPARATE_DRAFT_PR",
+          "at_utc": "2026-10-10T05:00:20.257236+00:00"
+        },
+        {
+          "status": "PUBLISHED_REVIEWED_ENGINEERING_DRAFT",
+          "at_utc": "2026-10-10T05:04:09.168386+00:00"
+        }
+      ]
+    }
+  ],
+  "active_engineering_session": "lam.github-integration.20261022",
+  "archived_engineering_summaries": [
+    {
+      "base_commit": "3a6462753de89b85d5867c8e67fa87fa1eb2b13d",
+      "development_branch": "codex/paired-statistical-report-20261010",
+      "intended_contribution_this_revision": "Correct the reusable paired report so its mean, confidence interval and randomization test concern the same A-minus-B estimand.",
+      "scope": {
+        "code_paths": [
+          "src/lam_jepa/eval/statistical_eval.py",
+          "tests/unit/test_paired_statistical_report.py"
+        ],
+        "study_outcome": "No new study outcome produced"
+      }
+    }
+  ],
+  "integrated_parent_states": [
+    {
+      "pr": 203,
+      "path": "research/integration_20261022/parent_PR203_RESEARCH_STATE.json"
+    },
+    {
+      "pr": 204,
+      "path": "research/integration_20261022/parent_PR204_RESEARCH_STATE.json"
+    },
+    {
+      "pr": 205,
+      "path": "research/integration_20261022/parent_PR205_RESEARCH_STATE.json"
+    },
+    {
+      "pr": 206,
+      "path": "research/integration_20261022/parent_PR206_RESEARCH_STATE.json"
+    }
+  ]
 }

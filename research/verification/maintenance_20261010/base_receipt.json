@@ -1,0 +1,7 @@
+{
+  "source": "src/lam_jepa/planner_v2.py",
+  "tests": "tests/test_planner_v2_extreme_states.py",
+  "scope": "CONSTRUCTED_REGRESSIONS_ONLY",
+  "exit_code": 1,
+  "summary": "4 failed, 2 passed in 11.33s"
+}

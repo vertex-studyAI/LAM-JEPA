@@ -1,0 +1,39 @@
+{
+  "schema": "research.engineering-verification.v1",
+  "date": "2026-10-10",
+  "repository": "vertex-studyAI/LAM-JEPA",
+  "parent_commit": "05ec9a9c0dc69a8f7aee9e837bcb6e95a4bfec11",
+  "implementation_revision": "lam.beam-planner-v2.norm-penalty.1",
+  "scope": "all opt-in planner-v2 tests",
+  "status": "PASSED",
+  "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 python -m pytest -o addopts='' -q tests/test_planner_v2.py tests/test_planner_v2_extreme_states.py",
+  "passed": 20,
+  "new_cases": 6,
+  "seconds": 18.38,
+  "environment": {
+    "python": "3.12.14",
+    "torch": "2.14.1+cpu",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "pytest": "9.1.1",
+    "device": "CPU",
+    "threads_per_test_process": 1
+  },
+  "source_sha256": {
+    "src/lam_jepa/planner_v2.py": "823b9eed2fa7b75ceeea970ccc87b38fbfbce9f712ab3147dbb37d45597c34be",
+    "tests/test_planner_v2_extreme_states.py": "b6db0abb27dc7555695503c9ab4097c930536e92329727a82c9a8c7c41893eb4"
+  },
+  "protected_outcomes_accessed": false,
+  "new_scientific_trials": 0,
+  "provider_calls": 0,
+  "paid_compute": 0,
+  "hosted_ci": "Not a hosted-CI result; verify the exact published head separately.",
+  "independent_review": "PASS: independent root reviewed final NPMS, GaussianMemory, CMU, DRPT, RIPII and LAM source; requested seed/replay and byte-binding corrections are implemented and verified.",
+  "limitations": [
+    "This changes only opt-in planner_v2; frozen planner.py and the closed ARC source/evidence stay unchanged.",
+    "Genuinely unrepresentable states/scores still fail; the penalty computation does not guarantee all model internals remain finite.",
+    "Floating-point operation grouping can differ at roundoff; no planning capability, ARC superiority or universal numerical guarantee is claimed.",
+    "The canonical closed-study disposition in FINAL_STATUS_2026-09-30.md remains NEGATIVE; the locked confirmatory ARC test stays unopened.",
+    "PR #203 separately introduces the repository canonical index; this branch extends its existing planner contract without creating a competing state file."
+  ]
+}
