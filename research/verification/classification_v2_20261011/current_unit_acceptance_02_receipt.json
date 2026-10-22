@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/workspace/scratch/b44aa5e56ef8/repo_execution/fim_runtime/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit",
+    "-q",
+    "--maxfail=1",
+    "-p",
+    "no:cacheprovider",
+    "-W",
+    "error",
+    "--junitxml",
+    "/workspace/scratch/b44aa5e56ef8/lam_execution/candidate/research/verification/classification_v2_20261011/current_unit_acceptance_02.xml",
+    "--basetemp",
+    "/workspace/scratch/b44aa5e56ef8/lam_execution/candidate/research/verification/classification_v2_20261011/unit_fixtures_02"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 2.8828484790010407,
+  "child_CPU_seconds": 2.877995,
+  "observed_child_peak_RSS_KiB": 317260,
+  "candidate_module_sha256": "25a4e236033ffc12d9e2bb9b8293b97036a8177d16f90fa389adef198bb5c927",
+  "integration_tests_sha256": "8b1ce152868bfaf21f734a1b5a37ff01d11a9085de7b0b3582b22588d06aaae2",
+  "source_anchor": "vertex-studyAI/LAM-JEPA@08010fb91df08f480e860029b9454ffc551cd132",
+  "scope": "Every authenticated upstream unit test plus the preserved additive classification tests and three actual-model integration checks.",
+  "scientific_data": "None; generated tensors and analytic statistical arrays only.",
+  "protected_outcomes_accessed": false,
+  "model_training_runs": 0,
+  "scientific_status_unchanged": "NEGATIVE_CLOSED"
+}

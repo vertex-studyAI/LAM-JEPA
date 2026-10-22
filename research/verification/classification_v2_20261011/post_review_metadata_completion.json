@@ -1,0 +1,10 @@
+{
+  "before_canonical_sha256": "5a0ad2c85b02ec18feb66a23ebc3de4b82f95387c87d8c303be32ad95a60c14f",
+  "after_canonical_sha256": "44f9c72d7384fbce0c2edfdc04fca9704943d01a649722d18deb7a2e576f9613",
+  "changed_json_fields": [
+    "current_maintenance_revision.independent_review"
+  ],
+  "purpose": "Replace pending review status with actual scoped source and workflow review receipt references. No runtime/test/history/scientific boundary change.",
+  "source_review_sha256": "f3b6c63033d0a319159381bbd3b2f7f18d7c6341bf91cd923dfd55373d6f3cb8",
+  "workflow_review_sha256": "afd380e5a77c050eb630de4d74f204533c9cc01a5bfa9f44ca9b210a8dcb70db"
+}

@@ -1,0 +1,14 @@
+{
+  "stage": "PRESENTATION_DRAFT_PREPARED_NOT_SUBMITTED",
+  "abstract_words": 250,
+  "pages": 1,
+  "source_files_verified": 3,
+  "input_commit": "c6ee9d1dcfdf6bc9efbde61877cc300528964e73",
+  "poster_sha256": "3dc7d68692cd2d1380ca9b89b81f3db33b02497036aa8de840168f25f9a377f2",
+  "claim_data_sha256": "f4651184b68b5766338d26c23ec0b1158607ab29d3317c1bda71e9dd43a4e18e",
+  "minimum_body_y": 138.68,
+  "source_replayed": false,
+  "new_outcome_runs": 0,
+  "author_review_complete": false,
+  "whole_project_complete": false
+}

@@ -1,0 +1,45 @@
+{
+  "source_repository": "vertex-studyAI/LAM-JEPA",
+  "source_parent": "08010fb91df08f480e860029b9454ffc551cd132",
+  "retrieved_files_authenticated": 143,
+  "retrieval_scope": "All Python source and unit tests plus relevant metadata; this local materialization is not the full repository tree.",
+  "retrieved_existing_files_changed": [
+    "research/RESEARCH_STATE.json"
+  ],
+  "every_upstream_Python_source_and_test_byte_preserved": true,
+  "private_repaired_module_and_tests_byte_preserved": true,
+  "tests_junit_counts": {
+    "tests": 89,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "test_module_counts": {
+    "tests.unit.test_arc_v5_quantizer_repair": 3,
+    "tests.unit.test_classification_v2": 52,
+    "tests.unit.test_classification_v2_model_integration": 3,
+    "tests.unit.test_dataset": 1,
+    "tests.unit.test_losses": 1,
+    "tests.unit.test_model": 2,
+    "tests.unit.test_paired_statistical_report": 27
+  },
+  "runtime_test_hashes": {
+    "src/lam_jepa/eval/classification_v2.py": "25a4e236033ffc12d9e2bb9b8293b97036a8177d16f90fa389adef198bb5c927",
+    "tests/unit/test_classification_v2.py": "02ac9e48ea5b171ae26d3daca5a0292322d36a99e76e4f020cb6f9a80a5e6109",
+    "tests/unit/test_classification_v2_model_integration.py": "8b1ce152868bfaf21f734a1b5a37ff01d11a9085de7b0b3582b22588d06aaae2"
+  },
+  "protected_outcomes_accessed": false,
+  "model_fits": 0,
+  "lineage": {
+    "input_package": "LAM_Classification_NearTie_Private_20261010.zip",
+    "sha256": "627a87141758eb5c6fbcfe8e2bdb5396a847eca6be542914eb243ba7b984c024"
+  },
+  "failure_retention": [
+    "near_tie_baseline_witness.log",
+    "near_tie_baseline_witness_receipt.json",
+    "current_unit_acceptance.log",
+    "current_unit_acceptance.xml",
+    "current_unit_acceptance_receipt.json"
+  ],
+  "historical_state_preserved": "predecessor_RESEARCH_STATE.json"
+}

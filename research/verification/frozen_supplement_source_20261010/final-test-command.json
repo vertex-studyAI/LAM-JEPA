@@ -1,0 +1,20 @@
+{
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-W",
+    "error",
+    "tests/test_frozen_supplement_source.py",
+    "tests/test_release_artifact_boundary.py",
+    "tests/test_research_claim_boundary.py"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 2.9300629979989026,
+  "child_cpu_seconds": 2.911693,
+  "source_sha256": {
+    "scripts/paper/verify_frozen_supplement.py": "f44fc3d2123b3533dbcaaf2fc6c1a01d069ab1ea0993f88a1692ab461d46a120",
+    "tests/test_frozen_supplement_source.py": "2a8aa08c9182128a1445d21fd0bdbe731de8e7afeec024f1fdd53701b6b377ce"
+  }
+}

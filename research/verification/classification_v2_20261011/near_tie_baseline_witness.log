@@ -1,0 +1,27 @@
+F
+=================================== FAILURES ===================================
+_ test_distinct_near_tie_logits_keep_their_class_when_probabilities_round_equal _
+
+    def test_distinct_near_tie_logits_keep_their_class_when_probabilities_round_equal():
+        # Binary64 can represent this positive gap between logits, while the
+        # subtraction of log(2) in log_softmax loses it. This fixture must expose
+        # the rounded probability tie rather than silently testing an ordinary gap.
+        gap = 2.0 ** -60
+        logits = torch.tensor([[0.0, gap], [gap, 0.0]], dtype=torch.float64)
+        labels = torch.tensor([1, 0], dtype=torch.int64)
+        probabilities = torch.log_softmax(logits, dim=1).exp()
+        assert torch.all(logits[:, 0] != logits[:, 1])
+        assert torch.equal(logits.argmax(dim=1), labels)
+        assert torch.equal(probabilities[:, 0], probabilities[:, 1])
+        assert torch.equal(probabilities.argmax(dim=1), torch.zeros(2, dtype=torch.int64))
+    
+        out = summary(logits, labels, n_bins=2)
+        assert out['examples'] == 2
+>       assert out['accuracy'] == 1.0
+E       assert 0.5 == 1.0
+
+tests/unit/test_classification_v2.py:220: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_classification_v2.py::test_distinct_near_tie_logits_keep_their_class_when_probabilities_round_equal
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 51 deselected in 1.04s

@@ -1,0 +1,24 @@
+{
+  "id": "LAM-CLASSIFICATION-V2-INTEGRATION-20261011",
+  "base_repository": "vertex-studyAI/LAM-JEPA",
+  "base_PR": 203,
+  "base_head": "08010fb91df08f480e860029b9454ffc551cd132",
+  "objective": "Admit the existing additive near-tie evaluator against actual current package source; do not invent a new model or reproduce closed scientific outcomes.",
+  "scope": [
+    "Reproduce original additive scorer near-tie failure on generated float64 tensor.",
+    "Run preserved private evaluator tests and all current unit tests on the actual authenticated source tree.",
+    "Add three actual-model integration and rejection tests; inspect independent evidence before draft completion."
+  ],
+  "source_rule": "All upstream Python source and unit tests preserved exactly; the new opt-in module and its tests are additive.",
+  "execution": {
+    "CPU_only": true,
+    "numeric_threads": 1,
+    "wall_timeout_seconds_per_collection": 180,
+    "market_or_ARC_dataset_access": false,
+    "protected_outcomes": false,
+    "training_runs": 0,
+    "paid_compute": 0,
+    "public_publish": false
+  },
+  "historical_study": "NEGATIVE, CLOSED; protected ARC confirmatory test must remain unopened."
+}

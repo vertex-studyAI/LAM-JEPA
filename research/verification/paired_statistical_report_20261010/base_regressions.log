@@ -1,0 +1,233 @@
+FFF..FFFFFFFFFFFF..FFFFFFFF                                              [100%]
+=================================== FAILURES ===================================
+_______ test_report_interval_is_for_the_same_paired_estimand_as_its_test _______
+tests/unit/test_paired_statistical_report.py:17: in test_report_interval_is_for_the_same_paired_estimand_as_its_test
+    assert report.mean == pytest.approx(1.0)
+E   assert 101.0 == 1.0 ± 1.0e-06
+E     
+E     comparison failed
+E     Obtained: 101.0
+E     Expected: 1.0 ± 1.0e-06
+_________ test_common_offset_changes_neither_paired_interval_nor_test __________
+tests/unit/test_paired_statistical_report.py:29: in test_common_offset_changes_neither_paired_interval_nor_test
+    assert (before.mean, before.ci_low, before.ci_high, before.p_value) == pytest.approx(
+E   assert (3.25, 1.5, 5...8250174982501) == approx((1003....01 ± 7.5e-07))
+E     
+E     comparison failed. Mismatched elements: 3 / 4:
+E     Max absolute difference: 1000.0
+E     Max relative difference: 666.6666666666666
+E     Index | Obtained | Expected            
+E     0     | 3.25     | 1003.25 ± 0.00100325
+E     1     | 1.5      | 1001.5 ± 0.0010015  
+E     2     | 5.75     | 1005.75 ± 0.00100575
+_____________ test_sign_flip_p_value_is_invariant_to_units[1e-20] ______________
+tests/unit/test_paired_statistical_report.py:38: in test_sign_flip_p_value_is_invariant_to_units
+    assert paired_permutation_test(scale * a, scale * b, 1000, 31) == paired_permutation_test(a, b, 1000, 31)
+E   assert 1.0 == 0.061938061938061936
+E    +  where 1.0 = paired_permutation_test((1e-20 * array([1., 2., 4., 8., 3.])), (1e-20 * array([0., 0., 0., 0., 0.])), 1000, 31)
+E    +  and   0.061938061938061936 = paired_permutation_test(array([1., 2., 4., 8., 3.]), array([0., 0., 0., 0., 0.]), 1000, 31)
+___ test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null[a0-b0] ____
+tests/unit/test_paired_statistical_report.py:52: in test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError
+___ test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null[a1-b1] ____
+tests/unit/test_paired_statistical_report.py:52: in test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError
+___ test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null[a2-b2] ____
+tests/unit/test_paired_statistical_report.py:52: in test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError
+___ test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null[a3-b3] ____
+tests/unit/test_paired_statistical_report.py:52: in test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError
+___ test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null[a4-b4] ____
+tests/unit/test_paired_statistical_report.py:52: in test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError
+_______________ test_resampling_counts_are_positive_integers[0] ________________
+tests/unit/test_paired_statistical_report.py:59: in test_resampling_counts_are_positive_integers
+    bootstrap_ci([1, 2], num_bootstrap=count)
+../../paired_statistical_report_base_source.py:30: in bootstrap_ci
+    low = float(np.quantile(stats, alpha))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py:4556: in quantile
+    return _quantile_unchecked(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py:4569: in _quantile_unchecked
+    return _ureduce(a,
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py:3914: in _ureduce
+    r = func(a, **kwargs)
+        ^^^^^^^^^^^^^^^^^
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py:4744: in _quantile_ureduce_func
+    result = _quantile(arr,
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py:4866: in _quantile
+    slices_having_nans = np.isnan(arr[-1, ...])
+                                  ^^^^^^^^^^^^
+E   IndexError: index -1 is out of bounds for axis 0 with size 0
+_______________ test_resampling_counts_are_positive_integers[-1] _______________
+tests/unit/test_paired_statistical_report.py:59: in test_resampling_counts_are_positive_integers
+    bootstrap_ci([1, 2], num_bootstrap=count)
+../../paired_statistical_report_base_source.py:30: in bootstrap_ci
+    low = float(np.quantile(stats, alpha))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py:4556: in quantile
+    return _quantile_unchecked(
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py:4569: in _quantile_unchecked
+    return _ureduce(a,
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py:3914: in _ureduce
+    r = func(a, **kwargs)
+        ^^^^^^^^^^^^^^^^^
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py:4744: in _quantile_ureduce_func
+    result = _quantile(arr,
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py:4866: in _quantile
+    slices_having_nans = np.isnan(arr[-1, ...])
+                                  ^^^^^^^^^^^^
+E   IndexError: index -1 is out of bounds for axis 0 with size 0
+______________ test_resampling_counts_are_positive_integers[True] ______________
+tests/unit/test_paired_statistical_report.py:58: in test_resampling_counts_are_positive_integers
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError
+______________ test_resampling_counts_are_positive_integers[1.5] _______________
+tests/unit/test_paired_statistical_report.py:59: in test_resampling_counts_are_positive_integers
+    bootstrap_ci([1, 2], num_bootstrap=count)
+../../paired_statistical_report_base_source.py:26: in bootstrap_ci
+    for _ in range(num_bootstrap):
+             ^^^^^^^^^^^^^^^^^^^^
+E   TypeError: 'float' object cannot be interpreted as an integer
+_____________ test_confidence_is_a_finite_interior_probability[0] ______________
+tests/unit/test_paired_statistical_report.py:66: in test_confidence_is_a_finite_interior_probability
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError
+_____________ test_confidence_is_a_finite_interior_probability[1] ______________
+tests/unit/test_paired_statistical_report.py:66: in test_confidence_is_a_finite_interior_probability
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError
+____________ test_confidence_is_a_finite_interior_probability[-0.1] ____________
+tests/unit/test_paired_statistical_report.py:66: in test_confidence_is_a_finite_interior_probability
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError
+____________ test_confidence_is_a_finite_interior_probability[True] ____________
+tests/unit/test_paired_statistical_report.py:66: in test_confidence_is_a_finite_interior_probability
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError
+_______ test_empty_seed_series_is_missing_evidence_not_zero_performance ________
+tests/unit/test_paired_statistical_report.py:71: in test_empty_seed_series_is_missing_evidence_not_zero_performance
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError
+________________ test_undefined_standardized_effect_is_explicit ________________
+tests/unit/test_paired_statistical_report.py:76: in test_undefined_standardized_effect_is_explicit
+    assert cohens_d([2, 2], [1, 1]) is None
+E   assert 10000.0 is None
+E    +  where 10000.0 = cohens_d([2, 2], [1, 1])
+_____________ test_report_requires_more_than_one_independent_pair ______________
+tests/unit/test_paired_statistical_report.py:83: in test_report_requires_more_than_one_independent_pair
+    with pytest.raises(ValueError, match="two"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError
+__________ test_finite_large_comparison_does_not_overflow_reductions ___________
+tests/unit/test_paired_statistical_report.py:89: in test_finite_large_comparison_does_not_overflow_reductions
+    assert (report.mean, report.ci_low, report.ci_high, report.mean_a) == (1e308,) * 4
+                                                        ^^^^^^^^^^^^^
+E   AttributeError: 'SignificanceResult' object has no attribute 'mean_a'. Did you mean: 'mean'?
+_______ test_bootstrap_handles_extreme_opposite_values_without_overflow ________
+tests/unit/test_paired_statistical_report.py:97: in test_bootstrap_handles_extreme_opposite_values_without_overflow
+    assert bootstrap_ci([-maximum, maximum], 500) == (-maximum, maximum)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../paired_statistical_report_base_source.py:28: in bootstrap_ci
+    stats.append(float(sample.mean()))
+                       ^^^^^^^^^^^^^
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/_core/_methods.py:134: in _mean
+    ret = umr_sum(arr, axis, dtype, out, keepdims, where=where)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FloatingPointError: overflow encountered in reduce
+_____________ test_seed_summary_scales_mean_and_standard_deviation _____________
+tests/unit/test_paired_statistical_report.py:102: in test_seed_summary_scales_mean_and_standard_deviation
+    assert result == {"mean": 1e308, "std": 0.0, "ci_low": 1e308, "ci_high": 1e308, "n": 2}
+E   AssertionError: assert {'mean': inf,...gh': nan, ...} == {'mean': 1e+3...: 1e+308, ...}
+E     
+E     Omitting 1 identical items, use -vv to show
+E     Differing items:
+E     {'ci_high': nan} != {'ci_high': 1e+308}
+E     {'std': inf} != {'std': 0.0}
+E     {'mean': inf} != {'mean': 1e+308}
+E     {'ci_low': nan} != {'ci_low': 1e+308}
+E     Use -v to get more diff
+__________ test_unrepresentable_sample_standard_deviation_is_rejected __________
+tests/unit/test_paired_statistical_report.py:107: in test_unrepresentable_sample_standard_deviation_is_rejected
+    with pytest.raises(ValueError, match="standard deviation"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE ValueError
+=============================== warnings summary ===============================
+tests/unit/test_paired_statistical_report.py::test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null[a1-b1]
+tests/unit/test_paired_statistical_report.py::test_report_requires_more_than_one_independent_pair
+  /workspace/scratch/2a0c1e6ddd92/paired_statistical_report_base_source.py:59: RuntimeWarning: Degrees of freedom <= 0 for slice
+    pooled = math.sqrt(((a.var(ddof=1) + b.var(ddof=1)) / 2.0).clip(min=1e-8))
+
+tests/unit/test_paired_statistical_report.py::test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null[a1-b1]
+tests/unit/test_paired_statistical_report.py::test_report_requires_more_than_one_independent_pair
+  /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/_core/_methods.py:214: RuntimeWarning: invalid value encountered in scalar divide
+    ret = ret.dtype.type(ret / rcount)
+
+tests/unit/test_paired_statistical_report.py::test_finite_large_comparison_does_not_overflow_reductions
+tests/unit/test_paired_statistical_report.py::test_seed_summary_scales_mean_and_standard_deviation
+tests/unit/test_paired_statistical_report.py::test_unrepresentable_sample_standard_deviation_is_rejected
+  /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/_core/_methods.py:134: RuntimeWarning: overflow encountered in reduce
+    ret = umr_sum(arr, axis, dtype, out, keepdims, where=where)
+
+tests/unit/test_paired_statistical_report.py::test_finite_large_comparison_does_not_overflow_reductions
+tests/unit/test_paired_statistical_report.py::test_seed_summary_scales_mean_and_standard_deviation
+tests/unit/test_paired_statistical_report.py::test_unrepresentable_sample_standard_deviation_is_rejected
+  /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py:4671: RuntimeWarning: invalid value encountered in subtract
+    diff_b_a = subtract(b, a)
+
+tests/unit/test_paired_statistical_report.py::test_finite_large_comparison_does_not_overflow_reductions
+tests/unit/test_paired_statistical_report.py::test_seed_summary_scales_mean_and_standard_deviation
+  /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/_core/_methods.py:170: RuntimeWarning: overflow encountered in reduce
+    arrmean = umr_sum(arr, axis, dtype, keepdims=True, where=where)
+
+tests/unit/test_paired_statistical_report.py::test_finite_large_comparison_does_not_overflow_reductions
+  /workspace/scratch/2a0c1e6ddd92/paired_statistical_report_base_source.py:60: RuntimeWarning: invalid value encountered in scalar divide
+    return float((a.mean() - b.mean()) / pooled)
+
+tests/unit/test_paired_statistical_report.py::test_unrepresentable_sample_standard_deviation_is_rejected
+  /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/numpy/_core/_methods.py:193: RuntimeWarning: overflow encountered in multiply
+    x = um.multiply(x, x, out=x)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_paired_statistical_report.py::test_report_interval_is_for_the_same_paired_estimand_as_its_test
+FAILED tests/unit/test_paired_statistical_report.py::test_common_offset_changes_neither_paired_interval_nor_test
+FAILED tests/unit/test_paired_statistical_report.py::test_sign_flip_p_value_is_invariant_to_units[1e-20]
+FAILED tests/unit/test_paired_statistical_report.py::test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null[a0-b0]
+FAILED tests/unit/test_paired_statistical_report.py::test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null[a1-b1]
+FAILED tests/unit/test_paired_statistical_report.py::test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null[a2-b2]
+FAILED tests/unit/test_paired_statistical_report.py::test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null[a3-b3]
+FAILED tests/unit/test_paired_statistical_report.py::test_invalid_pairs_are_not_broadcast_dropped_or_reported_as_null[a4-b4]
+FAILED tests/unit/test_paired_statistical_report.py::test_resampling_counts_are_positive_integers[0]
+FAILED tests/unit/test_paired_statistical_report.py::test_resampling_counts_are_positive_integers[-1]
+FAILED tests/unit/test_paired_statistical_report.py::test_resampling_counts_are_positive_integers[True]
+FAILED tests/unit/test_paired_statistical_report.py::test_resampling_counts_are_positive_integers[1.5]
+FAILED tests/unit/test_paired_statistical_report.py::test_confidence_is_a_finite_interior_probability[0]
+FAILED tests/unit/test_paired_statistical_report.py::test_confidence_is_a_finite_interior_probability[1]
+FAILED tests/unit/test_paired_statistical_report.py::test_confidence_is_a_finite_interior_probability[-0.1]
+FAILED tests/unit/test_paired_statistical_report.py::test_confidence_is_a_finite_interior_probability[True]
+FAILED tests/unit/test_paired_statistical_report.py::test_empty_seed_series_is_missing_evidence_not_zero_performance
+FAILED tests/unit/test_paired_statistical_report.py::test_undefined_standardized_effect_is_explicit
+FAILED tests/unit/test_paired_statistical_report.py::test_report_requires_more_than_one_independent_pair
+FAILED tests/unit/test_paired_statistical_report.py::test_finite_large_comparison_does_not_overflow_reductions
+FAILED tests/unit/test_paired_statistical_report.py::test_bootstrap_handles_extreme_opposite_values_without_overflow
+FAILED tests/unit/test_paired_statistical_report.py::test_seed_summary_scales_mean_and_standard_deviation
+FAILED tests/unit/test_paired_statistical_report.py::test_unrepresentable_sample_standard_deviation_is_rejected
+23 failed, 4 passed, 14 warnings in 4.91s
